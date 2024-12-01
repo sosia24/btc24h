@@ -31,9 +31,10 @@ function getProvider() {
   
 
 export async function preSalePrice(){
-    const provider = new ethers.JsonRpcProvider(RPC_POLYGON);
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
   
-    const get = new ethers.Contract(PRESALE_ADDRESS ? PRESALE_ADDRESS : "", presaleAbi, provider);
+    const get = new ethers.Contract(PRESALE_ADDRESS ? PRESALE_ADDRESS : "", presaleAbi, signer);
   
     const tx = await get.getCurrentPrice();
   
@@ -41,9 +42,10 @@ export async function preSalePrice(){
   }
   
   export async function totalSold(){
-    const provider = new ethers.JsonRpcProvider(RPC_POLYGON);
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
   
-    const get = new ethers.Contract(PRESALE_ADDRESS ? PRESALE_ADDRESS : "", presaleAbi, provider);
+    const get = new ethers.Contract(PRESALE_ADDRESS ? PRESALE_ADDRESS : "", presaleAbi, signer);
   
     const tx = await get.totalSharesSold();
   
