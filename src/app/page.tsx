@@ -30,6 +30,11 @@ const Home = () => {
           method: "eth_requestAccounts",
         });
         setAccount(accounts[0]);
+        getSharePrice();
+        getTotalSold();
+        hasQuote();
+        getAllowance();
+
       } catch (error) {
         console.error(error);
       }
