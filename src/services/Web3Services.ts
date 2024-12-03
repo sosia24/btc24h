@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 import presaleAbi from "./preSaleAbi.abi.json"
-import usdtAbi from "./usdtAbi.abi.json"
+import usdtAbi from "./Usdt.abi.json"
 
 const PRESALE_ADDRESS = process.env.NEXT_PUBLIC_PRESALE_ADDRESS;
 const RPC_POLYGON = process.env.NEXT_PUBLIC_RPC_POLYGON;
@@ -86,6 +86,8 @@ export async function preSalePrice(){
       usdtAbi,
       signer
     );
+
+
   
     const tx = await mint.approve(PRESALE_ADDRESS, value);
     await tx.wait();
