@@ -9,11 +9,12 @@ import { preSalePrice,
   approveShareUSDT,
   getAllowancePresale,
   buyShare,
+  doLogin
 
 } from "@/services/Web3Services";
 
 const Home = () => {
-  const [address, setAccount] = useState<string | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [alert, setAlert] = useState("");
@@ -29,7 +30,7 @@ const Home = () => {
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
-        setAccount(accounts[0]);
+        setAddress(accounts[0]);
         getSharePrice();
         getTotalSold();
         hasQuote();
@@ -40,6 +41,18 @@ const Home = () => {
       }
     } else {
       
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const novoEndereço = await doLogin();
+      setAddress(novoEndereço);
+      setAlert("Login bem-sucedido!");
+      setError("");
+    } catch (error) {
+      setError("Falha ao fazer login. Por favor, tente novamente.");
+      setAlert("");
     }
   };
 
@@ -247,7 +260,7 @@ async function hasQuote() {
                 </div>
               ) : (
                 <button
-                  onClick={connectWallet}
+                  onClick={handleLogin}
                   className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-500 text-lg font-bold py-2 px-4 rounded-md transition duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Connect Wallet
