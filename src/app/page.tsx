@@ -115,6 +115,7 @@ const Home = () => {
       }
     }catch(err){
       setLoading(false)
+      setError(`Algum erro ${address} value ${priceShare*(10**6)}`)
     }
     setLoading(false)
   }
