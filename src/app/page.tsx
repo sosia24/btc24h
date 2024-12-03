@@ -48,10 +48,10 @@ const Home = () => {
     try {
       const novoEndereço = await doLogin();
       setAddress(novoEndereço);
-      setAlert("Login bem-sucedido!");
+      setAlert("Login sucess");
       setError("");
     } catch (error) {
-      setError("Falha ao fazer login. Por favor, tente novamente.");
+      setError("Login Failed");
       setAlert("");
     }
   };
@@ -224,7 +224,7 @@ async function hasQuote() {
             {/* Botão de Compra */}
 
             {userHasShare?(
-            <p className="mt-[12px] sm:text-[18px] text-center text-[14px] justify-center m-auto items-center">Congratulations, your quota is now guaranteed.</p>
+            <p className="mt-[12px] sm:text-[18px] text-center text-[14px] justify-center m-auto items-center text-white">Congratulations, your quota is now guaranteed.</p>
           ):(
             <>
             {usdtAllowance >= priceShare?(
