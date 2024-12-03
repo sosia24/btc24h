@@ -27,8 +27,8 @@ export default function RootLayout({
     <html lang="en">
      
       <head>
-        <title>Eth-Aid</title>
-        <link rel="icon" href="/images/EthLogoPNG.png"/>
+        <title>BTC24h</title>
+        <link rel="icon" href="/images/BTC24h.png"/>
       </head>
       <body className="">
         <WalletProvider> {/* Envolva o conteúdo com o WalletProvider */}
