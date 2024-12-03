@@ -218,10 +218,10 @@ async function hasQuote() {
               <p className="text-gray-200  text-[12px] sm:text-[16px]">
                Each quota receives 
               </p>
-              <span className="flex flex-col text-white font-semibold text-[18px]">{Number(7000000/totalSharesSold).toFixed(2)}</span>
+              <span className="flex flex-col text-white font-semibold text-[18px]">{Number(110000/totalSharesSold).toFixed(2)}</span>
               <p>BTC24H</p>
             </div>
-            <p className="text-gray-200 flex flex-col text-[12px] mt-[5px]">100 000 / {totalSharesSold}</p>
+            <p className="text-gray-200 flex flex-col text-[12px] mt-[5px]">110 000 / {totalSharesSold}</p>
           </div>
 
             {/* Botão de Compra */}
