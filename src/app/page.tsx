@@ -209,8 +209,8 @@ async function hasQuote() {
             <p className="mt-[10px] text-[18px] sm:text-[24px] text-center font-semibold">
               {priceShare? priceShare : "..."}$
             </p>
-            <p className="mt-[10px] text-[18px] sm:text-[24px] text-center font-semibold">
-              {totalSharesSold? totalSharesSold : "..."}$
+            <p className="mt-[5px] text-[18px] sm:text-[24px] text-center font-semibold">
+              Shares: {totalSharesSold? totalSharesSold : "..."}
             </p>
             
             {/* New Section: Moedas Recebidas por Cota */}
