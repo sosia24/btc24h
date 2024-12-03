@@ -235,7 +235,7 @@ async function hasQuote() {
                onClick={buyQuota}
                className="w-full mb-[8px] bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-500 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 transform hover:scale-105 hover:shadow-lg"
                >
-               Buy Cota
+               Buy Share
                 </button>
             ):(
               <>
@@ -248,7 +248,7 @@ async function hasQuote() {
               <button
                 className="w-full mb-[8px] bg-gray-500 cursor-not-allowed text-white font-bold py-2 px-4 rounded-md shadow-md"
                 >
-              Buy Cota
+              Buy Share
               </button>
               </>
             )}
