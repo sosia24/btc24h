@@ -208,7 +208,7 @@ async function hasQuote() {
             <p className="md:text-[24px] font-semibold text-[20px]">Results PreSale</p>
             <p className="mt-[10px] text-[18px] sm:text-[24px] text-center font-semibold"></p>
             <p className="mt-[10px] text-[16px] sm:text-[20px] text-center font-semibold">Shares Sold: 73</p>
-            <p className="m-[10px]">Each share receive: <span className="text-orange-500">643.83 BTC24h</span></p>
+            <p className="m-[10px]">Each share receive: <span className="text-orange-500">1506.85 BTC24h</span></p>
             
           </div>
 
