@@ -385,10 +385,9 @@ export async function registerUser(newUser:string){
   );
 
   const tx  = (await user.createUser(newUser));
-  await tx.wait()
+  const receipet = await tx.wait()
 
-  const concluded = tx.wait();
-  return concluded;
+  return receipet;
 }
 
 export async function isActiveNft(owner:string,tokenId:number){
