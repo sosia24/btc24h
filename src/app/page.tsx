@@ -7,6 +7,7 @@ import { useWallet } from "@/services/walletContext";
 import Image from "next/image";
 import Link from "next/link"
 import RegisterModal from "@/componentes/RegisterModal";
+import { Suspense } from 'react';
 import { useSearchParams } from "next/navigation";
 export default function Home() {
   const { address, setAddress } = useWallet();
@@ -36,6 +37,8 @@ export default function Home() {
   };
 
   return (
+    
+    <Suspense fallback={<div>Carregando...</div>}>
     <main className="w-full h-screen flex justify-center items-center" >
       <div className="h-[80%] w-[70%] flex flex-col items-center lg:flex-row">
         <div className="w-[100%] lg:w-[50%] flex justify-center lg:order-2">
@@ -82,5 +85,6 @@ export default function Home() {
         </div>
       </div>
     </main>
+    </Suspense>
   );
 }
