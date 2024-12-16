@@ -89,9 +89,8 @@ export async function approveBTC24HDonation(value: string) {
   );
 
   const tx = await token.approve(DONATION_ADDRESS, ethers.parseUnits(value,"ether"));
-  await tx.wait();
 
-  const concluded = tx.wait();
+  const concluded = await tx.wait();
   return concluded;
 }
 export async function approveUsdtDonation(value: string) {
@@ -105,9 +104,7 @@ export async function approveUsdtDonation(value: string) {
   );
 
   const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6);
-  await tx.wait();
-
-  const concluded = tx.wait();
+  const concluded = await tx.wait();
   return concluded;
 }
 
