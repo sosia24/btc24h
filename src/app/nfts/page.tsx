@@ -143,9 +143,8 @@ function Page1(){
         try{
             if(address){
                     const result = await getAllowanceUsdt(address);
-                    if(result){
-                        setAllowanceUsdt(result);
-                    }
+                    console.log("approve: ", result);
+                    setAllowanceUsdt(result);
                 }
         }catch(error){
 
@@ -153,34 +152,33 @@ function Page1(){
     }
 
     async function buyNftFront(id: number, amount: number) {
-        await requireRegistration(() => {});
-      
-        setLoading(true);
-        try {
-          const result = await buyNft(id);
-      
-          // Verifica se result é válido (não null e contém informações)
-          getAllowanceUsdtFront()
-          if (result && result.status === 1) { // status 1 significa sucesso
-            setAlert("Nft purchased successfully");
-      
-            // Atualiza dados do usuário
-            await getAllowanceUsdtFront()
-            getIsApprovedNft()
-            getAllowanceUsdtFront();
-            getNftsUserFront();
-            getIsApprovedNft();
-            await fetch();
-          } else {
-            throw new Error("Transaction failed unexpectedly");
-          }
-        } catch (error) {
-          console.error("Erro na compra do NFT:", error); // Log detalhado
-          setError("Something went wrong, try again");
-        } finally {
-          setLoading(false);
+      await requireRegistration(() => {});
+    
+      setLoading(true);
+      try {
+        const result = await buyNft(id); // Executa a compra
+    
+        if (result && result.status === 1) { // status 1 significa sucesso
+          setAlert("NFT purchased successfully");
+    
+          // Aguarde a atualização do allowance após a compra
+          await getAllowanceUsdtFront(); 
+    
+          // Atualiza outras informações
+          await getIsApprovedNft();
+          await getNftsUserFront();
+          await fetch(); // Atualiza os dados gerais
+        } else {
+          throw new Error("Transaction failed unexpectedly");
         }
+      } catch (error) {
+        console.error("Erro na compra do NFT:", error); // Log detalhado
+        setError("Something went wrong, try again");
+      } finally {
+        setLoading(false);
       }
+    }
+    
       
 
       const handleActivateNFT = async (index: number, id: number) => {

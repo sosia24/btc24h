@@ -102,14 +102,17 @@ function Page1() {
 
   const handleCopyReferral = async () => {
     try {
-      if (address) await navigator.clipboard.writeText(address);
-      setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      if (address) {
+        const referralLink = `${window.location.origin}?ref=${address}`;
+        await navigator.clipboard.writeText(referralLink); // Copia o link para a área de transferência
+        setCopied(true);
+  
+        setTimeout(() => {
+          setCopied(false);
+        }, 2000);
+      }
     } catch (err) {
-      console.error("Failed to copy referral", err);
+      console.error("Failed to copy referral link", err);
     }
   };
 

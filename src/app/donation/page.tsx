@@ -26,12 +26,15 @@ function Donation() {
   const [totalBurned, setTotalBurned] = useState<bigint>(0n);
   const { requireRegistration } = useRegistered();
   const [show, setShow] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [user, setUser] = useState<UserDonation| null>(null);
 
+  const [isApproved, setIsApproved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [alert, setAlert] = useState("");
+  const [steps, setSteps] = useState<number>(0)
   const [donateWithUsdt, setDonateWithUsdt] = useState(false);
 
 
@@ -61,6 +64,7 @@ function Donation() {
   };
 
   const handleModalToggle = async () => {
+    setSteps(0);
     if (isModalOpen) {
       setShow(false);
       setTimeout(() => setIsModalOpen(false), 300); 
@@ -137,14 +141,17 @@ function Donation() {
       }
 
       try {
-        setLoading(true);
+        setIsProcessing(true);
         await donate(donationAmount, isUsdt);
         setAlert("Donation made successfully!");
+        setSteps(3);
+        setIsProcessing(false);
         setLoading(false);
         setDonationAmount("");
         await fetchData();
         handleModalToggle();
       } catch (error) {
+        setIsProcessing(false);
         setLoading(false);
         setError("Error: You need to Claim your last donate");
       }
@@ -161,34 +168,41 @@ function Donation() {
   
     return () => clearInterval(fetchPriceInterval);
   }, []);
+
+
   const handleApprove = async () => {
     if (!donationAmount || parseFloat(donationAmount) <= 0) {
       setError("Please enter a valid donation amount.");
       return;
     }
-    setLoading(true);
 
     if (donateWithUsdt) {
       try {
+        setIsProcessing(true);
         await approveUsdtDonation(donationAmount);
+        setSteps(2);
 
       } catch (error) {
-        setLoading(false);
+        setIsProcessing(false);
+
         setError("Error when performing approve. Please try again.");
       }
-
+      setIsProcessing(false);
     }else{
       try {
+        setIsProcessing(true);
         await approveBTC24HDonation(donationAmount);
-
+        setSteps(2);
+        setIsProcessing(false);
       } catch (error) {
         setLoading(false);
+        setIsProcessing(false);
         setError("Error when performing approve. Please try again.");
       }
     }
     await fetchData()
     setLoading(false);
-
+    setIsProcessing(false);
   };
   
   const handleClaim = async () => {
@@ -333,91 +347,175 @@ async function clearAlert(){
       <Footer />
 
       {isModalOpen && (
-        <div
-  className={`fixed inset-0 z-40 flex items-center text-[#474b4b] justify-center transition-opacity duration-200 ${
-    show ? "opacity-100" : "opacity-0"
-  }`}
->
-  {/* Overlay */}
-  <div
-    className={`absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity duration-200 ${
-      show ? "opacity-100" : "opacity-0"
-    }`}
-  ></div>
+  <div className="fixed inset-0 z-30 flex items-center justify-center">
+    {/* Overlay */}
+    <div
+      className="fixed inset-0 bg-black bg-opacity-60 transition-opacity duration-300"
+      onClick={handleClose}
+    ></div>
 
-  {/* Modal */}
-  <div
-    className={`bg-white w-[90%] p-8 rounded-lg shadow-lg max-w-md relative transform transition-transform duration-300 delay-100 ${
-      show ? "scale-100" : "scale-90"
-    }`}
-  >
-    <img
-      src="/images/newDonationBanner.png"
-      alt="new donation banner"
-      className="w-[105%] max-w-[10000%] absolute -left-4 -top-10"
-    />
-    <p className="my-4">
-      When you contribute, your tokens will be locked for 24 hours.
-    </p>
-    <p className="mb-4">
-    Balance:{" "}
-    {donateWithUsdt
-    ? (Number(balance) / 10 ** 6).toFixed(2)
-    : parseFloat(ethers.formatEther(balance)).toFixed(2)}{" "}
-    {donateWithUsdt ? "USDT" : "BTC24h"}
-    </p>
-    <p className="mb-4">
-      Allowance: {donateWithUsdt?Number(allowance)/10**6: ethers.formatEther(allowance)} {donateWithUsdt ? "USDT" :"BTC24h"}
-    </p>
-    <p className="mb-2">
-      The minimum allowed contribution is $10
-    </p>
-    <input
-      type="number"
-      className="text-[#9e9e9e] bg-[#ECEDED] border p-4 rounded-2xl focus:outline-0 mb-4 w-full focus:ring-2 focus:ring-[#00FF3D] transition-all duration-300"
-      placeholder="Insert donation value"
-      value={donationAmount}
-      onChange={(e) => setDonationAmount(e.target.value)}
-    />
-      <div className="flex items-center mb-4">
-    <label className="text-sm font-medium mr-2">
-      Donate with USDT
-    </label>
-    <input
-      type="checkbox"
-      className="w-5 h-5 text-[#00FF3D] focus:ring-[#00FF3D] rounded"
-      checked={donateWithUsdt}
-      onChange={(e) => setDonateWithUsdt(e.target.checked)}
-    />
-  </div>
-    <div className="flex justify-center w-full mt-5">
-      
-      {(donateWithUsdt?Number(donationAmount)/10**6:ethers.parseUnits(donationAmount || "0", "ether")) <= allowance ? (
-        <button
-          className="bg-[#00FF3D] px-4 py-2 rounded-lg text-black font-semibold mr-4 hover:bg-[#00D837] hover:scale-105 transition-all duration-300"
-          onClick={() => handleDonation(donateWithUsdt)}
-        >
-          Donate
-        </button>
-      ) : (
-        <button
-          className="bg-[#00FF3D] px-4 py-2 rounded-lg text-black font-semibold mr-4 hover:bg-[#00D837] hover:scale-105 transition-all duration-300"
-          onClick={handleApprove}
-        >
-          Approve
-        </button>
-      )}
+    {/* Modal */}
+    <div className="relative bg-white w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
+      {/* Close Button */}
       <button
-        className="bg-[#FF0001] px-4 py-2 rounded-lg text-white font-semibold hover:bg-[#D90001] hover:scale-105 transition-all duration-300"
+        className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition duration-200"
         onClick={handleClose}
       >
-        Close
+        <p className="text-lg font-bold">×</p>
       </button>
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800">Donate in Steps</h2>
+        <p className="text-gray-600 text-sm">
+          Follow the steps to complete your donation
+        </p>
+      </div>
+
+      {/* Steps Indicator */}
+      <div className="flex items-center justify-center mb-6">
+        <div
+          className={`h-1 w-8 ${
+            steps >= 1 ? "bg-green-500" : "bg-gray-300"
+          } rounded-full`}
+        ></div>
+        <p
+          className={`mx-2 text-sm ${
+            steps >= 1 ? "text-green-500" : "text-gray-400"
+          }`}
+        >
+          Step 1
+        </p>
+        <div
+          className={`h-1 w-8 ${
+            steps >= 2 ? "bg-green-500" : "bg-gray-300"
+          } rounded-full`}
+        ></div>
+        <p
+          className={`mx-2 text-sm ${
+            steps >= 2 ? "text-green-500" : "text-gray-400"
+          }`}
+        >
+          Step 2
+        </p>
+        <div
+          className={`h-1 w-8 ${
+            steps === 3 ? "bg-green-500" : "bg-gray-300"
+          } rounded-full`}
+        ></div>
+        <p
+          className={`ml-2 text-sm ${
+            steps === 3 ? "text-green-500" : "text-gray-400"
+          }`}
+        >
+          Success
+        </p>
+      </div>
+
+      {/* Step Content */}
+      <div className="text-center">
+        {steps === 0 && (
+          <div>
+            <p className="text-lg text-gray-800 mb-4">
+              Select your donation currency
+            </p>
+            <div className="flex justify-center mb-4">
+              <button
+                onClick={() => {
+                  setDonateWithUsdt(true);
+                  setSteps(1);
+                }}
+                className={`px-4 py-2 rounded-lg mr-4 ${
+                  donateWithUsdt
+                    ? "bg-gray-200 text-black hover:border-2 border-green-400"
+                    : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
+                }`}
+              >
+                USDT
+              </button>
+              <button
+                onClick={() => {
+                  setDonateWithUsdt(false);
+                  setSteps(1);
+                }}
+                className={`px-4 py-2 rounded-lg ${
+                  !donateWithUsdt
+                    ? "bg-gray-200 text-black hover:border-2 border-green-400"
+                    : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
+                }`}
+              >
+                BTC24h
+              </button>
+            </div>
+          </div>
+        )}
+        {steps === 1 && (
+          <div>
+            <p className="text-lg text-gray-800 mb-4">
+              Approve token transfers
+            </p>
+            <p className="text-[green]">The minimun to contribute is 10$</p>
+            <input
+              type="number"
+              value={donationAmount}
+              onChange={(e) => setDonationAmount(e.target.value)}
+              placeholder="Enter amount to approve"
+              className="mb-4 p-2 w-full border rounded-lg text-gray-800"
+              min="1"
+            />
+            {isProcessing && (
+              <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+            )}
+            <button
+              onClick={handleApprove}
+              className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+              disabled={isProcessing || !donationAmount}
+            >
+              {isProcessing ? "Processing..." : `Approve ${donationAmount || ""}`}
+            </button>
+          </div>
+        )}
+        {steps === 2 && (
+          <div>
+            <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
+            {isProcessing && (
+              <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+            )}
+            <button
+              onClick={() => handleDonation(donateWithUsdt)}
+              className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : `Donate ${donationAmount}`}
+            </button>
+          </div>
+        )}
+        {steps === 3 && (
+          <div>
+            <p className="text-lg text-green-500 mb-4">
+              Donation successful! Thank you!
+            </p>
+            <svg
+              className="w-12 h-12 text-green-500 mx-auto"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M10.293 16.293a1 1 0 011.414 0l7-7a1 1 0 00-1.414-1.414L11 14.586l-3.293-3.293a1 1 0 00-1.414 1.414l4 4z" />
+            </svg>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <p className="text-center text-sm text-gray-500 mt-6">
+        {steps < 3 && "Complete all steps to finalize your donation"}
+      </p>
     </div>
   </div>
-</div>
+)}
 
-      )}
+
 
 
     </>

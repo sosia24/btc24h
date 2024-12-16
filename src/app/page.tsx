@@ -7,9 +7,19 @@ import { useWallet } from "@/services/walletContext";
 import Image from "next/image";
 import Link from "next/link"
 import RegisterModal from "@/componentes/RegisterModal";
+import { useSearchParams } from "next/navigation";
 export default function Home() {
   const { address, setAddress } = useWallet();
     const [showModal, setShowModal] = useState(false);
+    const searchParams = useSearchParams();
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+    useEffect(() => {
+      const referral = searchParams.get("ref");
+      if (referral) {
+        setShowRegisterModal(true); // Abre o modal automaticamente
+      }
+    }, [searchParams]);
   
   useEffect(() => {
     if (address) {
