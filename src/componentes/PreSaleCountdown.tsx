@@ -4,7 +4,7 @@ const PreSaleCountdown = () => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
   useEffect(() => {
-    const targetDate = new Date('2024-12-16T00:00:00Z').getTime(); // Data de término da pré-venda
+    const targetDate = new Date('2024-12-16T01:00:00Z').getTime(); // Data de término da pré-venda
     const interval = setInterval(() => {
       const currentTime = new Date().getTime();
       const remainingTime = targetDate - currentTime;
