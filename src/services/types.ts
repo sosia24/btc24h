@@ -1,3 +1,6 @@
+
+/*
+AQUI VAI AS ESTRUTURAS DE DADOS
 export type nftQueue = {
     user:string,
     next:bigint,
@@ -7,8 +10,17 @@ export type nftQueue = {
     dollarsClaimed:bigint,
     nextPaied: boolean,
 }
+*/
+export type UserDonation = {
+    balance:bigint,
+    startedTimestamp:bigint,
+    totalClaimed:bigint,
+    totalDonated:bigint,
+    maxUnilevel:bigint,
+    unilevelReached:bigint,
+}
 
-export type blockData = {
+export type queueData = {
     user:string,
     index:bigint,
     batchLevel:bigint,

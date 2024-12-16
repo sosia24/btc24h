@@ -9,19 +9,15 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 
-input[type="number"] {
-  -moz-appearance: textfield; /* Remove setas no Firefox */
+* {
+  box-sizing: border-box;
 }
 
 
-/* Barra de rolagem em Webkit (Chrome, Safari, Edge) */
-
-@font-face {
-  font-family: "Agency";
-  src: url("/fonts/Agency.ttf") format("truetype");
-  font-weight: thin;
-  font-style: thin;
+/*@font-face {
+  fontes aqui
 }
+  */
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -38,40 +34,54 @@ input[type="number"] {
 }
 /* globals.css ou outro arquivo CSS global */
 body{
-  color: black;
+  color: white;
 }
 
-@keyframes gradient-xy {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
-.animate-gradient-xy {
-  background-size: 200% 200%;
-  animation: gradient-xy 10s ease infinite;
+
+.slick-slide {
+  display: flex !important; /* Garante que os slides sejam flexíveis */
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-@keyframes gradientBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.slick-list {
+  overflow: hidden; /* Evita overflow do conteúdo */
 }
 
-.animate-gradientBG {
-  background: linear-gradient(45deg, #004b19, #00401e, #294218, #005c31);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+.slick-track {
+  display: flex !important; /* Garante que os slides se alinhem corretamente */
+}
+
+.carousel-slide {
+  padding: 16px;
+  margin: auto;
+  width: 90%; /* Garante que o slider não extrapole a largura */
+  max-width: 300px; /* Limita a largura máxima para telas menores */
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+
+.custom-prev-arrow, .custom-next-arrow {
+  background: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  border-radius: 50%; /* Formato arredondado */
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white; /* Cor da seta */
+  cursor: pointer;
+}
+
+.custom-prev-arrow:hover, .custom-next-arrow:hover {
+  background: rgba(0, 0, 0, 0.8); /* Fundo mais escuro ao passar o mouse */
 }

@@ -10,32 +10,27 @@ const config: Config = {
     extend: {
       screens: {
         // Alterar o valor do breakpoint 'md'
-        'lg': '1200px',
+        lg: "1200px",
 
         // Adicionar um breakpoint personalizado chamado 'xl2'
-        'xl2': '1400px',
+        xl2: "1400px",
+        sm: { max: "768px" },
+        sm2: { max: "510px" },
+        sm3: { max: "330px" },
+
+        md: { max: "1024px" },
+
       },
       fontFamily: {
-        Agency: ['Agency', 'sans-serif'],
+        Agency: ["Agency", "sans-serif"],
       },
-      keyframes:{
-        slideDown: {
-          '0%': {
-            opacity: '0',
-          },
-          '100%': {
-            opacity: '1',
-          },
-        },
-        marquee: {
-          '0%': { transform: 'translateX(0%)' },
-          '100%': { transform: 'translateX(-100%)' },
-        }
+      animation: {
+      },
+      keyframes: {
       },
     },
   },
-  
   plugins: [],
-  
 };
+
 export default config;
