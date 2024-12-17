@@ -76,8 +76,7 @@ export async function approveUSDT(value: Number) {
   const tx = await mint.approve(COLLECTION_ADDRESS, value);
   await tx.wait();
 
-  const concluded = tx.wait();
-  return concluded;
+  return tx;
 }
 
 export async function approveBTC24HDonation(value: string) {
@@ -92,8 +91,8 @@ export async function approveBTC24HDonation(value: string) {
 
   const tx = await token.approve(DONATION_ADDRESS, ethers.parseUnits(value,"ether"));
 
-  const concluded = await tx.wait();
-  return concluded;
+  await tx.wait();
+  return tx;
 }
 export async function approveUsdtDonation(value: string) {
   const provider = await getProvider();
@@ -106,8 +105,8 @@ export async function approveUsdtDonation(value: string) {
   );
 
   const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6);
-  const concluded = await tx.wait();
-  return concluded;
+  await tx.wait();
+  return tx;
 }
 
 
@@ -219,12 +218,10 @@ export async function claim(){
   
   try {
     const tx = await donation.claimDonation();
-    console.log("Transaction hash:", tx.hash);
   
-    const concluded = await tx.wait();
-    console.log("Transaction receipt after wait:", concluded);
+    await tx.wait();
   
-    return concluded;
+    return tx;
   } catch (error) {
     console.error("Error during claim process:", error);
     throw error; // Certifique-se de que o erro seja capturado no chamador
