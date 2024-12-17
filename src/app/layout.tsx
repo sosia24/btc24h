@@ -52,7 +52,7 @@ export default function RootLayout({
             className={montserrat.className}
           >
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
-              <button className="w-[350px] bg-white p-6 rounded-2xl mt-[50px] text-center font-bold text-black text-[30px]">!!! STATEMENT !!!</button>
+              <button className="max-w-[350px] w-[92%] bg-white p-6 rounded-2xl mt-[50px] text-center font-bold text-black text-[30px]">!!! STATEMENT !!!</button>
                 <div className="mt-[40px] rounded-2xl w-[60%] sm:w-[90%] flex-col bg-white p-10 text-black flex justify-center ">
                 <p className="text-[50px]">
                 Statement
