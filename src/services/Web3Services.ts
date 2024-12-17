@@ -574,7 +574,6 @@ export async function getTokensToWithdraw(owner: string) {
     };
   }
 }
-
 export async function withdrawTokens() {
   try {
     const provider = await getProvider();
@@ -587,10 +586,27 @@ export async function withdrawTokens() {
     );
 
     const tx = await queue.withdrawTokens();
-    const concluded = await tx.wait(); // Aguarda a confirmação da transação
-    return concluded; // Retorna a conclusão em caso de sucesso
+    console.log("Transação enviada. Hash:", tx.hash);
+
+    // Aguarda a confirmação
+    const receipt = await tx.wait();
+
+    if (receipt.status === 1) {
+      // Sucesso
+      return {
+        success: true,
+        message: "Tokens successfully withdrawn!",
+        transactionHash: tx.hash,
+      };
+    } else {
+      // Transação falhou
+      return {
+        success: false,
+        errorMessage: "Transaction failed on the blockchain.",
+      };
+    }
   } catch (error: any) {
-    // Retorna a mensagem de erro
+    console.error("Erro ao executar withdrawTokens:", error);
     return {
       success: false,
       errorMessage: error?.reason || error?.message || "Unknown error occurred",

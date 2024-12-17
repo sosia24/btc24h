@@ -6,6 +6,7 @@ import "./globals.css";
 import "flag-icons/css/flag-icons.min.css";
 import { RegisterProvider } from "@/services/RegistrationContext";
 import { useState } from "react";
+import { Analytics } from "@vercel/analytics/react"
 
 const montserrat = Montserrat({
   subsets: ['latin'], // Inclui os caracteres necessários
@@ -23,6 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+
     <html lang="en" className={montserrat.className}>
       <head>
       <link rel="icon" type="image/png" href="images/logo.png" />
@@ -51,6 +53,7 @@ export default function RootLayout({
             style={{ width: "1600px", zIndex: 1 }}
             className={montserrat.className}
           >
+                <Analytics></Analytics>
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
             
               {children}

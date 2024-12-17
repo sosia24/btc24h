@@ -16,6 +16,7 @@ import {
         setApprovalForAll,
         getTokensToWithdraw,
         coinPrice,
+        withdrawTokens,
  } from "@/services/Web3Services";
 import { queueData } from '@/services/types';
 import { CustomArrowProps } from 'react-slick';
@@ -373,6 +374,22 @@ function Page1() {
             setReadyToPaidGold(count);
         }
     }
+
+
+    const handleWithdraw = async () => {
+        setLoading(true);
+        setAlert(""); // Limpa mensagens anteriores
+      
+        const result = await withdrawTokens();
+      
+        if (result.success) {
+          setAlert("Sucess");
+        } else {
+          setError(result.errorMessage);
+        }
+      
+        setLoading(false);
+      };
       /* -------------- FIM DA VERIFICACAO ------------ */
     
       async function clearError(){
@@ -638,7 +655,19 @@ function Page1() {
                             </Slider>
                         </div>
                     </div>
+                    <div className='w-[96%]  bg-white bg-opacity-5 flex items-center p-6 flex-col'>
+                        <p className='text-3xl font-bold'>You have to withdraw: </p>
+                        <p>When your nft's generate rewards, you can see them here</p>
+                        <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw? tokensToWithdraw : ' 0'} BTC24H</p>
+                        {tokensToWithdraw >= 0?(
+                            <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+                        ):(
+                            <button className='text-black cursor-not-allowed bg-gray-400 font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl'>Claim</button>
+                        )}
+                        
+                    </div>
                 </div>
+
             </div>
             {
                 tokensToWithdraw>0 ?             <ModalTokensToWithdraw tokens={tokensToWithdraw}></ModalTokensToWithdraw>
