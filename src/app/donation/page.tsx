@@ -313,7 +313,7 @@ async function clearAlert(){
               <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
                 <h1 className="text-4xl font-semibold">Claim <span className="text-[#FAE201]">Rewards</span></h1>
-                <p>USDT Donated:</p>
+                <p>USDT Estimated:</p>
                 <div className="flex items-center">
                 <div>
 
