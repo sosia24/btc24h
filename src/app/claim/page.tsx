@@ -123,15 +123,21 @@ console.log(address)
                   <div className="text-[#00FF3D] text-4xl md:text-[22px] py-10 flex flex-col justify-between">
                     {/* Exibindo valores com verificações */}
                     <h1 className="mt-2">
-                    {balances[0] ? (Number(balances[0]) / 10 ** 18).toFixed(4) : "Loading..."} BTC24H
+                        {balances[0] !== undefined && balances[0] !== null
+                        ? (Number(balances[0]) / 10 ** 18).toFixed(4)
+                        : "Loading..."} BTC24H
                     </h1>
                     <h1 className="mt-2">
-                    {balances[1] ? (Number(balances[1]) / 10 ** 6).toFixed(2) : "Loading..."} USDT
+                        {balances[1] !== undefined && balances[1] !== null
+                        ? (Number(balances[1]) / 10 ** 6).toFixed(2)
+                        : "Loading..."} USDT
                     </h1>
                     <h1 className="mt-2">
-                    {balances[2] ? (Number(balances[2]) / 10 ** 8).toFixed(8) : "Loading..."} WBTC
+                        {balances[2] !== undefined && balances[2] !== null
+                        ? (Number(balances[2]) / 10 ** 8).toFixed(8)
+                        : "Loading..."} WBTC
                     </h1>
-                </div>
+                    </div>
                   <button
                   onClick={doClaim}
                     className="py-4 rounded-3xl w-2/3 text-black bg-[#00FF3D] hover:bg-[#00cc32] transition duration-300 scale-100 hover:scale-105 mt-6 font-semibold text-2xl"
