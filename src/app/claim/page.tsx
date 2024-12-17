@@ -63,6 +63,7 @@ async function verifyValues(){
   
       if (result.success) {
         setAlert("Claim successful");
+        verifyValues();
       } else {
         setError(result.errorMessage || "Try again");
       }
