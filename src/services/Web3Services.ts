@@ -7,6 +7,7 @@ import oracleAbi from "./abis/oracle.abi.json";
 import collectionAbi from "./abis/collection.abi.json";
 import { UserDonation } from "./types";
 import queueAbi from "./abis/queue.abi.json";
+import paymentManagerAbi from "./abis/payment.manager.abi.json"
 
 import {queueData} from "./types"
 
@@ -19,6 +20,7 @@ const ORACLE_ADDRESS= process.env.NEXT_PUBLIC_ORACLE;
 const USER_ADDRESS= process.env.NEXT_PUBLIC_USER;
 const QUEUE_ADDRESS = process.env.NEXT_PUBLIC_QUEUE;
 const RPC_ADDRESS = process.env.NEXT_PUBLIC_RPC
+const PAYMENT_MANAGER = process.env.NEXT_PUBLIC_PAYMENT_MANAGER
 
 
 /*------------ CONNECT WALLET --------------*/
@@ -656,4 +658,53 @@ export async function getTreeUsers(address:string){
   const users = await usdt.getUser(address)
   return users;
 
+}
+
+
+/* ---------------- PAYMENT MANAGER -------------- */
+
+export async function verifyPercentage(address:String){
+  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+
+  const connect = new ethers.Contract(PAYMENT_MANAGER ? PAYMENT_MANAGER : "", paymentManagerAbi, provider);
+
+  const verify = await connect.recipientsPercentage(address); 
+  return verify;
+}
+
+export async function verifyBalance(address:String){
+  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+
+  const connect = new ethers.Contract(PAYMENT_MANAGER ? PAYMENT_MANAGER : "", paymentManagerAbi, provider);
+
+  const verify = await connect.getUserBalance(address); 
+  return verify;
+}
+
+
+export async function claimPaymentManager() {
+  try {
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const queue = new ethers.Contract(
+      PAYMENT_MANAGER || "",
+      paymentManagerAbi,
+      signer
+    );
+
+    // Envia a transação
+    const tx = await queue.claim();
+
+    // Aguarda a confirmação
+    await tx.wait();
+
+    // Retorna sucesso
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+    };
+  }
 }

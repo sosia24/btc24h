@@ -6,13 +6,27 @@ import Image from "next/image";
 import Link from "next/link";
 import RegisterModal from "@/componentes/RegisterModal";
 import { useSearchParams } from "next/navigation";
-import { doLogin } from "@/services/Web3Services";
+import { doLogin, verifyPercentage } from "@/services/Web3Services";
 
 function HomeContent() {
   const { address, setAddress } = useWallet();
   const [showModal, setShowModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const searchParams = useSearchParams();
+  const [socio, setSocio] = useState<boolean>(false)
+
+  async function verifySocio(){
+    try{
+      if(address){
+        const result = await verifyPercentage(address)
+        if(result > 0 && result != undefined && result != null){
+          setSocio(true)
+        }
+      }
+    }catch(error){
+
+    }
+  }
 
   useEffect(() => {
     const referral = searchParams.get("ref");
@@ -21,11 +35,14 @@ function HomeContent() {
     }
   }, [searchParams]);
 
+
   useEffect(() => {
     if (address) {
       setShowModal(true);
     }
+    verifySocio();
   }, [address]);
+
 
   const handleLogin = async () => {
     try {
@@ -35,6 +52,7 @@ function HomeContent() {
       console.error("Login failed", err);
     }
   };
+  
 
   return (
 
@@ -72,11 +90,22 @@ function HomeContent() {
           Enter
         </Link>
         <Link
-          className="p-2 w-[300px] text-center lg:mb-0 mb-[100px] bg-[#08ff65] rounded-3xl mt-[10px] text-black hover:bg-[#08ff67d3]"
+          className="p-2 w-[300px] text-center lg:mb-0 bg-[#08ff65] rounded-3xl mt-[10px] text-black hover:bg-[#08ff67d3]"
           href="/preSale"
         >
           Presale
         </Link>
+        {socio?(
+          <Link
+          className="p-2 w-[300px] text-center lg:mb-0 mb-[100px] border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:bg-[#08ff672d]"
+          href="/claim"
+        >
+          Claim
+        </Link>
+        ):(
+          ""
+        )}
+        
         {showModal ? <RegisterModal /> : ""}
       </div>
     </div>
