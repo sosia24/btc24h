@@ -14,7 +14,7 @@ export default function RegisterModal() {
   const { address: walletAddress } = useWallet();
   const { setIsRegisteredV } = useRegistered();
 
-  const [isOpen, setIsOpen] = useState(true); // Controle de abertura do modal
+  const [isOpen, setIsOpen] = useState(false); // Controle de abertura do modal
   const [isRegisteredUser, setIsRegisteredUser] = useState(false); // Verifica se o usuário já está registrado
   const [referralAddress, setReferralAddress] = useState(""); // Endereço de referência
   const [loading, setLoading] = useState(false); // Indicador de carregamento
@@ -28,6 +28,8 @@ export default function RegisterModal() {
         setIsRegisteredUser(result);
         if (result) {
           setIsOpen(false); // Fecha o modal se o usuário já estiver registrado
+        }else{
+          setIsOpen(true);
         }
       });
     }

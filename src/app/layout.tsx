@@ -52,45 +52,29 @@ export default function RootLayout({
             className={montserrat.className}
           >
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
-              <button className="w-[350px] bg-orange-400 p-6 rounded-2xl mt-[50px] text-center font-bold text-black text-[30px] hover:bg-orange-500">!!! STATEMENT !!!</button>
-                <div className="mt-[40px] rounded-2xl w-[60%] sm:w-[90%] flex-col text-center bg-orange-400 p-10 flex justify-center ">
+              <button className="w-[350px] bg-white p-6 rounded-2xl mt-[50px] text-center font-bold text-black text-[30px]">!!! STATEMENT !!!</button>
+                <div className="mt-[40px] rounded-2xl w-[60%] sm:w-[90%] flex-col bg-white p-10 text-black flex justify-center ">
                 <p className="text-[50px]">
                 Statement
                 </p>
-                <p>
-                <span className="font-bold text-black text-[20px]">*Special Announcement - BTC 24H*</span><br/>
+                <span className="font-bold">Important Announcement for Our Community</span><br></br>
 
-                Dear BTC 24H Ecosystem Users,<br/>
+                Dear Community Members,<br></br>
 
-                Our revolutionary ecosystem, developed by renowned smart contract and blockchain experts, has always been strongly committed to innovation and security for our members. However, on *December 16th*, we faced an unexpected situation that required our immediate attention.<br/>
+                In response to the incident that occurred in the system on December 16, 2024, our team has made a strategic decision to further strengthen the security and trust in our platform.<br></br><br></br>
 
-                <span className="font-bold text-black text-[20px]">*Transparency and Security*</span><br></br>
+                We have conducted the burn of <span className="font-bold">94,934.55 tokens</span> from the Genesis Wallet (Initial Liquidity Pool). This process has been documented and can be verified through the following Hash ID:<br></br><br></br>
+                <a href="https://polygonscan.com/tx/0xbe58635ccbfd89202dbae1df2ea69667a40202eb9b6286decf2654d4112410e9" className="text-blue-500">0xbe58635ccbfd89202dbae1df2ea69667a40202eb9b6286decf2654d4112410e9</a>
 
-                - All contracts are open and verifiable.<br></br>
-                - All liquidity POOLs are strengthened and locked eternally.<br></br>
+                This action was taken with the goal of preventing future issues and protecting the interests of all members of our community.<br></br><br></br>
 
-                <span className="font-bold text-black text-[20px]">*Technical Incident*</span><br></br>
+                With this measure, we reaffirm our commitment to providing a platform that is increasingly secure, reliable, and transparent for all our users.<br/><br></br>
 
-                Due to a <span className="font-bold text-black">*technical system failure*</span>, hackers managed to breach the payment wallet designed exclusively for our members. These were the only coins that would go to the market, and even then, in a staggered manner. Exploiting this vulnerability, they manipulated the payment schedule, forcing the system to release all payments at once. This allowed them to withdraw the coins and liquidate them on the market.<br></br>
+                We appreciate your understanding and continued trust in our work. We remain dedicated to continuously improving our technology and processes to meet your expectations.<br></br><br></br>
 
-                <span className="font-bold text-black text-[20px]">*Measures Taken*</span><br></br>
-
-                In response to this challenge, we *reinforced our technical team*, bringing in high-level blockchain specialists to implement robust solutions and ensure the security of our ecosystem in the future.<br></br>
-
-                <span className="font-bold text-black text-[20px]">*Commitment to Transparency and Trust Recovery*</span><br></br>
-
-                As part of our commitment to transparency and to regaining the trust of all involved, BTC 24H has decided to:<br></br>
-                - Grant *5 NFTs worth $100 each* to every member who trusted and purchased their share.<br></br>
-                - These NFTs have the *potential to triple the initial investment* when redeemed.<br></br>
-
-                We reaffirm our dedication to our members and ensure that, despite this incident, *the BTC 24H ecosystem is stronger, more secure, and better prepared for the future*.<br></br>
-
-                We appreciate your understanding and trust. Together, we continue our journey of innovation and transformation.<br></br>
-
-                <span className="font-bold text-[20px] text-black ">Sincerely,  
-                *The BTC 24H Team*</span>
-                </p>
-              </div>
+                Sincerely,<br></br>
+                <span className="font-bold">The Platform Development BTC24H Team.</span>
+                </div>
 
             
               {children}
