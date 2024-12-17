@@ -659,7 +659,7 @@ function Page1() {
                         <p className='text-3xl font-bold'>You have to withdraw: </p>
                         <p>When your nft's generate rewards, you can see them here</p>
                         <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw? tokensToWithdraw : ' 0'} BTC24H</p>
-                        {tokensToWithdraw >= 0?(
+                        {tokensToWithdraw > 0?(
                             <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
                         ):(
                             <button className='text-black cursor-not-allowed bg-gray-400 font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl'>Claim</button>
