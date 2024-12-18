@@ -538,51 +538,6 @@ async function clearAlert(){
   </div>
 )}
 
-
-        {steps === 1 && (
-          <div>
-            <p className="text-lg text-gray-800 mb-4">
-              Approve token transfers
-            </p>
-            <p className="mb-4 text-black">
-            Allowance: {donateWithUsdt?Number(allowance)/10**6: ethers.formatEther(allowance)} {donateWithUsdt ? "USDT" :"BTC24h"}
-            </p>
-            <p className="text-[green]">The minimun to contribute is 10$</p>
-            <input
-              type="number"
-              value={donationAmount}
-              onChange={(e) => setDonationAmount(e.target.value)}
-              placeholder="Enter amount to approve"
-              className="mb-4 p-2 w-full border rounded-lg text-gray-800"
-              min="1"
-            />
-            {isProcessing && (
-              <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
-            )}
-            <button
-              onClick={handleApprove}
-              className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-              disabled={isProcessing || !donationAmount}
-            >
-              {isProcessing ? "Processing..." : `Approve ${donationAmount || ""}`}
-            </button>
-          </div>
-        )}
-        {steps === 2 && (
-          <div>
-            <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
-            {isProcessing && (
-              <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
-            )}
-            <button
-              onClick={() => handleDonation(donateWithUsdt)}
-              className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-              disabled={isProcessing}
-            >
-              {isProcessing ? "Processing..." : `Donate ${donationAmount}`}
-            </button>
-          </div>
-        )}
         {steps === 3 && (
           <div>
             <p className="text-lg text-green-500 mb-4">
