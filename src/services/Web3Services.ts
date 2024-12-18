@@ -131,7 +131,7 @@ export async function getAllowanceUsdt(
   address: string,
   maxRetries = 5, // Número máximo de tentativas
   delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
-): Promise<ethers.BigNumberish> {
+) {
   let retries = 0;
 
   while (retries < maxRetries) {
@@ -147,7 +147,7 @@ export async function getAllowanceUsdt(
       );
 
       // Obtém o allowance
-      const allowance = await mint.allowance(address, COLLECTION_ADDRESS);
+      const allowance : bigint = await mint.allowance(address, COLLECTION_ADDRESS);
 
       // Retorna o valor caso a chamada tenha sucesso
       if (allowance !== undefined) {
@@ -199,7 +199,7 @@ export async function getNftsUser(address: string, value: number, maxRetries = 3
 
 
 
-export async function buyNft(id: number) {
+export async function buyNft(id: number,quantity:number) {
   const provider = await getProvider();
   const signer = await provider.getSigner();
 
@@ -211,7 +211,7 @@ export async function buyNft(id: number) {
 
   try {
     // Envia a transação
-    const tx = await buy.mint(id, 1);
+    const tx = await buy.mint(id, quantity);
 
     let concluded;
 

@@ -25,13 +25,14 @@ function Page1(){
     const { address, setAddress } = useWallet();
     const [error, setError] = useState("");
     const [alert, setAlert] = useState("");
-    const [allowanceUsdt, setAllowanceUsdt] = useState(0);
+    const [allowanceUsdt, setAllowanceUsdt] = useState<bigint>(0n);
     const [bronze, setBronze] = useState<number>(0);
     const [silver, setSilver] = useState<number>(0);
     const [gold, setGold] = useState<number>(0);
     const [isActive, setIsActive] = useState<boolean[]>([false,false,false]);
     const [timeUntil, setTimeUntil] = useState<bigint[]>([0n,0n,0n]);
-    
+    const [quantity, setQuantity] = useState<number[]>([1,1,1]);
+
     const [isApprovedNftV, setIsApprovedNftV] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const { requireRegistration } = useRegistered();
@@ -144,20 +145,21 @@ function Page1(){
         try{
             if(address){
                     const result = await getAllowanceUsdt(address);
-                    console.log("approve: ", result);
-                    setAllowanceUsdt(Number(ethers.formatUnits(result, 18))); 
+  
+                    
+                    setAllowanceUsdt(result); 
                 }
         }catch(error){
 
         }
     }
 
-    async function buyNftFront(id: number, amount: number) {
+    async function buyNftFront(id: number) {
       await requireRegistration(() => {});
-    
+
       setLoading(true);
       try {
-        const result = await buyNft(id); // Executa a compra
+        const result = await buyNft(id,quantity[id-1]); // Executa a compra
     
         if (result && result.status === 1) { // status 1 significa sucesso
           setAlert("NFT purchased successfully");
@@ -211,7 +213,14 @@ function Page1(){
         getIsActiveStatus();
         getIsApprovedNft();
         getTimeUntilStatus()
+        
+      {
+
+        
+        
+      }
     }
+    
     useEffect(() => {
         fetch()
     }, [address]);
@@ -257,16 +266,61 @@ function Page1(){
         <div className="w-[80%] bg-green-500 rounded-2xl bg-opacity-10 flex flex-col items-center justify-center p-2">
           <div className="flex flex-row items-center justify-center">
             <p>$</p>
-            <p className="font-bold text-[4vh] lg:text-[45px]">50</p>
+            <p className="font-bold text-[4vh] lg:text-[45px]">{String(50*quantity[1])}</p>
           </div>
           <p className="flex bottom-0 mt-[-10px] text-center lg:text-right">
             Win <span className="text-[#f6d600] ml-[5px]"> 2.5x</span>
           </p>
         </div>
-        {allowanceUsdt >= 50000000 ? (
+        <div className="flex flex-col text-center">
+          <p>Quantity</p>
+          <div className="flex items-center">
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-l-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[1] = Math.max(1, updated[1] - 1); // Decrementa mas garante que não fique abaixo de 1
+        return updated;
+      });
+    }}
+  >
+    -
+  </button>
+  <input
+    type="number"
+    value={quantity[1]}
+    className="border rounded-md w-[100px] p-2 text-center text-black focus:outline-none"
+    onChange={(e) => {
+      const newValue = parseInt(e.target.value, 10); // Obtém o valor do input
+      setQuantity((prev) => {
+        const updated = [...prev]; // Cria uma cópia do array atual
+        updated[1] = newValue || 1; // Atualiza a posição 1 com o novo valor
+        return updated; // Retorna o novo array para atualizar o estado
+      });
+    }}
+  />
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-r-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[1] = updated[1] + 1; // Incrementa o valor
+        return updated;
+      });
+    }}
+  >
+    +
+  </button>
+</div>
+
+        </div>
+
+
+        {allowanceUsdt >= 50000000 * quantity[1] ? (
           <button
             onClick={async () => {
-              buyNftFront(2, 1);
+              buyNftFront(2);
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
           >
@@ -275,7 +329,7 @@ function Page1(){
         ) : (
           <button
             onClick={async () => {
-              doApproveUsdt(50000000);
+              doApproveUsdt(50000000*quantity[1]);
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#ffea00]"
           >
@@ -302,16 +356,59 @@ function Page1(){
         <div className="w-[80%] bg-green-500 rounded-2xl bg-opacity-10 flex flex-col items-center justify-center p-2">
           <div className="flex flex-row items-center justify-center">
             <p>$</p>
-            <p className="font-bold text-[4vh] lg:text-[45px]">100</p>
+            <p className="font-bold text-[4vh] lg:text-[45px]">{String(100*quantity[2])}</p>
           </div>
           <p className="flex bottom-0 mt-[-10px] text-center lg:text-right">
             Win <span className="text-[#f6d600] ml-[5px]"> 3.0x</span>
           </p>
         </div>
-        {allowanceUsdt >= 100000000 ? (
+        <div className="flex flex-col text-center">
+          <p>Quantity</p>
+          <div className="flex items-center">
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-l-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[2] = Math.max(1, updated[2] - 1); // Decrementa mas garante que não fique abaixo de 1
+        return updated;
+      });
+    }}
+  >
+    -
+  </button>
+  <input
+    type="number"
+    value={quantity[2]}
+    className="border rounded-md w-[100px] p-2 text-center text-black focus:outline-none"
+    onChange={(e) => {
+      const newValue = parseInt(e.target.value, 10); // Obtém o valor do input
+      setQuantity((prev) => {
+        const updated = [...prev]; // Cria uma cópia do array atual
+        updated[2] = newValue || 1; // Atualiza a posição 1 com o novo valor
+        return updated; // Retorna o novo array para atualizar o estado
+      });
+    }}
+  />
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-r-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[2] = updated[2] + 1; // Incrementa o valor
+        return updated;
+      });
+    }}
+  >
+    +
+  </button>
+</div>
+
+        </div>
+        {allowanceUsdt >= 100000000 *quantity[2]? (
           <button
             onClick={async () => {
-              buyNftFront(3, 1);
+              buyNftFront(3);
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
           >
@@ -320,7 +417,7 @@ function Page1(){
         ) : (
           <button
             onClick={async () => {
-              doApproveUsdt(100000000);
+              doApproveUsdt(100000000*quantity[2]);
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#ffea00]"
           >
@@ -347,16 +444,59 @@ function Page1(){
         <div className="w-[80%] bg-green-500 rounded-2xl bg-opacity-10 flex flex-col items-center justify-center p-2">
           <div className="flex flex-row items-center justify-center">
             <p>$</p>
-            <p className="font-bold text-[4vh] lg:text-[45px]">10</p>
+            <p className="font-bold text-[4vh] lg:text-[45px]">{String(10*quantity[0])}</p>
           </div>
           <p className="flex bottom-0 mt-[-10px] text-center lg:text-right">
             Win <span className="text-[#f6d600] ml-[5px]"> 2.0x</span>
           </p>
         </div>
-        {allowanceUsdt >= 10000000 ? (
+        <div className="flex flex-col text-center">
+          <p>Quantity</p>
+          <div className="flex items-center">
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-l-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[0] = Math.max(1, updated[0] - 1); // Decrementa mas garante que não fique abaixo de 1
+        return updated;
+      });
+    }}
+  >
+    -
+  </button>
+  <input
+    type="number"
+    value={quantity[0]}
+    className="border rounded-md w-[100px] p-2 text-center text-black focus:outline-none"
+    onChange={(e) => {
+      const newValue = parseInt(e.target.value, 10); // Obtém o valor do input
+      setQuantity((prev) => {
+        const updated = [...prev]; // Cria uma cópia do array atual
+        updated[0] = newValue || 1; // Atualiza a posição 1 com o novo valor
+        return updated; // Retorna o novo array para atualizar o estado
+      });
+    }}
+  />
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-r-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[0] = updated[0] + 1; // Incrementa o valor
+        return updated;
+      });
+    }}
+  >
+    +
+  </button>
+</div>
+
+        </div>
+        {allowanceUsdt >= 10000000*quantity[0] ? (
           <button
             onClick={async () => {
-              buyNftFront(1, 1);
+              buyNftFront(1);
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
           >
@@ -365,7 +505,7 @@ function Page1(){
         ) : (
           <button
             onClick={async () => {
-              doApproveUsdt(10000000);
+              doApproveUsdt(10000000*quantity[0]);
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#ffea00]"
           >
