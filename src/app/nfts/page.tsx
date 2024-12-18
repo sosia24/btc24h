@@ -3,6 +3,7 @@ import Image from "next/image";
 import Footer from "@/componentes/footer";
 import withAuthGuard from "@/services/authGuard";
 import { useWallet } from "@/services/walletContext";
+import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import ModalSuccess from "@/componentes/ModalSuccess";
 import ModalError from "@/componentes/ModalError";
@@ -144,7 +145,7 @@ function Page1(){
             if(address){
                     const result = await getAllowanceUsdt(address);
                     console.log("approve: ", result);
-                    setAllowanceUsdt(result);
+                    setAllowanceUsdt(Number(ethers.formatUnits(result, 18))); 
                 }
         }catch(error){
 
