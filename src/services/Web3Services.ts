@@ -38,28 +38,43 @@ export async function doLogin() {
     await provider.send("wallet_switchEthereumChain", [{ chainId: CHAIN_ID }]);
     return account[0];
   } catch (error) {
-    console.error("Error during login:", error);
     throw error;
   }
 }
 
 /*------------ UNILEVEL --------------*/
-export async function userUnilevelTotalDonated(address: string) {
-  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-  const provider = await getProvider();
+export async function userUnilevelTotalDonated(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
 
+  while (retries < maxRetries) {
+    try {
+      const provider = await getProvider(); // Usa o provider da wallet
+      const contract = new ethers.Contract(
+        DONATION_ADDRESS || "",
+        donationAbi,
+        provider
+      );
 
-  const contract = new ethers.Contract(
-    DONATION_ADDRESS ? DONATION_ADDRESS : "",
-    donationAbi,
-    provider
-  );
+      const userUnilevel = await contract.getUserUnilevelDonations(address);
 
-  const userUnilevel = await contract.getUserUnilevelDonations(address);
+      // Verifica se o valor é válido antes de retornar
+      if (userUnilevel !== undefined && userUnilevel !== null) {
+        return userUnilevel; // Retorna o valor obtido
+      } else {
+      }
+    } catch (err) {
+      
+    }
 
-  return userUnilevel;
+    retries++;
+    await new Promise((resolve) => setTimeout(resolve, delay)); // Aguarda antes de tentar novamente
+  }
 
-
+  throw new Error(`Falha ao obter dados após ${maxRetries} tentativas.`);
 }
 
 /*------------ COLLECTION NFTS --------------*/
@@ -112,38 +127,76 @@ export async function approveUsdtDonation(value: string) {
 
 
 
-export async function getAllowanceUsdt(address: string) {
-  try {
-      //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+export async function getAllowanceUsdt(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+): Promise<ethers.BigNumberish> {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
       const provider = await getProvider();
 
-    const mint = new ethers.Contract(
-      USDT_ADDRESS ? USDT_ADDRESS : "", 
-      usdtAbi,      
-      provider     
-    );
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        USDT_ADDRESS ? USDT_ADDRESS : "",
+        usdtAbi,
+        provider
+      );
 
-    const tx = await mint.allowance(address, COLLECTION_ADDRESS);
-    return tx;
-  } catch (error) {
-    console.error('Erro ao obter allowance:', error);
-    throw new Error('Failed to get allowance');
+      // Obtém o allowance
+      const allowance = await mint.allowance(address, COLLECTION_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
 }
 
 
-export async function getNftsUser(address: string, value: Number){
-    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    const provider = await getProvider();
+
+export async function getNftsUser(address: string, value: number, maxRetries = 3): Promise<any> {
+  const provider = await getProvider();
 
   const mint = new ethers.Contract(
     COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
     collectionAbi,
     provider
   );
-  const tx = await mint.balanceOf(address, value);
-  return tx; 
+
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      const tx = await mint.balanceOf(address, value);
+      
+      // If the transaction is successful, return the result.
+      if (tx !== undefined) {
+        return tx;
+      }
+    } catch (error) {
+    }
+
+    attempt++;
+  }
+
+  // If all retries fail, throw an error or return a default value
+  throw new Error(`Failed to fetch data from the blockchain after ${maxRetries} attempts.`);
 }
+
 
 
 export async function buyNft(id: number) {
@@ -159,7 +212,6 @@ export async function buyNft(id: number) {
   try {
     // Envia a transação
     const tx = await buy.mint(id, 1);
-    console.log("Transação enviada:", tx.hash);
 
     let concluded;
 
@@ -167,21 +219,18 @@ export async function buyNft(id: number) {
     try {
       concluded = await tx.wait();
     } catch (waitError) {
-      console.warn("Erro ao aguardar recibo, tentando buscar manualmente...", waitError);
 
       // Caso `tx.wait()` falhe, tenta obter o recibo manualmente
       concluded = await provider.getTransactionReceipt(tx.hash);
     }
 
     if (concluded && concluded.status === 1) {
-      console.log("Transação confirmada com sucesso:", tx.hash);
       return concluded;
     } else {
       throw new Error("Transação falhou ou não foi confirmada.");
     }
 
   } catch (error) {
-    console.error("Erro ao executar compra de NFT:", error);
     throw error; // Lança erro para ser tratado no frontend
   }
 }
@@ -226,7 +275,6 @@ export async function claim(){
   
     return tx;
   } catch (error) {
-    console.error("Error during claim process:", error);
     throw error; // Certifique-se de que o erro seja capturado no chamador
   }
 }
@@ -245,6 +293,8 @@ export async function getDonationAllowance(owner:string){
   
   return allowance;
 }
+
+
 export async function getBtc24hBalance(owner:string){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
@@ -498,26 +548,38 @@ export async function getQueue(batchLevel: number): Promise<queueData[]> {
       return queue;
 
     } catch (err) {
-      console.error("Erro ao obter dados da fila:", err);
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Retry após 1s
     }
   }
 }
 
-export async function balanceToPaid(tokenId:number){
-  
-    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    const provider = await getProvider();
+export async function balanceToPaid(tokenId: number, maxRetries = 3): Promise<string> {
+  // Initialize the provider
+  const provider = await getProvider();
   const collection = new ethers.Contract(
     QUEUE_ADDRESS ? QUEUE_ADDRESS : "",
     queueAbi,
     provider
   );
 
-  let  tx  = (await collection.balanceFree(tokenId));
+  let attempt = 0;
 
-  const concluded = tx;
-  return ethers.formatEther(concluded)
+  while (attempt < maxRetries) {
+    try {
+      // Attempt to fetch data from the blockchain
+      const tx = await collection.balanceFree(tokenId);
+
+      // If successful, format and return the result
+      return ethers.formatEther(tx);
+    } catch (error) {
+    }
+
+    // Increment the attempt counter
+    attempt++;
+  }
+
+  // If all retries fail, throw an error or return a default value
+  throw new Error(`Failed to fetch balance from the blockchain after ${maxRetries} attempts.`);
 }
 
 
@@ -604,7 +666,6 @@ export async function withdrawTokens() {
     );
 
     const tx = await queue.withdrawTokens();
-    console.log("Transação enviada. Hash:", tx.hash);
 
     // Aguarda a confirmação
     const receipt = await tx.wait();
@@ -624,7 +685,6 @@ export async function withdrawTokens() {
       };
     }
   } catch (error: any) {
-    console.error("Erro ao executar withdrawTokens:", error);
     return {
       success: false,
       errorMessage: error?.reason || error?.message || "Unknown error occurred",
@@ -665,7 +725,6 @@ export async function getDonationAllowanceUsdt(owner:string){
 
 
 export async function timeUntilInactiveNfts(owner:string,tokenId:number){
-  console.log(1);
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
     const provider = await getProvider();

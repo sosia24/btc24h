@@ -32,11 +32,9 @@ async function verifyValues(){
             
             // Extraindo apenas o valor do índice 2
             const extractedValues = result.map((item: any) => item[2]);
-            console.log("valores extraidos:", extractedValues)
             // Salvando o valor no estado
             setBalances(extractedValues);
             
-            console.log("balances:", extractedValues);
           }
     }catch(error){
 
@@ -91,8 +89,6 @@ async function verifyValues(){
       verifyValues();
     }, [address]);
 
-
-console.log(address)
   return (
     <>
     {socio?(

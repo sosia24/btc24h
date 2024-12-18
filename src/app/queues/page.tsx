@@ -65,10 +65,8 @@ function Page1() {
             }
         } catch (error: any) {
             if (error.message.includes("You don't have this NFT")) {
-                console.error("User does not own this NFT:", error);
                 setError("You don't own this NFT");
             } else {
-                console.error("Unexpected error:", error);
                 setError("Something went wrong, please try again.");
             }
         } finally {
@@ -117,7 +115,6 @@ function Page1() {
             setCoinCotation(Number(result)/Number(1000000));
           }
         } catch (error) {
-          console.error("Failed to fetch coin price", error);
         }
       }
     async function getTokensToWithdrawF() {
@@ -148,7 +145,6 @@ function Page1() {
             const result: queueData[] = await getQueue(1); // Supondo que getQueue retorna uma lista
             setQueueBronzeDetails(result);
         } catch (error) {
-            console.error("Error fetching queue details:", error);
         }
     }
     async function getQueueSilverDetails() {
@@ -156,7 +152,6 @@ function Page1() {
             const result: queueData[] = await getQueue(2); // Supondo que getQueue retorna uma lista
             setQueueSilverDetails(result);
         } catch (error) {
-            console.error("Error fetching queue details:", error);
         }
     }
 
@@ -165,7 +160,6 @@ function Page1() {
             const result: queueData[] = await getQueue(3); // Supondo que getQueue retorna uma lista
             setQueueGoldDetails(result);
         } catch (error) {
-            console.error("Error fetching queue details:", error);
         }
     }
 
@@ -174,7 +168,6 @@ function Page1() {
         try {
             // Verifica se coinCotation é válido
             if (coinCotation === undefined || coinCotation === null) {
-                console.error("coinCotation ainda não foi carregado.");
                 return;
             }
     
@@ -186,16 +179,13 @@ function Page1() {
             const results: number[] = [];
             for (let i = 0; i < 3; i++) {
                 const result = await balanceToPaid(i);
-                console.log("cotacao", validCoinCotation);
                 if (result !== undefined && result !== null) {
                     results.push(Number(result) * validCoinCotation);
-                    console.log("results: ",results[i]);
                 }
             }
     
             setBalance(results); // Atualiza o estado com os resultados
         } catch (error) {
-            console.error("Error in balanceFree:", error);
         }
     }
     
@@ -213,18 +203,27 @@ function Page1() {
                 setVisibleSlides(3);
             }
         };
-        getCotation()
-        verifyApprove();
-        getQueueBronzeDetails();
-        getQueueSilverDetails();
-        getQueueGoldDetails();
-        getTokensToWithdrawF()
+        const fetchData = () => {
+            getCotation();
+            verifyApprove();
+            getQueueBronzeDetails();
+            getQueueSilverDetails();
+            getQueueGoldDetails();
+            getTokensToWithdrawF();
+            if (coinCotation > 0) {
+                balanceFree();
+            }
+        };
         
         updateVisibleSlides();
+        fetchData();
         window.addEventListener('resize', updateVisibleSlides);
+
+        const intervalId = setInterval(fetchData, 10000); 
 
         return () => {
             window.removeEventListener('resize', updateVisibleSlides);
+            clearInterval(intervalId)
         };
     }, []);
 
@@ -655,8 +654,8 @@ function Page1() {
                             </Slider>
                         </div>
                     </div>
-                    <div className='w-[96%]  bg-white bg-opacity-5 flex items-center p-6 flex-col'>
-                        <p className='text-3xl font-bold'>You have to withdraw: </p>
+                    <div className='w-[90%] sm:w-[70%]  bg-white bg-opacity-5 flex items-center sm:p-6 p-2 flex-col'>
+                        <p className='text-3xl sm:text-xl font-bold'>You have to withdraw: </p>
                         <p>When your nft's generate rewards, you can see them here</p>
                         <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw? tokensToWithdraw : ' 0'} BTC24H</p>
                         {tokensToWithdraw > 0?(

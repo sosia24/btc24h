@@ -70,17 +70,32 @@ function Page1() {
 
   async function getCotation() {
     try {
-      const result = await getBtc24hPrice();
-      if (result) {
-        setCoinCotation(Number(result) / Number(1000000));
-      }
+
+        const result = await getBtc24hPrice();
+        if (result) {
+          setCoinCotation(Number(result) / Number(1000000));
+        }else{
+          const again = await getBtc24hPrice();
+            if(again){
+              setCoinCotation(Number(again) / Number(1000000));
+            }
+        }
     } catch (error) {
       console.error("Failed to fetch coin price", error);
     }
   }
 
-
-
+  useEffect(() => {
+    getCotation();
+    
+    // Set up the interval
+    const interval = setInterval(() => {
+      getCotation();
+    }, 10000); // 10 seconds
+  
+    // Cleanup the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array ensures this runs only once
   
 
 

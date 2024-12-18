@@ -48,6 +48,18 @@ function Donation() {
     const seconds = (timeInSeconds % 60).toString().padStart(2, '0');
     return `${hours}h:${minutes}min:${seconds}s`;
   };
+
+  useEffect(() => {
+    fetchData(); // Chamada inicial
+
+    // Configura o intervalo
+    const interval = setInterval(() => {
+      fetchData();
+    }, 10000); // 10 segundos
+
+    // Limpeza ao desmontar o componente
+    return () => clearInterval(interval);
+  }, [walletAddress, donateWithUsdt]);
   
   const startDecrementalTimer = (timeLeft: number) => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -455,6 +467,9 @@ async function clearAlert(){
           <div>
             <p className="text-lg text-gray-800 mb-4">
               Approve token transfers
+            </p>
+            <p className="mb-4 text-black">
+            Allowance: {donateWithUsdt?Number(allowance)/10**6: ethers.formatEther(allowance)} {donateWithUsdt ? "USDT" :"BTC24h"}
             </p>
             <p className="text-[green]">The minimun to contribute is 10$</p>
             <input
