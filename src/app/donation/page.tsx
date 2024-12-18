@@ -24,6 +24,7 @@ function Donation() {
   const [btc24hPrice, setBtc24hPrice] = useState<bigint>(0n);
   const [nextPool, setNextPool] = useState<bigint>(0n);
   const [totalBurned, setTotalBurned] = useState<bigint>(0n);
+
   const { requireRegistration } = useRegistered();
   const [show, setShow] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -36,7 +37,6 @@ function Donation() {
   const [alert, setAlert] = useState("");
   const [steps, setSteps] = useState<number>(0)
   const [donateWithUsdt, setDonateWithUsdt] = useState(false);
-
 
   const walletAddress = useWallet().address;
 
@@ -125,8 +125,8 @@ function Donation() {
         setTotalBurned(totalBurned);
         
         setBtc24hPrice(price);
+
       } catch (error) {
-        console.error("Erro ao buscar dados iniciais:", error);
       }
     }
   };
@@ -174,7 +174,6 @@ function Donation() {
         const price = await getBtc24hPrice();
         setBtc24hPrice(price);
       } catch (error) {
-        console.error("Erro loading price", error);
       }
     }, 15000); 
   
@@ -182,40 +181,51 @@ function Donation() {
   }, []);
 
 
+  const handleDonationAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDonationAmount(value);
+  
+    if (value && parseFloat(value) > 0) {
+      const allowanceValue = donateWithUsdt
+        ? await getDonationAllowanceUsdt(walletAddress!)
+        : await getDonationAllowance(walletAddress!);
+  
+      // Verifica se o allowance é suficiente
+      if (allowanceValue >= BigInt(ethers.parseUnits(value, donateWithUsdt ? 6 : 18))) {
+        setSteps(2); // Avança direto para Step 2
+      } else {
+        setSteps(1); // Fica no Step 1 para pedir aprovação
+      }
+    } else {
+      setSteps(1); // Valor inválido volta para Step 1
+    }
+  };
+  
   const handleApprove = async () => {
     if (!donationAmount || parseFloat(donationAmount) <= 0) {
       setError("Please enter a valid donation amount.");
       return;
     }
-
-    if (donateWithUsdt) {
-      try {
-        setIsProcessing(true);
+  
+    try {
+      setIsProcessing(true);
+      if (donateWithUsdt) {
         await approveUsdtDonation(donationAmount);
-        setSteps(2);
-
-      } catch (error) {
-        setIsProcessing(false);
-
-        setError("Error when performing approve. Please try again.");
-      }
-      setIsProcessing(false);
-    }else{
-      try {
-        setIsProcessing(true);
+      } else {
         await approveBTC24HDonation(donationAmount);
-        setSteps(2);
-        setIsProcessing(false);
-      } catch (error) {
-        setLoading(false);
-        setIsProcessing(false);
-        setError("Error when performing approve. Please try again.");
       }
+  
+      setSteps(2); // Após aprovação, avança para Step 2
+    } catch (error) {
+      setError("Error when performing approve. Please try again.");
+    } finally {
+      setIsProcessing(false);
+      await fetchData();
     }
-    await fetchData()
-    setLoading(false);
-    setIsProcessing(false);
   };
+  
+  
+  
   
   const handleClaim = async () => {
     await requireRegistration(()=>{}); 
@@ -239,7 +249,6 @@ function Donation() {
       setLoading(false);
       await fetchData(); 
     } catch (error) {
-      console.error("Erro ao realizar o claim:", error);
       setLoading(false);
       setError("Error when making the claim. Try again.");
     }
@@ -457,12 +466,79 @@ async function clearAlert(){
                     : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
                 }`}
               >
-                BTC24h
+                BTC24H
               </button>
     
             </div>
           </div>
         )}
+
+        {
+
+          steps == 1 || steps == 2 ?            <> 
+          
+          <p className="text-lg text-gray-800 mb-4">
+          Balance: {donateWithUsdt? ethers.formatUnits(balance,6):ethers.formatEther(balance)} {donateWithUsdt?"USDT":"BTC24H"}
+        </p>
+        <p className="text-lg text-gray-800 mb-4">
+          Allowance: {donateWithUsdt? ethers.formatUnits(allowance,6):ethers.formatEther(allowance)} {donateWithUsdt?"USDT":"BTC24H"}
+        </p>
+          
+          
+          <p className="text-lg text-gray-800 mb-4">
+            {steps == 1 ? " Approve tokens" : "Donate tokens"}
+         
+        </p>
+        <p className="text-[green]">The minimum to contribute is 10$</p>
+        {
+  !donateWithUsdt ? (
+    <p 
+      className={`text-lg mb-4 ${Number(ethers.formatUnits((BigInt(donationAmount) * btc24hPrice), 6)).toFixed(2) < String(10) ? 'text-red-500' : 'text-gray-800'}`}
+    >
+      {Number(ethers.formatUnits((BigInt(donationAmount) * btc24hPrice), 6)).toFixed(2)} U$
+    </p>
+  ) : ""
+}
+        <input
+          type="number"
+          value={donationAmount}
+          onChange={handleDonationAmountChange} // Usa a nova função
+          placeholder="Enter amount to approve"
+          className="my-4 p-2 w-full border rounded-lg text-gray-800"
+        /></> : <></>
+        }
+
+{steps === 1 && (
+  <div>
+
+    {isProcessing && (
+      <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+    )}
+    <button
+      onClick={handleApprove}
+      className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+      disabled={isProcessing || !donationAmount}
+    >
+      {isProcessing ? "Processing..." : `Approve ${donationAmount || ""} ${donateWithUsdt?"USDT":"BTC24H"} `}
+    </button>
+  </div>
+)}
+
+
+{steps === 2 && (
+  <div>
+    <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
+    <button
+      onClick={() => handleDonation(donateWithUsdt)}
+      className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+      disabled={isProcessing || !donationAmount}
+    >
+      {isProcessing ? "Processing..." : `Donate ${donationAmount} ${donateWithUsdt?"USDT":"BTC24H"}`}
+    </button>
+  </div>
+)}
+
+
         {steps === 1 && (
           <div>
             <p className="text-lg text-gray-800 mb-4">
