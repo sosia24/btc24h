@@ -45,7 +45,8 @@ export async function doLogin() {
 
 /*------------ UNILEVEL --------------*/
 export async function userUnilevelTotalDonated(address: string) {
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
 
 
   const contract = new ethers.Contract(
@@ -113,7 +114,8 @@ export async function approveUsdtDonation(value: string) {
 
 export async function getAllowanceUsdt(address: string) {
   try {
-    const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      const provider = await getProvider();
 
     const mint = new ethers.Contract(
       USDT_ADDRESS ? USDT_ADDRESS : "", 
@@ -131,7 +133,8 @@ export async function getAllowanceUsdt(address: string) {
 
 
 export async function getNftsUser(address: string, value: Number){
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   const mint = new ethers.Contract(
     COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
@@ -229,7 +232,8 @@ export async function claim(){
 }
 export async function getDonationAllowance(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const btc24h = new ethers.Contract(
     BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
@@ -243,7 +247,8 @@ export async function getDonationAllowance(owner:string){
 }
 export async function getBtc24hBalance(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const btc24h = new ethers.Contract(
     BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
@@ -257,7 +262,8 @@ export async function getBtc24hBalance(owner:string){
 }
 export async function getBtc24hPrice(){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const oracle = new ethers.Contract(
     ORACLE_ADDRESS ? ORACLE_ADDRESS : "",
@@ -271,7 +277,8 @@ export async function getBtc24hPrice(){
 }
 export async function getBtc24hPreviewedClaim(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const donation = new ethers.Contract(
     DONATION_ADDRESS ? DONATION_ADDRESS : "",
@@ -286,7 +293,8 @@ export async function getBtc24hPreviewedClaim(owner:string){
 
 export async function getTimeUntilToClaim(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   
   const donation = new ethers.Contract(
@@ -302,7 +310,8 @@ export async function getTimeUntilToClaim(owner:string){
 
 export async function getUser(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   const donation = new ethers.Contract(
     DONATION_ADDRESS ? DONATION_ADDRESS : "",
     donationAbi,
@@ -316,7 +325,8 @@ export async function getUser(owner:string){
 
 export async function getNextPool(){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const donation = new ethers.Contract(
     DONATION_ADDRESS ? DONATION_ADDRESS : "",
@@ -331,7 +341,8 @@ export async function getNextPool(){
 
 export async function getTotalBurned(){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
   
   const donation = new ethers.Contract(
     DONATION_ADDRESS ? DONATION_ADDRESS : "",
@@ -346,7 +357,8 @@ export async function getTotalBurned(){
 
 export async function isRegistered(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
 
   const user = new ethers.Contract(
     USER_ADDRESS ? USER_ADDRESS : "",
@@ -378,7 +390,8 @@ export async function registerUser(newUser:string){
 
 export async function isActiveNft(owner:string,tokenId:number){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const collection = new ethers.Contract(
     COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
@@ -392,7 +405,8 @@ export async function isActiveNft(owner:string,tokenId:number){
 }
 
 export async function isApprovedNft(owner: string, isQueue: boolean) {
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   const collection = new ethers.Contract(
       COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
@@ -459,7 +473,8 @@ export async function setApprovalForAll(isQueue:boolean){
 
 
 export async function getQueue(batchLevel: number): Promise<queueData[]> {
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   const queueContract = new ethers.Contract(
     QUEUE_ADDRESS ? QUEUE_ADDRESS : "",
@@ -491,7 +506,8 @@ export async function getQueue(batchLevel: number): Promise<queueData[]> {
 
 export async function balanceToPaid(tokenId:number){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   const collection = new ethers.Contract(
     QUEUE_ADDRESS ? QUEUE_ADDRESS : "",
     queueAbi,
@@ -508,7 +524,8 @@ export async function balanceToPaid(tokenId:number){
 
 export async function coinPrice() {
 
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   const collection = new ethers.Contract(ORACLE_ADDRESS ? ORACLE_ADDRESS : "",oracleAbi,provider)
 
@@ -556,7 +573,8 @@ export async function timeUntilActivate(address:string, index:Number){
 
 export async function getTokensToWithdraw(owner: string) {
   try {
-    const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      const provider = await getProvider();
 
     const queue = new ethers.Contract(
       QUEUE_ADDRESS || "",
@@ -616,7 +634,8 @@ export async function withdrawTokens() {
 
 export async function getUsdtBalance(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   
   const usdt = new ethers.Contract(
     USDT_ADDRESS ? USDT_ADDRESS : "",
@@ -631,7 +650,8 @@ export async function getUsdtBalance(owner:string){
 
 export async function getDonationAllowanceUsdt(owner:string){
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   const usdt = new ethers.Contract(
     USDT_ADDRESS ? USDT_ADDRESS : "",
     usdtAbi,
@@ -647,7 +667,8 @@ export async function getDonationAllowanceUsdt(owner:string){
 export async function timeUntilInactiveNfts(owner:string,tokenId:number){
   console.log(1);
   
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
   const collection = new ethers.Contract(
     COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
     collectionAbi,
@@ -660,7 +681,8 @@ export async function timeUntilInactiveNfts(owner:string,tokenId:number){
 }
 
 export async function getTreeUsers(address:string){
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   const usdt = new ethers.Contract(
     USER_ADDRESS ? USER_ADDRESS : "",
@@ -677,7 +699,8 @@ export async function getTreeUsers(address:string){
 /* ---------------- PAYMENT MANAGER -------------- */
 
 export async function verifyPercentage(address:String){
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+    const provider = await getProvider();
 
   const connect = new ethers.Contract(PAYMENT_MANAGER ? PAYMENT_MANAGER : "", paymentManagerAbi, provider);
 
