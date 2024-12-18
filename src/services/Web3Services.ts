@@ -597,20 +597,35 @@ export async function coinPrice() {
 
 }
 
-export async function claimQueue(index:Number, queueId:Number){
+export async function claimQueue(index: number, queueId: number) {
+  if (!QUEUE_ADDRESS) {
+    throw new Error("QUEUE_ADDRESS não está definido.");
+  }
+
   const provider = await getProvider();
   const signer = await provider.getSigner();
 
   const collection = new ethers.Contract(
-    QUEUE_ADDRESS ? QUEUE_ADDRESS : "",
+    QUEUE_ADDRESS,
     queueAbi,
     signer
   );
-  let  tx  = (await collection.claim(queueId));
 
-  const concluded = tx.wait();
-  return concluded;
+  try {
+    // Envia a transação para o contrato
+    const tx = await collection.claim(queueId);
+
+    // Aguarda a confirmação da transação
+    const concluded = await tx.wait();
+
+    // Retorna o resultado após a transação ser confirmada
+    return concluded;
+  } catch (error) {
+    console.error("Erro ao realizar a transação:", error);
+    throw error; // Repassa o erro para o chamador
+  }
 }
+
 
 
 export async function addQueue(tokenId: BigInt, quantity: BigInt) {

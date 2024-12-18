@@ -6,6 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 import Footer from '@/componentes/footer';
 import ModalError from '@/componentes/ModalError';
 import ModalSuccess from '@/componentes/ModalSuccess';
+import { ethers } from 'ethers';
 import { 
         getQueue,
         balanceToPaid,
@@ -89,23 +90,27 @@ function Page1() {
             setLoading(false);
         }
     }
-
-    async function doClaimQueue(index:number, queueId:number){
-        try{
-            setLoading(true);
-            const result = await claimQueue(index, queueId);
-            if(result){
-                setAlert("Claim Sucessful");
-                getQueueBronzeDetails();
-                getQueueSilverDetails();
-                getQueueGoldDetails();
-                setLoading(false)
-            }
-        }catch(error){
-            setLoading(false);
-            setError("Something went wrong, please try again")
+    async function doClaimQueue(index: number, queueId: number) {
+        try {
+          setLoading(true);
+      
+          // Aguarda a confirmação da transação
+          const result = await claimQueue(index, queueId);
+      
+          if (result) {
+            setAlert("Claim Successful");
+            getQueueBronzeDetails();
+            getQueueSilverDetails();
+            getQueueGoldDetails();
+          }
+        } catch (error) {
+          console.error("Erro ao fazer o claim da fila:", error);
+          setAlert("Claim Failed");
+        } finally {
+          setLoading(false);
         }
-    }
+      }
+      
 
 
     async function getCotation() {
@@ -657,7 +662,7 @@ function Page1() {
                     <div className='w-[90%] sm:w-[70%]  bg-white bg-opacity-5 flex items-center sm:p-6 p-2 flex-col'>
                         <p className='text-3xl sm:text-xl font-bold'>You have to withdraw: </p>
                         <p>When your nft's generate rewards, you can see them here</p>
-                        <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw? tokensToWithdraw : ' 0'} BTC24H</p>
+                        <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} BTC24H</p>
                         {tokensToWithdraw > 0?(
                             <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
                         ):(

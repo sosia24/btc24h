@@ -31,7 +31,6 @@ export default function ModalTokensToWithdraw({ tokens }: TokensProps) {
       if (result.success) {
         setAlert("Tokens successfully withdrawn!");
       } else {
-        setError(result.errorMessage || "Transaction failed. Please try again.");
       }
   
       setLoading(false);
