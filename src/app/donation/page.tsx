@@ -165,8 +165,10 @@ function Donation() {
       } catch (error:any) {
         setIsProcessing(false);
         setLoading(false);
-        const errorMessage = error.message || error.reason || "An unknown error occurred";
-        setError("Error: " + errorMessage);      }
+        const errorMessage = error.message || error.reason;
+        const formattedError = errorMessage.length > 20 ? "An unknown error occurred" : errorMessage;
+        setError("Error: " + formattedError);
+        
   };
 
 
