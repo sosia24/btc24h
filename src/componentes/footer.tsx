@@ -10,8 +10,10 @@ import { useWallet } from '@/services/walletContext';
 import { FaUserCog } from "react-icons/fa";
 import { useEffect } from "react";
 import { doLogin } from "@/services/Web3Services";
+import Image from "next/image";
 import { BrowserProvider } from 'ethers';
 import { useRef } from "react";
+
 const CHAIN_ID = '0x89'
 
 
@@ -152,6 +154,8 @@ export default function Footer(){
   
       fetchAccount();
     }, []);
+
+  
     
     return(
       <>
@@ -179,7 +183,7 @@ export default function Footer(){
     <Link href="/queues" className="flex flex-col items-center">
       <div className="bg-[#171717] bottom-[20px] absolute flex flex-col justify-center items-center rounded-full w-[120px] h-[120px] md:w-[80px] md:h-[80px]">
         <div className="hover:scale-105 transition-all duration-300 text-center">
-          <img className="w-[100px] h-[100px] md:w-[60px] md:h-[60px]" src="images/logo.png" alt="logo" />
+          <Image priority width={80} height={80} className="w-[100px] h-[100px] md:w-[60px] md:h-[60px]" src="/images/logo.png" alt="logo"></Image>
           <p className={isActive('/queues') ? 'text-[#FFE501] text-[18px] sm:text-[14px]' : 'text-white text-[18px] sm:text-[14px]'}>Queues</p>
         </div>
       </div>
