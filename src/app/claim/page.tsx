@@ -63,7 +63,6 @@ async function verifyValues(){
         setAlert("Claim successful");
         verifyValues();
       } else {
-        setError(result.errorMessage || "Try again");
       }
     } catch (error) {
       setError("An unexpected error occurred. Try again.");

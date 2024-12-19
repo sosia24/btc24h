@@ -37,7 +37,7 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
 
   return (
     <div>
-      <p className='bg-gradient-to-r from-[#0d56df] to-[#299508] text-transparent bg-clip-text font-semibold'>{timeLeft}</p>
+      <p className='bg-gradient-to-r from-[#0d56df] to-[#299508] text-transparent bg-clip-text font-semibold text-[50px] sm:text-[30px] mb-[30px] '>{timeLeft}</p>
     </div>
   );
 };

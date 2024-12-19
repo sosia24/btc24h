@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Footer from "@/componentes/footer";
+import Countdown from "@/componentes/countdown";
 const Home = () => {
 
   return (
@@ -14,12 +15,14 @@ const Home = () => {
           <p className="text-2xl mb-8 text-center text-white text-shadow-md">
             Get the BTC24H token before it's too late!
           </p>
+          <Countdown targetDate={'2024-12-23T00:00:00Z'} />
 
           {/* Card de Venda */}
           <div className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 p-6 rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 max-w-md w-full">
             <h2 className="text-3xl font-semibold text-center text-white mb-4 tracking-wide text-shadow-md">
               PreSale has ended!
             </h2>
+
 
             {/* Imagem do Token */}
             <div className="flex justify-center mb-4">
