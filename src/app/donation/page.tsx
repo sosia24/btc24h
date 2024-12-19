@@ -162,11 +162,11 @@ function Donation() {
         setDonationAmount("");
         await fetchData();
         handleModalToggle();
-      } catch (error) {
+      } catch (error:any) {
         setIsProcessing(false);
         setLoading(false);
-        setError("Error: You need to Claim your last donate");
-      }
+        const errorMessage = error.message || error.reason || "An unknown error occurred";
+        setError("Error: " + errorMessage);      }
   };
 
 
@@ -237,10 +237,10 @@ function Donation() {
       setAlert("Claim made successfully!");
       setLoading(false);
       await fetchData(); 
-    } catch (error) {
+    } catch (error : any) {
       setLoading(false);
-      setError("Error when making the claim. Try again.");
-    }
+      const errorMessage = error.message || error.reason || "An unknown error occurred";
+      setError("Error: " + errorMessage);    }
   };
 
   async function clearError(){
