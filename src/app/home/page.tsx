@@ -63,10 +63,21 @@ function Page1() {
   
 
   useEffect(() => {
-    if (address) {
-      fetchTreeUsers(address);
-    }
-  }, [address]);
+    if (!address) return;
+
+    const fetchData = () => {
+        fetchTreeUsers(address);
+        getCotation();
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
+
+    return () => {
+        clearInterval(interval);
+    };
+}, [address]);
+
 
   async function getCotation() {
     try {

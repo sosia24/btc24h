@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from 'react';
+import { MutableRefObject } from 'react';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -225,8 +226,12 @@ function Page1() {
         fetchData();
         window.addEventListener('resize', updateVisibleSlides);
 
+        const interval = setInterval(fetchData, 10000);
+
+
         return () => {
             window.removeEventListener('resize', updateVisibleSlides);
+            clearInterval(interval);
         };
     }, []);
 
@@ -322,16 +327,15 @@ function Page1() {
         ],
     };
 
-    const goToLastSlide = (sliderRef, dataLength) => {
+    const goToLastSlide = (sliderRef: MutableRefObject<Slider | null>, dataLength: number | undefined) => {
         if (sliderRef.current) {
-            const lastIndex = Math.max(dataLength - 1, 0);
+            const lastIndex = Math.max(dataLength? dataLength : 0 - 1, 0);
             sliderRef.current.slickGoTo(lastIndex);
         }
     };
 
-    const goToFirstSlide = (sliderRef, dataLength) => {
+    const goToFirstSlide = (sliderRef: MutableRefObject<Slider | null>, dataLength: number | undefined) => {
         if (sliderRef.current) {
-            const lastIndex = Math.max(dataLength - 1, 0);
             sliderRef.current.slickGoTo(0);
         }
     };
