@@ -84,18 +84,6 @@ function Page1() {
       console.error("Failed to fetch coin price", error);
     }
   }
-
-  useEffect(() => {
-    getCotation();
-    
-    // Set up the interval
-    const interval = setInterval(() => {
-      getCotation();
-    }, 10000); // 10 seconds
-  
-    // Cleanup the interval when the component unmounts
-    return () => clearInterval(interval);
-  }, []); // Empty dependency array ensures this runs only once
   
 
 

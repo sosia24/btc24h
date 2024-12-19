@@ -37,17 +37,6 @@ function Page1(){
     const [loading, setLoading] = useState(false);
     const { requireRegistration } = useRegistered();
 
-
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTimeUntil((prev) =>
-                prev.map((time) => (time > 0n ? time - 1n : 0n))
-            );
-        }, 1000);
-    
-        return () => clearInterval(interval); // Cleanup do intervalo
-    }, []);
     function formatTime(time: bigint): string {
         const totalSeconds = Number(time);
         const hours = Math.floor(totalSeconds / 3600);

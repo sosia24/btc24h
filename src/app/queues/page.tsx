@@ -104,8 +104,7 @@ function Page1() {
             getQueueGoldDetails();
           }
         } catch (error) {
-          console.error("Erro ao fazer o claim da fila:", error);
-          setAlert("Claim Failed");
+          setError("Claim Failed");
         } finally {
           setLoading(false);
         }
@@ -224,11 +223,8 @@ function Page1() {
         fetchData();
         window.addEventListener('resize', updateVisibleSlides);
 
-        const intervalId = setInterval(fetchData, 10000); 
-
         return () => {
             window.removeEventListener('resize', updateVisibleSlides);
-            clearInterval(intervalId)
         };
     }, []);
 

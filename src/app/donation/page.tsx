@@ -168,17 +168,6 @@ function Donation() {
         setError("Error: You need to Claim your last donate");
       }
   };
-  useEffect(() => {
-    const fetchPriceInterval = setInterval(async () => {
-      try {
-        const price = await getBtc24hPrice();
-        setBtc24hPrice(price);
-      } catch (error) {
-      }
-    }, 15000); 
-  
-    return () => clearInterval(fetchPriceInterval);
-  }, []);
 
 
   const handleDonationAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
