@@ -160,8 +160,6 @@ function Donation() {
       }
 
       
-      
-
       try {
         setIsProcessing(true);
         await donate(donationAmount, isUsdt);
@@ -345,20 +343,17 @@ async function clearAlert(){
               <div className="ml-5">
                 <h1 className="text-4xl font-semibold">Claim <span className="text-[#FAE201]">Rewards</span></h1>
                 <p>USDT Estimated:</p>
-                <div className="flex items-center">
-                <div>
-
-                </div>
-                <div>
                 <p>U$ <span className="text-[#FAE201]">{formatUsdt(balanceToClaim)}</span></p>
-                <p>BTC24H estimated: <span className="text-[#FAE201]">{btc24hPrice > 0n ? (Number(balanceToClaim) / Number(btc24hPrice)).toFixed(2) : "Loading..."} BTC24h</span></p>
+                <p>BTC24H estimated: </p>
+                <span className="text-[#FAE201]">{btc24hPrice > 0n ? (Number(balanceToClaim) / Number(btc24hPrice)).toFixed(2) : "Loading..."} BTC24h</span>
 
-                </div>
+                <p>Deposited Tokens:</p>
+                <p><span className="text-[#FAE201]">{user ? Number(ethers.formatEther(user.maxUnilevel*2n)).toFixed(2): "loading"} BTC24H</span></p>
+
                 </div>
 
 
               </div>
-            </div>
             <div className="flex mt-4 w-full text-xl justify-center">
               {Number(timeUntilNumber) <= Number(0) && Number(balanceToClaim) > Number(0)?(
                                       <button   onClick={handleClaim}
@@ -488,7 +483,7 @@ async function clearAlert(){
           steps == 1 || steps == 2 ?            <> 
           
           <p className="text-lg text-gray-800 mb-4">
-          Balance: {donateWithUsdt? ethers.formatUnits(balance,6):ethers.formatEther(balance)} {donateWithUsdt?"USDT":"BTC24H"}
+          Balance: {donateWithUsdt? Number(ethers.formatUnits(balance,6)).toFixed(2):Number(ethers.formatEther(balance)).toFixed(2)} {donateWithUsdt?"USDT":"BTC24H"}
         </p>
         <p className="text-lg text-gray-800 mb-4">
           Allowance: {donateWithUsdt? ethers.formatUnits(allowance,6):ethers.formatEther(allowance)} {donateWithUsdt?"USDT":"BTC24H"}
