@@ -150,7 +150,17 @@ function Donation() {
   
       if (!donationAmount || parseFloat(donationAmount) <= 0) {
         setError("Please enter a valid donation amount.");
+        return
       }
+
+      
+      if(ethers.parseUnits(donationAmount,donateWithUsdt?6:18)> balance){
+        setError("Donation amount is greather than your balance.");
+        return
+      }
+
+      
+      
 
       try {
         setIsProcessing(true);
@@ -162,14 +172,23 @@ function Donation() {
         setDonationAmount("");
         await fetchData();
         handleModalToggle();
-      } catch (error:any) {
+      } catch (error) {
         setIsProcessing(false);
         setLoading(false);
-        const errorMessage = error.message || error.reason;
-        const formattedError = errorMessage.length > 20 ? "An unknown error occurred" : errorMessage;
-        setError("Error: " + formattedError);
-        
+        setError("Error: An unknow error");
+      }
   };
+  useEffect(() => {
+    const fetchPriceInterval = setInterval(async () => {
+      try {
+        const price = await getBtc24hPrice();
+        setBtc24hPrice(price);
+      } catch (error) {
+      }
+    }, 15000); 
+  
+    return () => clearInterval(fetchPriceInterval);
+  }, []);
 
 
   const handleDonationAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,10 +258,10 @@ function Donation() {
       setAlert("Claim made successfully!");
       setLoading(false);
       await fetchData(); 
-    } catch (error : any) {
+    } catch (error) {
       setLoading(false);
-      const errorMessage = error.message || error.reason || "An unknown error occurred";
-      setError("Error: " + errorMessage);    }
+      setError("Error when making the claim. Try again.");
+    }
   };
 
   async function clearError(){
