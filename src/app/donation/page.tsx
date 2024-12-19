@@ -150,7 +150,17 @@ function Donation() {
   
       if (!donationAmount || parseFloat(donationAmount) <= 0) {
         setError("Please enter a valid donation amount.");
+        return
       }
+
+      
+      if(ethers.parseUnits(donationAmount,donateWithUsdt?6:18)> balance){
+        setError("Donation amount is greather than your balance.");
+        return
+      }
+
+      
+      
 
       try {
         setIsProcessing(true);
@@ -165,9 +175,20 @@ function Donation() {
       } catch (error) {
         setIsProcessing(false);
         setLoading(false);
-        setError("Error: You need to Claim your last donate");
+        setError("Error: An unknown error");
       }
   };
+  useEffect(() => {
+    const fetchPriceInterval = setInterval(async () => {
+      try {
+        const price = await getBtc24hPrice();
+        setBtc24hPrice(price);
+      } catch (error) {
+      }
+    }, 15000); 
+  
+    return () => clearInterval(fetchPriceInterval);
+  }, []);
 
 
   const handleDonationAmountChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
