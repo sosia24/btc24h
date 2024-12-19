@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import ModalSuccess from "@/componentes/ModalSuccess";
 import ModalError from "@/componentes/ModalError";
 import { useRegistered } from "@/services/RegistrationContext";
+import { SiFireship } from "react-icons/si";
+import { MdOutlineAttachMoney } from "react-icons/md";
 import {
     approveUSDT,
     getAllowanceUsdt,
@@ -516,7 +518,7 @@ function Page1(){
                     <h1 className="absolute font-bold top-8 left-8 text-3xl text-black sm:text-sm">Active Your NFTs Referral Comission</h1>
                     </div>
                     <h2 className="w-1/2 sm2:w-full mt-4 text-3xl pl-8 font-semibold sm:text-sm">
-    When you <b>deposit your NFT</b> into the contract, it will be burned to <span className="text-[#00EA38]">enable</span> you to <span className="text-[#00EA38]">receive commissions</span> from the purchase of NFTs within your unilevel.
+    When you <b>deposit your NFT</b> into the contract, it will be burned to <span className="text-[#00EA38]">enable</span> you to <span className="text-[#00EA38]">receive commissions</span> from the purchase of NFTs within your unilevel.<span className="text-[#00EA38]"> Valid for 100 days </span>
 </h2>
 
 
@@ -550,6 +552,8 @@ function Page1(){
           </p>
         </>
       )}
+      <p className="text-white flex flex-row p-2 mt-[10px] justify-center"><SiFireship className="text-orange-500 mr-[10px]"></SiFireship> 1/40 levels</p>
+      <p className="text-white flex flex-row items-center justify-center text-[18px]"><MdOutlineAttachMoney className="text-green-500 mr-[3px]"></MdOutlineAttachMoney> 0.5%</p>
     </div>
   </div>
 
@@ -581,6 +585,8 @@ function Page1(){
           </p>
         </>
       )}
+      <p className="text-white flex flex-row p-2 mt-[10px] justify-center"><SiFireship className="text-orange-500 mr-[10px]"></SiFireship> 1/40 levels</p>
+      <p className="text-white flex flex-row items-center justify-center text-[18px]"><MdOutlineAttachMoney className="text-green-500 mr-[3px]"></MdOutlineAttachMoney> 0.5%</p>
     </div>
   </div>
 
@@ -612,6 +618,8 @@ function Page1(){
           </p>
         </>
       )}
+      <p className="text-white flex flex-row p-2 mt-[10px] justify-center"><SiFireship className="text-orange-500 mr-[10px]"></SiFireship> 1/40 levels</p>
+      <p className="text-white flex flex-row items-center justify-center text-[18px]"><MdOutlineAttachMoney className="text-green-500 mr-[3px]"></MdOutlineAttachMoney> 0.5%</p>
     </div>
   </div>
 </main>
