@@ -325,21 +325,43 @@ export async function getBtc24hPrice(){
   
   return price;
 }
+
 export async function getBtc24hPreviewedClaim(owner:string){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    const provider = await getProvider();
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const provider = await getProvider();
   
-  const donation = new ethers.Contract(
-    DONATION_ADDRESS ? DONATION_ADDRESS : "",
-    donationAbi,
-    provider
-  );
-
-  const balance = await donation.previewTotalValue(owner);
-
-  return balance -balance*75n/10000n;
-}
+        const donation = new ethers.Contract(
+          DONATION_ADDRESS || '',
+          donationAbi,
+          provider
+        );
+  
+        // Faz a chamada ao contrato
+        const balance = await donation.previewTotalValue(owner);
+  
+        // Retorna o cálculo ajustado do saldo
+        return balance -balance*75n/10000n;
+  
+      } catch (error) {
+        console.error(`Erro na tentativa ${attempt}:`, error);
+  
+        // Verifica se é a última tentativa
+        if (attempt === 3) {
+          console.error('Número máximo de tentativas atingido.');
+          return null;
+        }
+  
+        // Aguarda um tempo antes da próxima tentativa
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+  
+    // Retorno caso todas as tentativas falhem
+    return null;
+  }
 
 export async function getTimeUntilToClaim(owner:string){
   

@@ -11,6 +11,7 @@ import { formatUsdt } from "@/services/utils";
 import { UserDonation } from "@/services/types";
 import { useRegistered } from "@/services/RegistrationContext";
 import ModalError from "@/componentes/ModalError";
+import { TbReload } from "react-icons/tb";
 import ModalSuccess from "@/componentes/ModalSuccess";
 
 function Donation() {
@@ -113,7 +114,11 @@ function Donation() {
         startDecrementalTimer(timeLeft);
   
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
-        setBalanceToClaim(previewedClaim);
+        if (previewedClaim !== null) {
+          setBalanceToClaim(previewedClaim); // Apenas define o estado se o valor não for `null`
+        } else {
+          console.warn('Saldo retornado é nulo. Ignorando atualização do estado.');
+        }
   
         const price = await getBtc24hPrice(); 
         const userData = await getUser(walletAddress);
@@ -232,8 +237,33 @@ function Donation() {
     }
   };
   
-  
-  
+  const [isReloading, setIsReloading] = useState(false);
+  async function reloadDonation() {
+    setIsReloading(true); // Ativa o spinner
+    try {
+      if (walletAddress) {
+        // Atualiza o tempo restante para reclamar
+        const timeLeft = await getTimeUntilToClaim(walletAddress);
+        setTimeUntil(formatTime(timeLeft));
+        setTimeUntilNumber(Number(timeLeft));
+        startDecrementalTimer(timeLeft);
+
+        // Atualiza o saldo a ser reivindicado
+        const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
+        if (previewedClaim !== null) {
+          setBalanceToClaim(previewedClaim);
+          setIsReloading(false);  // Apenas define o estado se o valor não for `null`
+        } else {
+          console.warn('Saldo retornado é nulo. Ignorando atualização do estado.');
+          setIsReloading(false); 
+        }
+      }
+    } catch (error) {
+      setIsReloading(false); 
+      console.error('Erro ao recarregar dados:', error);
+    } finally {
+    }
+  }
   
   const handleClaim = async () => {
     await requireRegistration(()=>{}); 
@@ -347,7 +377,7 @@ async function clearAlert(){
                 <p>BTC24H estimated: </p>
                 <span className="text-[#FAE201]">{btc24hPrice > 0n ? (Number(balanceToClaim) / Number(btc24hPrice)).toFixed(2) : "Loading..."} BTC24h</span>
 
-                <p>Deposited Tokens:</p>
+                <p>Donated Tokens:</p>
                 <p><span className="text-[#FAE201]">{user ? Number(ethers.formatEther(user.maxUnilevel*2n)).toFixed(2): "loading"} BTC24H</span></p>
 
                 </div>
@@ -365,6 +395,15 @@ async function clearAlert(){
               )}
 
               <p className="bg-[#9B9701] rounded-lg mx-2 p-3">{timeUntil}</p>
+              <button
+              onClick={reloadDonation}
+              className={`flex items-center mt-[5px] justify-center w-10 h-10 bg-gray-500 text-white rounded-full ${
+              isReloading ? 'animate-spin' : ''
+              }`}
+              disabled={isReloading} // Evita múltiplos cliques
+              >
+      <TbReload />
+    </button>
             </div>
           </div>
         </div>
