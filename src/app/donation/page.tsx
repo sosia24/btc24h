@@ -175,7 +175,7 @@ function Donation() {
       } catch (error) {
         setIsProcessing(false);
         setLoading(false);
-        setError("Error: An unknow error");
+        setError("Error: An unknown error");
       }
   };
   useEffect(() => {
