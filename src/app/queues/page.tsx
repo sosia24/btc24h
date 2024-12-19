@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -7,6 +7,8 @@ import Footer from '@/componentes/footer';
 import ModalError from '@/componentes/ModalError';
 import ModalSuccess from '@/componentes/ModalSuccess';
 import { ethers } from 'ethers';
+import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { 
         getQueue,
         balanceToPaid,
@@ -279,8 +281,11 @@ function Page1() {
             />
         );
     }
-    
 
+    const goldSliderRef = useRef(null);
+    const silverSliderRef = useRef(null);
+    const bronzeSliderRef = useRef(null);
+    
     const settings = {
         infinite: false,
         speed: 200,
@@ -316,6 +321,21 @@ function Page1() {
             },
         ],
     };
+
+    const goToLastSlide = (sliderRef, dataLength) => {
+        if (sliderRef.current) {
+            const lastIndex = Math.max(dataLength - 1, 0);
+            sliderRef.current.slickGoTo(lastIndex);
+        }
+    };
+
+    const goToFirstSlide = (sliderRef, dataLength) => {
+        if (sliderRef.current) {
+            const lastIndex = Math.max(dataLength - 1, 0);
+            sliderRef.current.slickGoTo(0);
+        }
+    };
+
 
     /* -------- VERIFICA SE PAGA A NFT --------------- */
 
@@ -390,6 +410,19 @@ function Page1() {
       
         setLoading(false);
       };
+
+
+      const countUserNftSilver = queueSilverDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
+
+      const countUserNftGold = queueGoldDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
+
+      const countUserNftBronze = queueBronzeDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
       /* -------------- FIM DA VERIFICACAO ------------ */
     
       async function clearError(){
@@ -471,7 +504,7 @@ function Page1() {
 
                         {/* Carousel */}
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
-                            <Slider {...settings}>
+                            <Slider ref={goldSliderRef} {...settings}>
                             {queueGoldDetailsFormated?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
@@ -504,6 +537,17 @@ function Page1() {
                                     
                                 ))}
                             </Slider>
+                            <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
+                            onClick={() => goToFirstSlide(goldSliderRef, queueGoldDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowLeft />
+                             </button>
+                            <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
+                            onClick={() => goToLastSlide(goldSliderRef, queueGoldDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowRight />
+                             </button>
+                            <p className='mt-[10px] '>You have: {countUserNftGold}</p>
                         </div>
                     </div>
 
@@ -546,7 +590,7 @@ function Page1() {
 
                         {/* Carousel */}
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
-                            <Slider {...settings}>
+                            <Slider ref={silverSliderRef} {...settings}>
                                 {queueSilverDetailsFormated?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
@@ -579,6 +623,17 @@ function Page1() {
                                     
                                 ))}
                             </Slider>
+                            <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
+                            onClick={() => goToFirstSlide(silverSliderRef, queueSilverDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowLeft />
+                             </button>
+                            <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
+                            onClick={() => goToLastSlide(silverSliderRef, queueSilverDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowRight />
+                             </button>
+                            <p className='mt-[10px]'>You have: {countUserNftSilver}</p>
                         </div>
                     </div>
 
@@ -619,8 +674,10 @@ function Page1() {
                         </div>
 
                         {/* Carousel */}
+                        
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
-                            <Slider {...settings}>
+                            
+                            <Slider ref={bronzeSliderRef} {...settings}>
                             {queueBronzeDetailsFormated?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
@@ -653,6 +710,17 @@ function Page1() {
                                     
                                 ))}
                             </Slider>
+                            <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
+                            onClick={() => goToFirstSlide(bronzeSliderRef, queueBronzeDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowLeft />
+                             </button>
+                            <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
+                            onClick={() => goToLastSlide(bronzeSliderRef, queueBronzeDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowRight />
+                             </button>
+                            <p className='mt-[10px]'>You have: {countUserNftBronze}</p>
                         </div>
                     </div>
                     <div className='w-[90%] sm:w-[70%]  bg-white bg-opacity-5 flex items-center sm:p-6 p-2 flex-col'>
