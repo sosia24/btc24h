@@ -794,27 +794,26 @@ export async function verifyBalance(address:String){
 
 export async function claimPaymentManager() {
   try {
-    const provider = await getProvider();
-    const signer = await provider.getSigner();
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
 
-    const queue = new ethers.Contract(
-      PAYMENT_MANAGER || "",
-      paymentManagerAbi,
-      signer
-    );
+      console.log("Inicializando contrato...");
+      const queue = new ethers.Contract(
+          PAYMENT_MANAGER || "",
+          paymentManagerAbi,
+          signer
+      );
 
-    // Envia a transação
-    const tx = await queue.claim();
+      const tx = await queue.claim();
 
-    // Aguarda a confirmação
-    await tx.wait();
-
-    // Retorna sucesso
-    return { success: true };
+      await tx.wait();
+      return { success: true };
   } catch (error: any) {
-    return {
-      success: false,
-      errorMessage: error?.reason || error?.message || "Unknown error occurred",
-    };
+      console.error("Erro durante a execução da transação:", error);
+      return {
+          success: false,
+          errorMessage: error?.reason || error?.message || "Unknown error occurred",
+      };
   }
 }
+
