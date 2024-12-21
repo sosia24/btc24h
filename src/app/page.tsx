@@ -55,7 +55,7 @@ function HomeContent() {
   
 
   return (
-
+    <>
     <div className="h-[80%] w-[70%] flex flex-col items-center lg:flex-row">
       <div className="w-[100%] lg:w-[50%] flex justify-center lg:order-2">
         
@@ -108,7 +108,9 @@ function HomeContent() {
         
         {showModal ? <RegisterModal /> : ""}
       </div>
+    
     </div>
+    </>
   );
 }
 

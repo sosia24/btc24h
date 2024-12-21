@@ -49,13 +49,32 @@ export default function RootLayout({
         {/* Main Content */}
         <WalletProvider>
           <RegisterProvider>
+            
           <main
             style={{ width: "1600px", zIndex: 1 }}
             className={montserrat.className}
           >
+            
                 <Analytics></Analytics>
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
+            <div className="md:w-[90%] w-[60%] flex flex-col mt-[50px] bg-white bg-opacity-50 rounded-3xl text-black text-[20px] p-6 mb-[60px]">
+                  <span className="font-bold">🚨 Important Announcement 🚨</span><br></br>
             
+                  Dear BTC24H Presale Participant,<br></br>
+            
+                  📢 Exciting news! This Sunday, December 22nd, at 12:00 AM UTC, marks an important milestone—7 days since the start of contributions!<br></br>
+            
+                <br></br>
+                  To claim your exclusive NFT, simply follow these easy steps:<br></br>
+                  1️⃣ Connect the wallet you used during the presale.<br></br>
+                  2️⃣ Follow the instructions provided to complete the process.<br></br>
+            
+                  <br></br>
+                  ✨ Don’t miss this chance to secure your NFT and be part of the BTC24H journey!<br></br><br></br>
+            
+                  Warm regards,<br></br>
+                  <span className="font-bold">The BTC24H Team</span>
+                  </div>
               {children}
               <div className="w-[100%] flex justify-center flex-row">
                
