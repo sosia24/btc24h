@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, toNumber } from "ethers";
 import donationAbi from "./abis/donation.abi.json";
 import userAbi from "./abis/user.abi.json";
 import usdtAbi from "./abis/usdt.abi.json"
@@ -8,6 +8,9 @@ import collectionAbi from "./abis/collection.abi.json";
 import { UserDonation } from "./types";
 import queueAbi from "./abis/queue.abi.json";
 import paymentManagerAbi from "./abis/payment.manager.abi.json"
+import distributeAbi from "./abis/distribute.abi.json"
+
+import collection2Abi from "./abis/collection2.abi.json"
 
 import {queueData} from "./types"
 
@@ -21,6 +24,10 @@ const USER_ADDRESS= process.env.NEXT_PUBLIC_USER;
 const QUEUE_ADDRESS = process.env.NEXT_PUBLIC_QUEUE;
 const RPC_ADDRESS = process.env.NEXT_PUBLIC_RPC
 const PAYMENT_MANAGER = process.env.NEXT_PUBLIC_PAYMENT_MANAGER
+
+const DISTRIBUTE_NFT = process.env.NEXT_PUBLIC_DISTRIBUTE_NFT
+const QUEUE2 = process.env.NEXT_PUBLIC_QUEUE2
+const COLLECTION2 = process.env.NEXT_PUBLIC_COLLECTION2
 
 
 /*------------ CONNECT WALLET --------------*/
@@ -839,3 +846,92 @@ export async function claimPaymentManager() {
   }
 }
 
+/* ------- PRESALE NFTS ----- */
+
+export async function getNftNotClaimed(address:string){
+  const provider = await getProvider();
+  const signer = await provider.getSigner(); 
+
+  const preSale = new ethers.Contract(DISTRIBUTE_NFT || "", distributeAbi, signer);
+  const tx = await preSale.nftsToClaim(address);
+  return tx;
+}
+
+export async function claimNftPreSale(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner(); 
+
+  const preSale = new ethers.Contract(DISTRIBUTE_NFT || "", distributeAbi, signer);
+  const tx = await preSale.withdraw();
+  await tx.wait();
+  return tx;
+}
+
+export async function getTimeUntilNextClaim(address: string): Promise<number> {
+  try {
+    const provider = await getProvider();
+
+    // Instância do contrato usando o provider (não precisa de signer para leitura)
+    const preSale = new ethers.Contract(DISTRIBUTE_NFT || "", distributeAbi, provider);
+
+    // Chamada ao método do contrato
+    const timeLeft = await preSale.timeUntilClaim(address);
+
+    // Converte o BigNumber para número
+    return toNumber(timeLeft);
+  } catch (error) {
+    console.error("Erro ao obter o tempo até o próximo claim:", error);
+    throw error;
+  }
+}
+
+
+export async function approveNewNft(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner(); 
+
+  const preSale = new ethers.Contract(COLLECTION2 || "", collection2Abi, signer);
+
+  const tx = await preSale.setApprovalForAll(QUEUE_ADDRESS, true)
+
+  await tx.wait();
+
+  return tx;
+}
+
+export async function isApprovedNftPreSale(address: string) {
+  const provider = await getProvider();
+  const signer = await provider.getSigner(); 
+
+  const preSale = new ethers.Contract(COLLECTION2 || "", collection2Abi, signer);
+
+  // Apenas retorna o resultado diretamente sem `tx.wait()`
+  const isApproved = await preSale.isApprovedForAll(address, QUEUE_ADDRESS);
+
+  return isApproved; // Retorna boolean
+}
+
+export async function addQueue2(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner(); 
+
+  const preSale = new ethers.Contract(QUEUE_ADDRESS || "", queueAbi, signer);
+
+  const tx = await preSale.addToQueue(3, 1);
+
+  await tx.wait();
+
+  return tx;
+}
+
+export async function nftOutQueue(address: string) {
+  const provider = await getProvider();
+  const signer = await provider.getSigner(); 
+
+  const preSale = new ethers.Contract(COLLECTION2 || "", collection2Abi, signer);
+
+  // Apenas retorna o resultado diretamente sem `tx.wait()`
+  const number = await preSale.balanceOf(address, 3);
+
+  return number; // Retorna boolean
+}
