@@ -128,9 +128,9 @@ async function verifyValues(){
                         : "Loading..."} USDT
                     </h1>
                     <h1 className="mt-2">
-                        {balances[2] !== undefined && balances[2] !== null
-                        ? (Number(balances[2]) / 10 ** 8).toFixed(8)
-                        : "Loading..."} WBTC
+                        {balances[3] !== undefined && balances[3] !== null
+                        ? (Number(balances[3]) / 10 ** 9).toFixed(4)
+                        : "Loading..."} WSOL
                     </h1>
                     </div>
                   <button
