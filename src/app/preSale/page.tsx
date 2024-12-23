@@ -154,13 +154,13 @@ async function doApprove(){
   const startDecrementalTimer = (timeLeft: number) => {
     if (timerRef.current) clearInterval(timerRef.current); // Limpa o intervalo anterior
     setTimeUntilNumber(timeLeft); // Inicializa o estado com o tempo total
-  
+
     timerRef.current = setInterval(() => {
       setTimeUntilNumber((prevTime) => {
         if (prevTime > 0) {
           const newTime = prevTime - 1;
           setTimeUntil(formatTime(newTime)); // Atualiza o tempo formatado
-          return newTime; // Retorna o novo tempo para o estado
+          return newTime;
         } else {
           clearInterval(timerRef.current!); // Limpa o intervalo quando o tempo chega a 0
           return 0;
@@ -169,16 +169,19 @@ async function doApprove(){
     }, 1000);
   };
 
-  useEffect(() =>{
-    getTime()
-  }, [address])
   
-  
-useEffect(() =>{
-  getNftToClaim();
-  verifyApprove();
-  getNftOut();
-})
+  useEffect(() => {
+    if (address) {
+      getTime();
+      getNftToClaim();
+      verifyApprove();
+      getNftOut();
+    }
+    return () => {
+      // Limpa o intervalo ao desmontar o componente
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [address]);
 
 async function clearError(){
   setError("");
