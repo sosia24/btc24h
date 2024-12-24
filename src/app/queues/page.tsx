@@ -57,16 +57,12 @@ function Page1() {
         try {
             setLoading(true);
     
-            const result = await addQueue(BigInt(tokenId), BigInt(1));
-    
-            if (result.status === 1) { 
-                setAlert("Added successfully");
-                getQueueBronzeDetails();
-                getQueueSilverDetails();
-                getQueueGoldDetails();
-            } else {
-                throw new Error("Transaction failed on blockchain.");
-            }
+            await addQueue(BigInt(tokenId), BigInt(1));
+            setAlert("Added successfully");
+            getQueueBronzeDetails();
+            getQueueSilverDetails();
+            getQueueGoldDetails();
+
         } catch (error: any) {
             if (error.message.includes("You don't have this NFT")) {
                 setError("You don't own this NFT");
