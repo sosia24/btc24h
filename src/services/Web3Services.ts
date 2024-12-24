@@ -255,10 +255,10 @@ export async function donate(amount:string, isUsdt:boolean){
 
   let tx
   if(isUsdt){
-    tx = await donation.donate(Number(amount)*10**6, isUsdt);
+    tx = await donation.donate(Number(amount)*10**6, isUsdt,{gasLimit:3000000});
 
   }else{
-    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt);
+    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt,{gasLimit:3000000});
 
   }
   const concluded = tx.wait();
@@ -276,7 +276,7 @@ export async function claim(){
   );
   
   try {
-    const tx = await donation.claimDonation();
+    const tx = await donation.claimDonation({gasLimit:1500000});
   
     await tx.wait();
   
