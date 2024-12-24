@@ -95,8 +95,14 @@ export async function approveUSDT(value: Number) {
     usdtAbi,
     signer
   );
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-  const tx = await mint.approve(COLLECTION_ADDRESS, value);
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+  const tx = await mint.approve(COLLECTION_ADDRESS, value,{gasPrice:gasPrice});
   await tx.wait();
 
   return tx;
@@ -111,8 +117,14 @@ export async function approveBTC24HDonation(value: string) {
     btc24hAbi,
     signer
   );
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-  const tx = await token.approve(DONATION_ADDRESS, ethers.parseUnits(value,"ether"));
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+  const tx = await token.approve(DONATION_ADDRESS, ethers.parseUnits(value,"ether"),{gasPrice:gasPrice});
 
   await tx.wait();
   return tx;
@@ -126,8 +138,15 @@ export async function approveUsdtDonation(value: string) {
     usdtAbi,
     signer
   );
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6);
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+
+  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6,{gasPrice:gasPrice});
   await tx.wait();
   return tx;
 }
@@ -215,10 +234,17 @@ export async function buyNft(id: number,quantity:number) {
     collectionAbi,
     signer
   );
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
 
   try {
     // Envia a transação
-    const tx = await buy.mint(id, quantity);
+    const tx = await buy.mint(id, quantity,{gasPrice:gasPrice});
 
     let concluded;
 
@@ -246,6 +272,8 @@ export async function donate(amount:string, isUsdt:boolean){
   
   const provider = await getProvider();
   const signer = await provider.getSigner();
+
+  
   
   const donation = new ethers.Contract(
     DONATION_ADDRESS ? DONATION_ADDRESS : "",
@@ -253,12 +281,20 @@ export async function donate(amount:string, isUsdt:boolean){
     signer
   );
 
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+
   let tx
   if(isUsdt){
-    tx = await donation.donate(Number(amount)*10**6, isUsdt);
+    tx = await donation.donate(Number(amount)*10**6, isUsdt,{gasPrice:gasPrice});
 
   }else{
-    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt);
+    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt,{gasPrice:gasPrice});
 
   }
   const concluded = tx.wait();
@@ -268,6 +304,14 @@ export async function claim(){
   
   const provider = await getProvider()
   const signer = await provider.getSigner();
+
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
   
   const donation = new ethers.Contract(
     DONATION_ADDRESS ? DONATION_ADDRESS : "",
@@ -276,7 +320,7 @@ export async function claim(){
   );
   
   try {
-    const tx = await donation.claimDonation();
+    const tx = await donation.claimDonation({gasPrice:gasPrice});
   
     await tx.wait();
   
@@ -460,8 +504,14 @@ export async function registerUser(newUser:string){
     userAbi,
     signer
   );
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-  const tx  = (await user.createUser(newUser));
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+  const tx  = (await user.createUser(newUser,{gasPrice:gasPrice}));
   const receipet = await tx.wait()
 
   return receipet;
@@ -517,12 +567,17 @@ export async function activeUnilevelNft(tokenId:number){
     signer
   );
   let tx;
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-    tx  = (await collection.activeUnilevel(tokenId));
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+
+    tx  = (await collection.activeUnilevel(tokenId,{gasPrice:gasPrice}));
   
-  await tx.wait()
-
-  const concluded = tx.wait();
+  const concluded = await tx.wait();
   return concluded;
 }
 
@@ -539,10 +594,17 @@ export async function setApprovalForAll(isQueue:boolean){
     signer
   );
   let tx;
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
   if(isQueue){
-    tx  = (await collection.setApprovalForAll(QUEUE_ADDRESS,true));
+    tx  = (await collection.setApprovalForAll(QUEUE_ADDRESS,true,{gasPrice:gasPrice}));
   }else{
-    tx  = (await collection.setApprovalForAll(COLLECTION_ADDRESS,true));
+    tx  = (await collection.setApprovalForAll(COLLECTION_ADDRESS,true,{gasPrice:gasPrice}));
   }
   await tx.wait()
 
@@ -639,10 +701,16 @@ export async function claimQueue(index: number, queueId: number) {
     queueAbi,
     signer
   );
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
 
   try {
     // Envia a transação para o contrato
-    const tx = await collection.claim(queueId);
+    const tx = await collection.claim(queueId,{gasPrice:gasPrice});
 
     // Aguarda a confirmação da transação
     const concluded = await tx.wait();
@@ -666,8 +734,14 @@ export async function addQueue(tokenId: BigInt, quantity: BigInt) {
       queueAbi,
       signer
     );
-
-    const tx = await collection.addToQueue(tokenId, quantity);
+    const feeData = await provider.getFeeData();
+    if (!feeData.gasPrice) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+  
+    const tx = await collection.addToQueue(tokenId, quantity,{gasPrice:gasPrice});
     const concluded = await tx.wait(); // Aguarda a confirmação da transação
     return concluded; // Retorna a conclusão em caso de sucesso
 
@@ -708,8 +782,14 @@ export async function withdrawTokens() {
       queueAbi,
       signer
     );
-
-    const tx = await queue.withdrawTokens();
+    const feeData = await provider.getFeeData();
+    if (!feeData.gasPrice) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+  
+    const tx = await queue.withdrawTokens({gasPrice:gasPrice});
 
     // Aguarda a confirmação
     const receipt = await tx.wait();
@@ -826,14 +906,19 @@ export async function claimPaymentManager() {
       const provider = await getProvider();
       const signer = await provider.getSigner();
 
-      console.log("Inicializando contrato...");
       const queue = new ethers.Contract(
           PAYMENT_MANAGER || "",
           paymentManagerAbi,
           signer
       );
-
-      const tx = await queue.claim();
+      const feeData = await provider.getFeeData();
+      if (!feeData.gasPrice) {
+        throw new Error("Unable to get gas price");
+      }
+    
+      const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+    
+      const tx = await queue.claim({gasPrice:gasPrice});
 
       await tx.wait();
       return { success: true };
@@ -860,9 +945,15 @@ export async function getNftNotClaimed(address:string){
 export async function claimNftPreSale(){
   const provider = await getProvider();
   const signer = await provider.getSigner(); 
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
 
   const preSale = new ethers.Contract(DISTRIBUTE_NFT || "", distributeAbi, signer);
-  const tx = await preSale.withdraw();
+  const tx = await preSale.withdraw({gasPrice:gasPrice});
   await tx.wait();
   return tx;
 }
@@ -891,8 +982,14 @@ export async function approveNewNft(){
   const signer = await provider.getSigner(); 
 
   const preSale = new ethers.Contract(COLLECTION2 || "", collection2Abi, signer);
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-  const tx = await preSale.setApprovalForAll(QUEUE_ADDRESS, true)
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+  const tx = await preSale.setApprovalForAll(QUEUE_ADDRESS, true,{gasPrice:gasPrice})
 
   await tx.wait();
 
@@ -916,8 +1013,14 @@ export async function addQueue2(){
   const signer = await provider.getSigner(); 
 
   const preSale = new ethers.Contract(QUEUE_ADDRESS || "", queueAbi, signer);
+  const feeData = await provider.getFeeData();
+  if (!feeData.gasPrice) {
+    throw new Error("Unable to get gas price");
+  }
 
-  const tx = await preSale.addToQueue(3, 1);
+  const gasPrice = feeData.gasPrice + (feeData.gasPrice * BigInt(10)) / BigInt(100);
+
+  const tx = await preSale.addToQueue(3, 1,{gasPrice:gasPrice});
 
   await tx.wait();
 
