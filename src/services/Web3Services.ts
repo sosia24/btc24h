@@ -255,10 +255,10 @@ export async function donate(amount:string, isUsdt:boolean){
 
   let tx
   if(isUsdt){
-    tx = await donation.donate(Number(amount)*10**6, isUsdt,{gasLimit:3000000});
+    tx = await donation.donate(Number(amount)*10**6, isUsdt);
 
   }else{
-    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt,{gasLimit:3000000});
+    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt);
 
   }
   const concluded = tx.wait();
@@ -276,13 +276,13 @@ export async function claim(){
   );
   
   try {
-    const tx = await donation.claimDonation({gasLimit:1500000});
+    const tx = await donation.claimDonation();
   
     await tx.wait();
   
     return tx;
   } catch (error) {
-    throw error; // Certifique-se de que o erro seja capturado no chamador
+    throw error; 
   }
 }
 export async function getDonationAllowance(owner:string){
