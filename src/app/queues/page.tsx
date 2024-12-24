@@ -21,6 +21,7 @@ import {
         getTokensToWithdraw,
         coinPrice,
         withdrawTokens,
+        getNftsUser,
  } from "@/services/Web3Services";
 import { queueData } from '@/services/types';
 import { CustomArrowProps } from 'react-slick';
@@ -30,8 +31,11 @@ import ModalTokensToWithdraw from '@/componentes/ModalTokenToWithdraw';
 
 function Page1() {
 
-    const [visibleSlides, setVisibleSlides] = useState(3); // Valor inicial para desktop
+    const [visibleSlides, setVisibleSlides] = useState(3); 
     const { address, setAddress } = useWallet();
+    const [bronze, setBronze] = useState<number>(0);
+    const [silver, setSilver] = useState<number>(0);
+    const [gold, setGold] = useState<number>(0);
 
     /*------------------ GET QUEUE DETAILS ------------*/
 
@@ -54,8 +58,14 @@ function Page1() {
     const [alert, setAlert] = useState("");
     
     async function addQueueFront(tokenId: number) {
+        
+        if((tokenId == 3 && gold < 1)||(tokenId == 2 && silver < 1)||(tokenId == 1 && bronze < 1)){
+            setError("Not enough NFTs to add to the queue.");
+            return
+        }
         try {
             setLoading(true);
+            
     
             await addQueue(BigInt(tokenId), BigInt(1));
             setAlert("Added successfully");
@@ -64,6 +74,7 @@ function Page1() {
             getQueueGoldDetails();
 
         } catch (error: any) {
+            
             if (error.message.includes("You don't have this NFT")) {
                 setError("You don't own this NFT");
             } else {
@@ -120,6 +131,21 @@ function Page1() {
         } catch (error) {
         }
       }
+          async function getNftsUserFront() {
+              if(address){
+                  for(let i = 1; i<4; i++){
+                      const result = await getNftsUser(address,i);
+                      if(i === 1){
+                          setBronze(Number(result));
+                      }else if(i === 2){
+                          setSilver(Number(result));
+                      }else if(i === 3){
+                          setGold(Number(result))
+                      }
+                  }
+              }
+          }
+          
     async function getTokensToWithdrawF() {
         try{
             const result = await getTokensToWithdraw(address?address:"");
@@ -208,6 +234,7 @@ function Page1() {
         };
         const fetchData = () => {
             getCotation();
+            getNftsUserFront()
             verifyApprove();
             getQueueBronzeDetails();
             getQueueSilverDetails();
@@ -547,7 +574,10 @@ function Page1() {
                                     >
                                 <MdKeyboardDoubleArrowRight />
                              </button>
-                            <p className='mt-[10px] '>You have: {countUserNftGold}</p>
+                             <div className='p-2 mt-[10px]'>
+                             <p >You have on queue: {countUserNftGold}</p>
+                             <p >You have on wallet: {gold}</p>
+                             </div>
                         </div>
                     </div>
 
@@ -633,8 +663,10 @@ function Page1() {
                                     >
                                 <MdKeyboardDoubleArrowRight />
                              </button>
-                            <p className='mt-[10px]'>You have: {countUserNftSilver}</p>
-                        </div>
+                             <div className='p-2 mt-[10px]'>
+                             <p >You have on queue: {countUserNftSilver}</p>
+                             <p >You have on wallet: {silver}</p>
+                             </div>                        </div>
                     </div>
 
                     {/* ------------------ QUEUE BRONZE --------------------- */}
@@ -720,8 +752,10 @@ function Page1() {
                                     >
                                 <MdKeyboardDoubleArrowRight />
                              </button>
-                            <p className='mt-[10px]'>You have: {countUserNftBronze}</p>
-                        </div>
+                             <div className='p-2 mt-[10px]'>
+                             <p >You have on queue: {countUserNftBronze}</p>
+                             <p >You have on wallet: {bronze}</p>
+                             </div>                        </div>
                     </div>
                     <div className='w-[90%] sm:w-[70%]  bg-white bg-opacity-5 flex items-center sm:p-6 p-2 flex-col'>
                         <p className='text-3xl sm:text-xl font-bold'>You have to withdraw: </p>

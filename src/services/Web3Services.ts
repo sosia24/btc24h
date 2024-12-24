@@ -206,15 +206,23 @@ export async function getNftsUser(address: string, value: number, maxRetries = 3
     provider
   );
 
+  const mint2 = new ethers.Contract(
+    COLLECTION2 ? COLLECTION2 : "",
+    collection2Abi,
+    provider
+  );
+
   let attempt = 0;
 
   while (attempt < maxRetries) {
     try {
       const tx = await mint.balanceOf(address, value);
+      const tx2 = await mint2.balanceOf(address, value);
+      
       
       // If the transaction is successful, return the result.
-      if (tx !== undefined) {
-        return tx;
+      if (tx !== undefined && tx2 !== undefined) {
+        return tx+tx2;
       }
     } catch (error) {
     }
@@ -292,10 +300,11 @@ export async function donate(amount:string, isUsdt:boolean){
   }
 
   const maxFeePerGas = feeData.maxFeePerGas *3n;
-
+  
 
   let tx
   if(isUsdt){
+
     tx = await donation.donate(Number(amount)*10**6, isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
 
   }else{
