@@ -115,9 +115,7 @@ function Donation() {
   
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
         if (previewedClaim !== null) {
-          setBalanceToClaim(previewedClaim); // Apenas define o estado se o valor não for `null`
-        } else {
-          console.warn('Saldo retornado é nulo. Ignorando atualização do estado.');
+          setBalanceToClaim(previewedClaim);
         }
   
         const price = await getBtc24hPrice(); 
@@ -275,7 +273,7 @@ function Donation() {
         setError("Wallet address not found. Connect your wallet.");
         return;
       }
-  
+      
       if (balanceToClaim === 0n) {
         setLoading(false);
         setError("There is no balance available to claim.");
@@ -289,6 +287,9 @@ function Donation() {
       await fetchData(); 
     } catch (error:any) {
       setLoading(false);
+      if(error.reason == "AS"){
+        error.reason = "There is no balance available to claim."
+      }
       setError(error.reason || "Error: An unknown error");
     }
   };

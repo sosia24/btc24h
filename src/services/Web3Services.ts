@@ -218,7 +218,7 @@ export async function getNftsUser(address: string, value: number, maxRetries = 3
     try {
       const tx = await mint.balanceOf(address, value);
       const tx2 = await mint2.balanceOf(address, value);
-      
+
       
       // If the transaction is successful, return the result.
       if (tx !== undefined && tx2 !== undefined) {
@@ -303,16 +303,28 @@ export async function donate(amount:string, isUsdt:boolean){
   
 
   let tx
-  if(isUsdt){
+  try {
+    
 
-    tx = await donation.donate(Number(amount)*10**6, isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
 
-  }else{
-    tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    if(isUsdt){
+      const estimatedGas = await donation.donate.estimateGas(Number(amount)*10**6, isUsdt);
+      const gasLimit = estimatedGas * 150n / 100n;
 
+      tx = await donation.donate(Number(amount)*10**6, isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
+    }else{
+      const estimatedGas = await donation.donate.estimateGas(ethers.parseUnits(amount,"ether"), isUsdt);
+      const gasLimit = estimatedGas * 150n / 100n;
+
+      tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
+    }
+    const concluded = tx.wait();
+    return concluded;
+  } catch (error) {
+    console.error("Gas cannot be estimated:", error);
+    throw error; 
   }
-  const concluded = tx.wait();
-  return concluded;
+
 }
 export async function claim(){
   
@@ -334,12 +346,25 @@ export async function claim(){
   );
   
   try {
-    const tx = await donation.claimDonation({maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
-  
+
+    const estimatedGas = await donation.claimDonation.estimateGas();
+    
+
+    const gasLimit = estimatedGas * 130n / 100n;
+
+
+    // Envia a transação
+    const tx = await donation.claimDonation({
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      gasLimit,
+    });
+
     await tx.wait();
-  
+
     return tx;
   } catch (error) {
+    console.error("Gas cannot be estimated:", error);
     throw error; 
   }
 }
@@ -404,10 +429,8 @@ export async function getBtc24hPreviewedClaim(owner:string){
           provider
         );
   
-        // Faz a chamada ao contrato
         const balance = await donation.previewTotalValue(owner);
   
-        // Retorna o cálculo ajustado do saldo
         return balance -balance*75n/10000n;
   
       } catch (error) {
