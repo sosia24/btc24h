@@ -9,8 +9,11 @@ import Footer from "@/componentes/footer";
 import Link from "next/link";
 import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
-import { userUnilevelTotalDonated, getTreeUsers ,getBtc24hPrice  } from "@/services/Web3Services"; // Import getUser
+import { UserDonation } from "@/services/types";
+
+import { userUnilevelTotalDonated, getTreeUsers ,getBtc24hPrice, getUser  } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
+import { ethers } from "ethers";
 
 function Page1() {
   const [treeData, setTreeData] = useState<number[]>([]);
@@ -19,7 +22,7 @@ function Page1() {
   const [coinCotation, setCoinCotation] = useState<number | null>(null);
   const { address, setAddress } = useWallet();
   const [treeUsers, setTreeUsers] = useState<string[]>([]);
-
+  const [user, setUser] = useState<UserDonation| null>(null);
   
   useEffect(() => {
     async function fetchTreeData() {
@@ -65,18 +68,25 @@ function Page1() {
   useEffect(() => {
     if (!address) return;
 
-    const fetchData = () => {
-        fetchTreeUsers(address);
+    const fetchData = async () => {
+      try {
+        await fetchTreeUsers(address);
         getCotation();
+        const userData = await getUser(address);
+        setUser(userData);
+        
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     };
 
     fetchData();
     const interval = setInterval(fetchData, 10000);
 
     return () => {
-        clearInterval(interval);
+      clearInterval(interval);
     };
-}, [address]);
+  }, [address]);
 
 
   async function getCotation() {
@@ -118,7 +128,7 @@ function Page1() {
     try {
       if (address) {
         const referralLink = `${window.location.origin}?ref=${address}`;
-        await navigator.clipboard.writeText(referralLink); // Copia o link para a área de transferência
+        await navigator.clipboard.writeText(referralLink); 
         setCopied(true);
   
         setTimeout(() => {
@@ -164,11 +174,25 @@ function Page1() {
                 <p className="ml-[5px] font-bold text-[22px]">BTC24H/USDT</p>
               </div>
               <p className="text-[20px]">
-                {coinCotation
-                  ? coinCotation.toFixed(2).toLocaleString()
-                  : "...loading"}
-                $
-              </p>
+  {coinCotation
+    ? `$${coinCotation.toFixed(2).toLocaleString()}`
+    : "...loading"}
+</p>
+{
+  user&& user.balance > 0n ? <><p className="text-[20px] mt-8">
+  {user
+    ? `${ethers.formatEther(user.maxUnilevel)} BTC24H Max Limit`
+    : "...loading"}
+</p>
+
+<p className="text-[20px] mt-3">
+  {user
+    ? `${ethers.formatEther(user.unilevelReached)} BTC24H Reached`
+    : "...loading"}
+</p></> : ""
+}
+
+
               <div className="h-[100%] flex items-end justify-end">
                 <Link
                   href="/donation"
