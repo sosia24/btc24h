@@ -1078,3 +1078,44 @@ export async function nftOutQueue(address: string) {
 
   return number; // Retorna boolean
 }
+
+
+export async function totalGanhoToken(address:string){
+  const provider = await getProvider();
+
+  const connect = new ethers.Contract(DONATION_ADDRESS || "", donationAbi, provider)
+
+  const result = await connect.totalEarnedToken(address)
+
+  return result;
+}
+
+export async function totalPerdidoToken(address:string){
+  const provider = await getProvider();
+
+  const connect = new ethers.Contract(DONATION_ADDRESS || "", donationAbi, provider)
+
+  const result = await connect.totalLostToken(address)
+
+  return result;
+}
+
+export async function totalGanhoUsdt(address:string){
+  const provider = await getProvider();
+
+  const connect = new ethers.Contract(DONATION_ADDRESS || "", donationAbi, provider)
+
+  const result = await connect.totalEarnedToken(address)
+
+  return result;
+}
+
+export async function totalPerdidoUsdt(address:string){
+  const provider = await getProvider();
+
+  const connect = new ethers.Contract(DONATION_ADDRESS || "", donationAbi, provider)
+
+  const result = await connect.totalLostToken(address)
+
+  return result;
+}

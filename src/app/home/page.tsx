@@ -10,7 +10,7 @@ import Link from "next/link";
 import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { UserDonation } from "@/services/types";
-
+import Marquee from "@/componentes/marquee";
 import { userUnilevelTotalDonated, getTreeUsers ,getBtc24hPrice, getUser  } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
 import { ethers } from "ethers";
@@ -23,6 +23,9 @@ function Page1() {
   const { address, setAddress } = useWallet();
   const [treeUsers, setTreeUsers] = useState<string[]>([]);
   const [user, setUser] = useState<UserDonation| null>(null);
+
+
+
   
   useEffect(() => {
     async function fetchTreeData() {
@@ -72,6 +75,7 @@ function Page1() {
       try {
         await fetchTreeUsers(address);
         getCotation();
+
         const userData = await getUser(address);
         setUser(userData);
         
@@ -87,7 +91,6 @@ function Page1() {
       clearInterval(interval);
     };
   }, [address]);
-
 
   async function getCotation() {
     try {
@@ -142,7 +145,9 @@ function Page1() {
 
   return (
     <>
-      <div className="p-4 w-full lg:h-screen flex justify-center items-center overflow-hidden">
+    <Marquee></Marquee>
+      <div className="p-4 mt-[20px] w-full lg:h-screen flex justify-center items-center overflow-hidden">
+        
         <div className="lg:w-[90%] p-4 w-[98%] h-[100%] flex flex-col mt-[40px]">
           <div className="p-4 px-2 w-full flex flex-col mt-[10px] items-center overflow-x-hidden overflow-y-hidden mb-[30px]">
             <div className="flex text-black md:flex-col w-full justify-center items-center">
@@ -179,15 +184,16 @@ function Page1() {
     : "...loading"}
 </p>
 {
-  user&& user.balance > 0n ? <><p className="text-[20px] mt-8">
+  user && user.balance > 0n ? <>
+  <p className="text-[20px] mt-8">
   {user
-    ? `${ethers.formatEther(user.maxUnilevel)} BTC24H Max Limit`
+    ? `${parseFloat(ethers.formatEther(user.maxUnilevel)).toFixed(2)} BTC24H Max Limit`
     : "...loading"}
 </p>
 
 <p className="text-[20px] mt-3">
   {user
-    ? `${ethers.formatEther(user.unilevelReached)} BTC24H Reached`
+    ? `${parseFloat(ethers.formatEther(user.unilevelReached)).toFixed(2)} BTC24H Reached`
     : "...loading"}
 </p></> : ""
 }

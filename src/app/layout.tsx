@@ -56,7 +56,20 @@ export default function RootLayout({
           >
             
                 <Analytics></Analytics>
+
+
+                
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
+              <div className="w-[80%] rounded-3xl bg-white bg-opacity-10 mt-[100px] p-6 text-[16px]">
+              Due to the extraordinary growth of our community, and to ensure even more efficient and sustainable system operations, we are pleased to announce that, starting today, December 26, 2024, all contributions made in USDT will have 20% allocated to distribution across 40 levels, paid directly in USDT, with no earnings limit.<br></br>
+              For contributions made in BTC24H, a distribution of 5% across 40 levels will be applied. This strategy has been carefully designed to protect the value of the currency, promote its scarcity, and ensure the continuous sustainability of the ecosystem.<br></br>
+              All changes to the unilevel distribution have been planned with a single goal in mind: to ensure the system’s stability and longevity, allowing every member to continue benefiting in a stable and profitable way.<br></br>
+              We take this opportunity to congratulate the entire community on the exceptional work accomplished so far. We wish everyone an excellent 2025, filled with achievements and success.<br></br> Together, we will continue building an even more promising future!<br></br>
+              <br></br>
+
+              Warm regards,<br></br>
+              <span className="font-bold">The BTC24H Team</span>
+              </div>
               {children}
               <div className="w-[100%] flex justify-center flex-row">
                
