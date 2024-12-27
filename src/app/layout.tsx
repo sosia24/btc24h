@@ -60,15 +60,38 @@ export default function RootLayout({
 
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
-              <div className="w-[80%] rounded-3xl bg-white bg-opacity-10 mt-[100px] p-6 text-[16px]">
-              Due to the extraordinary growth of our community, and to ensure even more efficient and sustainable system operations, we are pleased to announce that, starting today, December 26, 2024, all contributions made in USDT will have 20% allocated to distribution across 40 levels, paid directly in USDT, with no earnings limit.<br></br>
-              For contributions made in BTC24H, a distribution of 5% across 40 levels will be applied. This strategy has been carefully designed to protect the value of the currency, promote its scarcity, and ensure the continuous sustainability of the ecosystem.<br></br>
-              All changes to the unilevel distribution have been planned with a single goal in mind: to ensure the system’s stability and longevity, allowing every member to continue benefiting in a stable and profitable way.<br></br>
-              We take this opportunity to congratulate the entire community on the exceptional work accomplished so far. We wish everyone an excellent 2025, filled with achievements and success.<br></br> Together, we will continue building an even more promising future!<br></br>
-              <br></br>
+              <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
+              📢 Official Announcement BTC24H<br></br>
 
-              Warm regards,<br></br>
-              <span className="font-bold">The BTC24H Team</span>
+              Since the beginning of our journey, we have faced significant challenges, including an unexpected coin dump in the market.<br></br>
+
+              This obstacle has motivated us to seek innovative solutions to protect our economy and ensure the longevity of a project that impacts so many lives daily.<br></br>
+              We are building something revolutionary in the market, and to achieve this goal, we have made strategic decisions that prioritize the sustainability and decentralization of our community.<br></br>
+
+              Additionally, we rely on the powerful mechanism of the secondary pool, which already provides an essential layer of protection for our economy.<br></br>
+
+              💡 Moving Forward with Smart Solutions<br></br>
+
+              Last week, we successfully implemented the first practical test of the anti-whale system, an essential step to ensure market stability.<br></br>
+
+              When there are large sales that could cause imbalances, we will take action with the Economic Strengthening Week, rebalancing the market fairly and sustainably.<br></br>
+              📅 Economic Strengthening Week<br></br>
+              🗓️ From Sunday, December 29, 2024, at 00:00 UTC, until January 5, 2025, at 00:00 UTC.<br></br>
+
+              From today until next Sunday, the Contribution function will be temporarily disabled.
+              During this period, it is essential for all members to perform the Claim to receive their coins and prepare for the strengthening week.<br></br>
+
+              During the strengthening week, you can make your contributions at a fixed rate of $0.40, both at the time of contribution and claim, regardless of whether in USDT or BTC24H. This mechanism will naturally bring the price back to its normal market level.<br></br>
+
+              ⚠️ This mechanism will be active for 7 days or until the market gradually values the coin to $0.40. After this period, everything will return to normal.<br></br>
+
+              We believe that the effort and dedication of every member of our community should be valued.<br></br>
+              Our commitment is to deliver real benefits and build an ecosystem that transforms lives, delivering an unprecedented asset to the market.<br></br>
+
+              We are all together in this mission of growth and positive impact.<br></br>
+
+              Best Regards,<br></br>
+              <span className="font-bold">DAO BTC24H Team</span>
               </div>
               {children}
               <div className="w-[100%] flex justify-center flex-row">
