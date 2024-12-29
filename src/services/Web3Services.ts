@@ -431,7 +431,7 @@ export async function getBtc24hPreviewedClaim(owner:string){
   
         const balance = await donation.previewTotalValue(owner);
   
-        return balance -balance*75n/10000n;
+        return balance;
   
       } catch (error) {
         console.error(`Erro na tentativa ${attempt}:`, error);

@@ -127,7 +127,8 @@ function Donation() {
         const totalBurned = await getTotalBurned();
         setTotalBurned(totalBurned);
         
-        setBtc24hPrice(price);
+        /* setBtc24hPrice(price) */
+        setBtc24hPrice(BigInt(400000));
 
       } catch (error) {
       }
@@ -184,7 +185,8 @@ function Donation() {
     const fetchPriceInterval = setInterval(async () => {
       try {
         const price = await getBtc24hPrice();
-        setBtc24hPrice(price);
+        /* setBtc24hPrice(price) */
+        setBtc24hPrice(BigInt(400000));
       } catch (error) {
       }
     }, 15000); 
