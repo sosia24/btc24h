@@ -22,6 +22,7 @@ function Donation() {
   const [timeUntil, setTimeUntil] = useState("00h:00min:00s");
   const [timeUntilNumber, setTimeUntilNumber] = useState<Number>(0)
   const [balanceToClaim, setBalanceToClaim] = useState<bigint>(0n);
+  const [btc24hRealPrice, setBtc24hRealPrice] = useState<bigint>(0n);
   const [btc24hPrice, setBtc24hPrice] = useState<bigint>(0n);
   const [nextPool, setNextPool] = useState<bigint>(0n);
   const [totalBurned, setTotalBurned] = useState<bigint>(0n);
@@ -127,7 +128,7 @@ function Donation() {
         const totalBurned = await getTotalBurned();
         setTotalBurned(totalBurned);
         
-        /* setBtc24hPrice(price) */
+        setBtc24hRealPrice(price)
         setBtc24hPrice(BigInt(400000));
 
       } catch (error) {
@@ -185,7 +186,7 @@ function Donation() {
     const fetchPriceInterval = setInterval(async () => {
       try {
         const price = await getBtc24hPrice();
-        /* setBtc24hPrice(price) */
+        setBtc24hRealPrice(price) 
         setBtc24hPrice(BigInt(400000));
       } catch (error) {
       }
@@ -541,9 +542,9 @@ async function clearAlert(){
         {
   !donateWithUsdt ? (
     <p 
-      className={`text-lg mb-4 ${Number(ethers.formatUnits((BigInt(donationAmount) * btc24hPrice), 6)).toFixed(2) < String(10) ? 'text-red-500' : 'text-gray-800'}`}
+      className={`text-lg mb-4 ${Number(ethers.formatUnits((BigInt(donationAmount) * btc24hRealPrice), 6)).toFixed(2) < String(10) ? 'text-red-500' : 'text-gray-800'}`}
     >
-      {Number(ethers.formatUnits((BigInt(donationAmount) * btc24hPrice), 6)).toFixed(2)} U$
+      {Number(ethers.formatUnits((BigInt(donationAmount) * btc24hRealPrice), 6)).toFixed(2)} U$
     </p>
   ) : ""
 }

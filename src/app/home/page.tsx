@@ -180,7 +180,7 @@ function Page1() {
               </div>
               <p className="text-[20px]">
   {coinCotation
-    ? `$${coinCotation.toFixed(2).toLocaleString()}`
+    ? `$${coinCotation.toFixed(3).toLocaleString()}`
     : "...loading"}
 </p>
 {
