@@ -63,34 +63,71 @@ export default function RootLayout({
               <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
               📢 Official Announcement BTC24H<br></br>
 
-              Since the beginning of our journey, we have faced significant challenges, including an unexpected coin dump in the market.<br></br>
+🚀 We are about to embark on a historic operation that will elevate our currency to new heights in 2025! With the unity and strength of our community, we will conduct a major coin purchase operation in the market, using contributions exclusively in USDT. This strategic move will reduce the number of coins in circulation, increasing their value and strengthening our economy.
 
-              This obstacle has motivated us to seek innovative solutions to protect our economy and ensure the longevity of a project that impacts so many lives daily.<br></br>
-              We are building something revolutionary in the market, and to achieve this goal, we have made strategic decisions that prioritize the sustainability and decentralization of our community.<br></br>
+<br></br>
 
-              Additionally, we rely on the powerful mechanism of the secondary pool, which already provides an essential layer of protection for our economy.<br></br>
+💰 Operation Details:
+<br></br>
 
-              💡 Moving Forward with Smart Solutions<br></br>
 
-              Last week, we successfully implemented the first practical test of the anti-whale system, an essential step to ensure market stability.<br></br>
+ NFT WBTC: Our innovative automatic liquidity creator. By purchasing an NFT WBTC, 50% of the purchase value will be automatically allocated to the creation of a WBTC/BTC24H liquidity pool.
+ <br></br>
 
-              When there are large sales that could cause imbalances, we will take action with the Economic Strengthening Week, rebalancing the market fairly and sustainably.<br></br>
-              📅 Economic Strengthening Week<br></br>
-              🗓️ From Sunday, December 29, 2024, at 00:00 UTC, until January 5, 2025, at 00:00 UTC.<br></br>
+Price and Distribution: Each unit of NFT WBTC costs $250. The distribution of earnings will be as follows:
+<br></br>
 
-              From today until next Sunday, the Contribution function will be temporarily disabled.
-              During this period, it is essential for all members to perform the Claim to receive their coins and prepare for the strengthening week.<br></br>
+ 20% in a multi-level marketing system distributed over 40 levels.
+ <br></br>
 
-              During the strengthening week, you can make your contributions at a fixed rate of $0.40, both at the time of contribution and claim, regardless of whether in USDT or BTC24H. This mechanism will naturally bring the price back to its normal market level.<br></br>
+ 30% for NFTs of different categories (Bronze, Silver, and Gold).
+ <br></br>
 
-              ⚠️ This mechanism will be active for 7 days or until the market gradually values the coin to $0.40. After this period, everything will return to normal.<br></br>
+ 50% for the creation of the WBTC/BTC24H liquidity pool.
 
-              We believe that the effort and dedication of every member of our community should be valued.<br></br>
-              Our commitment is to deliver real benefits and build an ecosystem that transforms lives, delivering an unprecedented asset to the market.<br></br>
+<br></br>
 
-              We are all together in this mission of growth and positive impact.<br></br>
+📊 Liquidity and Earnings:
+<br></br>
 
-              Best Regards,<br></br>
+ NFTs will be sold 100% in USDT.
+ <br></br>
+
+ NFT earnings will be 100% in WBTC.
+ <br></br>
+
+ Users who purchase NFTs will be paid in a queue system, with payments to five in front and five behind.
+
+<br></br>
+
+💡 New Updates:
+<br></br>
+
+ Starting today, to honor all the people who work daily for the growth of our community, we will reduce the burn from the act of contribution from 15% to 5%.
+ <br></br>
+
+ The remaining 10% will be allocated to a direct referral commission on contributions.
+ <br></br>
+
+ With these adjustments, everyone will have a 48-hour period to make their claims of $0.40 per unit of currency.
+ <br></br>
+
+ After this period, contributions will be 100% in USDT and payments will be made in BTC24H based on the market rate.
+ <br></br>
+
+
+🚀 We are just at the beginning of an incredible journey. 2025 will be the year when our united and strong community shows the world the true power of BTC24H. Get ready for an unprecedented market movement!
+<br></br>
+
+
+🙌 Together, BTC24H community! The future is ours!
+<br></br>
+
+
+Sincerely,
+
+<br></br>
+
               <span className="font-bold">DAO BTC24H Team</span>
               </div>
               {children}

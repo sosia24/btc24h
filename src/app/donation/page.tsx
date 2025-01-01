@@ -503,7 +503,9 @@ async function clearAlert(){
               >
                 USDT
               </button>
-     
+     {
+      /*
+     }
               <button
                 onClick={() => {
                   setDonateWithUsdt(false);
@@ -517,6 +519,8 @@ async function clearAlert(){
               >
                 BTC24H
               </button>
+              {
+              */}
     
             </div>
           </div>
