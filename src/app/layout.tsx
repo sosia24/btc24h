@@ -60,38 +60,21 @@ export default function RootLayout({
 
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
-              <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
-              📢 Official Announcement BTC24H<br></br>
+              <div className="w-[80%] h-[300px] overflow-y-auto rounded-3xl bg-white text-black mt-[100px] p-8 text-[16px]">
+              BTC24H Community: A New Milestone of Success<br></br><br></br>
 
-              Since the beginning of our journey, we have faced significant challenges, including an unexpected coin dump in the market.<br></br>
+                We are thrilled to announce a significant advancement in our project! The final adjustments are being completed and integrated into our smart contracts, ensuring greater precision and transparency. By listening closely to our community, we identified and corrected a discrepancy in the number of coins displayed in the Back Office. Now, the numbers will reflect 100% of the reality recorded on the Blockchain, bringing even more confidence to all our members.<br></br><br></br>
 
-              This obstacle has motivated us to seek innovative solutions to protect our economy and ensure the longevity of a project that impacts so many lives daily.<br></br>
-              We are building something revolutionary in the market, and to achieve this goal, we have made strategic decisions that prioritize the sustainability and decentralization of our community.<br></br>
+                We are committed to building a solid and balanced economy. Our project operates tirelessly, 24 hours a day, every day, and each step is carefully planned to offer a decentralized and enduring solution.<br></br><br></br>
 
-              Additionally, we rely on the powerful mechanism of the secondary pool, which already provides an essential layer of protection for our economy.<br></br>
+                The Future is Promising for Those Who Build with Us!<br></br>
+                We deeply appreciate everyone who believes in and supports BTC24H. We are just at the beginning of a victorious journey, and those who have acquired our coins will be at the center of these achievements. This will be the year we celebrate great profits and victories together!<br></br><br></br>
 
-              💡 Moving Forward with Smart Solutions<br></br>
+                Our next big step is already underway: the launch of the NFT WBTC, an innovation that will bring automatic liquidity to the market. We are strategically integrating each calculation and action to raise the value of our coin to $0.40, increasing its liquidity and consolidating its position in the market.<br></br><br></br>
 
-              Last week, we successfully implemented the first practical test of the anti-whale system, an essential step to ensure market stability.<br></br>
+                The development team expresses its unconditional gratitude to the community, which, with enthusiasm and focus, is helping to highlight our asset. Together, we are building a grand future!<br></br><br></br>
 
-              When there are large sales that could cause imbalances, we will take action with the Economic Strengthening Week, rebalancing the market fairly and sustainably.<br></br>
-              📅 Economic Strengthening Week<br></br>
-              🗓️ From Sunday, December 29, 2024, at 00:00 UTC, until January 5, 2025, at 00:00 UTC.<br></br>
-
-              From today until next Sunday, the Contribution function will be temporarily disabled.
-              During this period, it is essential for all members to perform the Claim to receive their coins and prepare for the strengthening week.<br></br>
-
-              During the strengthening week, you can make your contributions at a fixed rate of $0.40, both at the time of contribution and claim, regardless of whether in USDT or BTC24H. This mechanism will naturally bring the price back to its normal market level.<br></br>
-
-              ⚠️ This mechanism will be active for 7 days or until the market gradually values the coin to $0.40. After this period, everything will return to normal.<br></br>
-
-              We believe that the effort and dedication of every member of our community should be valued.<br></br>
-              Our commitment is to deliver real benefits and build an ecosystem that transforms lives, delivering an unprecedented asset to the market.<br></br>
-
-              We are all together in this mission of growth and positive impact.<br></br>
-
-              Best Regards,<br></br>
-              <span className="font-bold">DAO BTC24H Team</span>
+                <span>BTC24H: the path of innovation and prosperity starts here.</span>
               </div>
               {children}
               <div className="w-[100%] flex justify-center flex-row">
