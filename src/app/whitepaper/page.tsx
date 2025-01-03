@@ -4,7 +4,7 @@ import Flag from 'react-world-flags';
 
 function App() {
   // Função para abrir o PDF correspondente
-  const openPDF = (pdfUrl) => {
+  const openPDF = (pdfUrl: string) => {
     window.open(pdfUrl, '_blank'); // Abre em uma nova aba
   };
 
