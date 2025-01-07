@@ -479,7 +479,7 @@ export async function getTimeUntilToClaim(owner:string){
   return time;
 }
 
-/* 
+
 export async function getUser(owner:string){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
@@ -494,7 +494,7 @@ export async function getUser(owner:string){
   
   return user;
 }
-  */
+  
 
 export async function getNextPool(){
   

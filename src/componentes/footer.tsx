@@ -9,12 +9,9 @@ import { AiFillDollarCircle } from "react-icons/ai";
 import { useWallet } from '@/services/walletContext';
 import { FaUserCog } from "react-icons/fa";
 import { useEffect } from "react";
-import { doLogin } from "@/services/Web3Services";
 import Image from "next/image";
-import { BrowserProvider } from 'ethers';
 import { useRef } from "react";
 
-const CHAIN_ID = '0x89'
 
 
 
@@ -65,67 +62,6 @@ export default function Footer(){
     };
 
 
-    const handleLogin = async () => {
-      try {
-        const newAddress = await doLogin();
-        setAddress(newAddress);
-      } catch (err) {
-      }
-    };
-
-    const checkNetwork = async () => {
-      if (typeof window.ethereum !== 'undefined') {
-        const web3Provider = new BrowserProvider(window.ethereum);
-        const { chainId } = await web3Provider.getNetwork();
-  
-        
-        const networkIdBigInt = BigInt(parseInt(CHAIN_ID, 16));
-  
-        if (chainId !== networkIdBigInt) {
-          try {
-            // Solicitar troca de rede
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: CHAIN_ID }],
-            });
-          } catch (error) {
-            // Se a rede não estiver disponível, adicione-a
-            if (error instanceof Error && 'code' in error) {
-              const err = error as { code: number }; // Especifica que 'error' tem um campo 'code'
-          
-              if (err.code === 4902) {
-                try {
-                  await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [
-                      {
-                        chainId: '0x89', // Exemplo para Polygon Mainnet
-                        chainName: 'Polygon Mainnet',
-                        nativeCurrency: {
-                          name: 'MATIC',
-                          symbol: 'MATIC',
-                          decimals: 18,
-                        },
-                        rpcUrls: ['https://rpc-mainnet.matic.network'],
-                        blockExplorerUrls: ['https://polygonscan.com/'],
-                      },
-                    ],
-                  });
-                } catch (addError) {
-                  console.error('Erro ao adicionar a rede:', addError);
-                }
-              }
-            } else {
-              console.error('Erro desconhecido:', error);
-            }
-          }
-        }
-      }
-    }
-  
-    useEffect(() => {
-      checkNetwork();
-    }, []);
 
     const handleDisconnect = () => {
       setAddress(null); // Limpa o estado da conta conectada
