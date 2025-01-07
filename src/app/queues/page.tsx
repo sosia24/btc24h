@@ -558,7 +558,7 @@ function Page1() {
                                         >
                                         <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
                                         <p>Position: {index+1}</p>
-                                        <p>Received: 300$</p>
+                                        <p>Received: 300 $</p>
                                         </div>
                                     )
                                     
