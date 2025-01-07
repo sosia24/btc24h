@@ -20,7 +20,15 @@ import {
     setApprovalForAll,
     activeUnilevelNft,
     timeUntilInactiveNfts,
-    
+    approveUSDTwbtc,
+    getAllowanceUsdtWbtc,
+    buyNftWbtc,
+    wbtcNftNumber,
+    approveWbtcNft,
+    verifyApprovalWbtc,
+    activateWbtcNft,
+    isActiveNftWbtc,
+    timeUntilInactiveNftsWbtc,
 }from "@/services/Web3Services";
 
 function Page1(){
@@ -28,12 +36,15 @@ function Page1(){
     const [error, setError] = useState("");
     const [alert, setAlert] = useState("");
     const [allowanceUsdt, setAllowanceUsdt] = useState<bigint>(0n);
+    const [allowanceUsdtWbtc, setAllowanceUsdtWbtc] = useState<bigint>(0n);
     const [bronze, setBronze] = useState<number>(0);
     const [silver, setSilver] = useState<number>(0);
     const [gold, setGold] = useState<number>(0);
-    const [isActive, setIsActive] = useState<boolean[]>([false,false,false]);
-    const [timeUntil, setTimeUntil] = useState<bigint[]>([0n,0n,0n]);
-    const [quantity, setQuantity] = useState<number[]>([1,1,1]);
+    const [wbtc, setWbtc] = useState<number>(0);
+    const [isActive, setIsActive] = useState<boolean[]>([false,false,false, false]);
+    const [timeUntil, setTimeUntil] = useState<bigint[]>([0n,0n,0n,0n]);
+    const [quantity, setQuantity] = useState<number[]>([1,1,1,1]);
+    const [approvalWbtcUnilevel, setApprovalWbtcUnilevel] = useState<boolean>()
 
     const [isApprovedNftV, setIsApprovedNftV] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
@@ -49,6 +60,109 @@ function Page1(){
     }
         
 
+
+
+
+
+
+
+
+
+
+
+    async function getTimeActiveWbtc(){
+      if(address){
+        try{
+          const result = await timeUntilInactiveNftsWbtc(address)
+          setTimeUntil((prev) => {
+            const updatedState = [...prev]; // Cria uma cópia do estado atual
+            updatedState[3] = result;      // Atualiza o índice 3
+            return updatedState;           // Retorna o novo estado
+          });
+        }catch(error){
+
+        }
+      }
+    }
+
+    async function isActiveWbtcFront(){
+      if(address){
+        const result = await isActiveNftWbtc(address);
+        if(result){
+          setIsActive((prev) => {
+            const updatedState = [...prev]; // Cria uma cópia do estado atual
+            updatedState[3] = result;      // Atualiza o índice 3
+            return updatedState;           // Retorna o novo estado
+          });
+        }
+      }
+    }
+
+
+    async function activeNftWbtc(){
+      setLoading(true);
+      try{
+        const result = await activateWbtcNft();
+        if(result){
+          setAlert("Success");
+          setLoading(false)
+        }
+      }catch(error){
+        setLoading(false)
+      }
+    }
+
+    async function getApprovalWbtcUnilevel(isQueue:boolean){
+      try{  
+        if(address){
+          const result = await verifyApprovalWbtc(address,isQueue);
+          console.log("result approval: ", result)
+          if(result){
+            setApprovalWbtcUnilevel(result);
+          }
+        }
+      }catch(error){
+
+      }
+    }
+
+
+    async function approveUnilevelWbtcNft(isQueue:boolean){
+      setLoading(true)
+      try{
+        const result = await approveWbtcNft(isQueue)
+        if(result){
+          setLoading(false)
+          getApprovalWbtcUnilevel(isQueue);
+          setAlert("Approve Success")
+          fetch();
+        }
+      }catch(error){
+        setLoading(false)
+      }
+    }
+
+
+    async function wbtcNftUser(){
+      try{
+        if(address){
+          
+          const result = await wbtcNftNumber(address)
+          console.log(result)
+          if(result){
+            setWbtc(Number(result))
+          }
+        }
+      }catch(error){
+
+      }
+    }
+
+    useEffect(() =>{
+      wbtcNftUser();
+    })
+
+
     async function doApproveUsdt(value: Number){
         setLoading(true);
         try{
@@ -61,6 +175,83 @@ function Page1(){
             setLoading(false)
         }
     }
+
+    async function doApproveUsdtWbtc(value: Number){
+      setLoading(true);
+      try{
+          const result = await approveUSDTwbtc(value);
+          if(result){
+              getAllowanceUsdtWbtcFront();
+              setLoading(false)
+          }
+      }catch(error){
+          setLoading(false)
+      }
+  }
+
+  async function getAllowanceUsdtWbtcFront(){
+    try{
+        if(address){
+                const result = await getAllowanceUsdtWbtc(address);
+
+                
+                setAllowanceUsdtWbtc(result); 
+            }
+    }catch(error){
+
+    }
+}
+
+async function buyNftWbtcFront() {
+ // await requireRegistration(() => {});
+  console.log("hello word")
+  setLoading(true);
+  try {
+
+    const result = await buyNftWbtc(quantity[3]); // Executa a compra
+
+    if (result && result.status === 1) { // status 1 significa sucesso
+      setAlert("NFT purchased successfully");
+
+      // Aguarde a atualização do allowance após a compra
+      await getAllowanceUsdtWbtcFront(); 
+
+      // Atualiza outras informações
+      await getIsApprovedNft();
+      await getNftsUserFront();
+      await wbtcNftUser()
+      await fetch(); // Atualiza os dados gerais
+    } else {
+      throw new Error("Transaction failed unexpectedly");
+    }
+  } catch (error) {
+    console.error("Erro na compra do NFT:", error); // Log detalhado
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     async function doApproveCollection(){
 
         setLoading(true);
@@ -187,9 +378,11 @@ function Page1(){
             updated[index] = true;
             setAlert("Nft Active");
             getIsActiveStatus();
+            isActiveWbtcFront();
             getIsApprovedNft();
             getTimeUntilStatus()
             getTimeUntilStatus();
+            getTimeActiveWbtc();
             return updated;
           });
         }
@@ -202,14 +395,13 @@ function Page1(){
         getAllowanceUsdtFront();
         getNftsUserFront();
         getIsActiveStatus();
+        isActiveWbtcFront();
         getIsApprovedNft();
         getTimeUntilStatus()
-        
-      {
-
-        
-        
-      }
+        getTimeActiveWbtc()
+        getAllowanceUsdtWbtcFront();
+        getApprovalWbtcUnilevel(false);
+        wbtcNftUser();
     }
     
     useEffect(() => {
@@ -509,6 +701,128 @@ function Page1(){
       </div>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {/* Wbtc */}
+  <div className="lg:w-[33%] w-full h-auto flex flex-col items-center lg:items-start lg:flex-row lg:mt-0 mt-[30px]">
+    <div className="z-10 w-[50%] flex-shrink-0">
+      <Image alt="prata" src={"/images/wbtc_logo.png"} width={250} height={250} className="mx-auto lg:mx-0"></Image>
+    </div>
+    <div className="bg-white bg-opacity-15 w-[90%] lg:w-[230px] mt-[20px] h-auto text-white p-4 rounded-xl lg:ml-[-80px] z-0">
+      <div className="lg:text-right text-center font-semibold text-[18px]">
+        <p className="">Nft WBTC</p>
+      </div>
+      <div className="w-full text-white flex flex-col lg:items-end items-center justify-center">
+        <div className="w-[80%] bg-green-500 rounded-2xl bg-opacity-10 flex flex-col items-center justify-center p-2">
+          <div className="flex flex-row items-center justify-center">
+            <p>$</p>
+            <p className="font-bold text-[4vh] lg:text-[45px]">{String(250*quantity[3])}</p>
+          </div>
+          <p className="flex bottom-0 mt-[-10px] text-center lg:text-right">
+            Win <span className="text-[#f6d600] ml-[5px]"> 2.0x</span>
+          </p>
+        </div>
+        <div className="flex flex-col text-center">
+          <p>Quantity</p>
+          <div className="flex items-center">
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-l-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[3] = Math.max(1, updated[3] - 1); // Decrementa mas garante que não fique abaixo de 1
+        return updated;
+      });
+    }}
+  >
+    -
+  </button>
+  <input
+    type="number"
+    value={quantity[3]}
+    className="border rounded-md w-[100px] p-2 text-center text-black focus:outline-none"
+    onChange={(e) => {
+      const newValue = parseInt(e.target.value, 10); // Obtém o valor do input
+      setQuantity((prev) => {
+        const updated = [...prev]; // Cria uma cópia do array atual
+        updated[3] = newValue || 1; // Atualiza a posição 1 com o novo valor
+        return updated; // Retorna o novo array para atualizar o estado
+      });
+    }}
+  />
+  <button
+    className="bg-gray-200 px-2 py-1 rounded-r-md text-black hover:bg-gray-300"
+    onClick={() => {
+      setQuantity((prev) => {
+        const updated = [...prev];
+        updated[3] = updated[3] + 1; // Incrementa o valor
+        return updated;
+      });
+    }}
+  >
+    +
+  </button>
+</div>
+
+        </div>
+        {allowanceUsdtWbtc >= 250000000 *quantity[3]? (
+          <button
+            onClick={async () => {
+              buyNftWbtcFront();
+            }}
+            className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
+          >
+            Buy Nft
+          </button>
+        ) : (
+          <button
+            onClick={async () => {
+              doApproveUsdtWbtc(250000000*quantity[3]);
+            }}
+            className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#ffea00]"
+          >
+            Approve
+          </button>
+        )}
+        <p className="w-full lg:text-end text-center mt-[3px]">
+          You have: {wbtc}
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
 
             <section className="pb-[250px] sm:pb-[150px] w-full mt-10 sm:mt-0 md:mt-0 ">
@@ -622,6 +936,68 @@ function Page1(){
       <p className="text-white flex flex-row items-center justify-center text-[18px]"><MdOutlineAttachMoney className="text-green-500 mr-[3px]"></MdOutlineAttachMoney> 0.5%</p>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   {/* Wbtc NFT */}
+   <div className="flex flex-col items-center relative">
+    <img className="w-[180px] lg:w-[260px] h-[260px] object-contain" src="images/wbtc_logo.png" alt="silver" />
+    <span className="mt-2 font-semibold text-xl text-center">Wbtc NFT</span>
+    <div className="w-full text-center mt-4 text-black">
+      { !approvalWbtcUnilevel ? (
+        <button
+          className="bg-[#2DFF4A] p-2 rounded-3xl font-semibold text-xl w-[181px]"
+          onClick={() => approveUnilevelWbtcNft(false)}
+        >
+          Approve
+        </button>
+      ) : (
+        <>
+          <button
+            className="bg-[#2DFF4A] p-2 rounded-3xl font-semibold text-xl w-[181px]"
+            disabled={isActive[3]}
+            onClick={async () => activeNftWbtc()}
+          >
+            {isActive[3] ? "Activated" : "Activate NFT"}
+          </button>
+          <p className="text-white mt-2 text-center">
+            {isActive[3] && timeUntil[3] > 0n && (
+              <>Time remaining: <span className="text-[#2DFF4A] font-bold">{formatTime(timeUntil[3])}</span></>
+            )}
+          </p>
+        </>
+      )}
+      <p className="text-white flex flex-row p-2 mt-[10px] justify-center"><SiFireship className="text-orange-500 mr-[10px]"></SiFireship> 1/40 levels</p>
+      <p className="text-white flex flex-row items-center justify-center text-[18px]"><MdOutlineAttachMoney className="text-green-500 mr-[3px]"></MdOutlineAttachMoney> 0.5%</p>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </main>
 
             </section>

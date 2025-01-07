@@ -11,10 +11,17 @@ import paymentManagerAbi from "./abis/payment.manager.abi.json"
 import distributeAbi from "./abis/distribute.abi.json"
 
 import collection2Abi from "./abis/collection2.abi.json"
-
 import {queueData} from "./types"
 
+import wbtcAbi from "./abis/wbtc.abi.json"
+import wbtcCollectionAbi from "./abis/wbtc_collection.abi.json"
+import wbtcQueueAbi from "./abis/wbtc_queue.abi.json"
+import usdtWbtcAbi from "./abis/usdtwbtc.abi.json"
+import wbtcOracleAbi from "./abis/wbtcOracle.abi.json"
+
+
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
+const CHAIN_ID_AMOY = process.env.NEXT_PUBLIC_CHAIN_ID_AMOY;
 const DONATION_ADDRESS = process.env.NEXT_PUBLIC_DONATION;
 const USDT_ADDRESS = process.env.NEXT_PUBLIC_USDT;
 const BTC24H_ADDRESS = process.env.NEXT_PUBLIC_BTC24H;
@@ -26,12 +33,16 @@ const RPC_ADDRESS = process.env.NEXT_PUBLIC_RPC
 const PAYMENT_MANAGER = process.env.NEXT_PUBLIC_PAYMENT_MANAGER
 
 const DISTRIBUTE_NFT = process.env.NEXT_PUBLIC_DISTRIBUTE_NFT
-const QUEUE2 = process.env.NEXT_PUBLIC_QUEUE2
 const COLLECTION2 = process.env.NEXT_PUBLIC_COLLECTION2
 
+const WBTC_ADDRESS = process.env.NEXT_PUBLIC_WBTC;
+const WBTC_QUEUE_ADDRESS = process.env.NEXT_PUBLIC_WBTC_QUEUE;
+const WBTC_COLLECTION_ADDRESS = process.env.NEXT_PUBLIC_WBTC_COLLECTION;
+const USDT_ADDRESS_WBTC = process.env.NEXT_PUBLIC_WBTC_USDT;
+const WBTC_ORACLE_ADDRESS = process.env.NEXT_PUBLIC_WBTC_ORACLE;
+
+
 const maxPriorityFeePerGas = ethers.parseUnits("35","gwei");
-
-
 
 /*------------ CONNECT WALLET --------------*/
 function getProvider() {
@@ -45,13 +56,13 @@ export async function doLogin() {
     const account = await provider.send("eth_requestAccounts", []);
     if (!account || !account.length)
       throw new Error("Wallet not found/allowed.");
-    await provider.send("wallet_switchEthereumChain", [{ chainId: CHAIN_ID }]);
     return account[0];
   } catch (error) {
     throw error;
   }
 }
 
+/* 
 /*------------ UNILEVEL --------------*/
 export async function userUnilevelTotalDonated(
   address: string,
@@ -468,6 +479,7 @@ export async function getTimeUntilToClaim(owner:string){
   return time;
 }
 
+/* 
 export async function getUser(owner:string){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
@@ -482,6 +494,7 @@ export async function getUser(owner:string){
   
   return user;
 }
+  */
 
 export async function getNextPool(){
   
@@ -931,7 +944,7 @@ export async function verifyPercentage(address:String){
 }
 
 export async function verifyBalance(address:String){
-  const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
 
   const connect = new ethers.Contract(PAYMENT_MANAGER ? PAYMENT_MANAGER : "", paymentManagerAbi, provider);
 
@@ -1118,4 +1131,324 @@ export async function totalPerdidoUsdt(address:string){
   const result = await connect.totalLostToken(address)
 
   return result;
+}
+
+{/* ------------ WBTC FUNCTIONS ------------ */}
+
+export async function approveUSDTwbtc(value: Number) {
+  console.log(value)
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    USDT_ADDRESS_WBTC ? USDT_ADDRESS_WBTC : "",
+    usdtWbtcAbi,
+    signer
+  );
+
+
+  const tx = await mint.approve(WBTC_COLLECTION_ADDRESS, value);
+  await tx.wait();
+
+  return tx;
+}
+
+
+export async function getAllowanceUsdtWbtc(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        USDT_ADDRESS_WBTC ? USDT_ADDRESS_WBTC : "",
+        usdtWbtcAbi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, WBTC_COLLECTION_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+
+
+export async function buyNftWbtc(quantity:number) {
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  console.log("provider:", provider)
+  console.log("signer:", signer)
+
+  const buy = new ethers.Contract(
+    WBTC_COLLECTION_ADDRESS ? WBTC_COLLECTION_ADDRESS : "",
+    wbtcCollectionAbi,
+    signer
+  );
+  
+
+  try {
+    // Envia a transação
+    const tx = await buy.mint(quantity);
+
+    let concluded;
+
+    // Tenta esperar a transação
+    try {
+      concluded = await tx.wait();
+    } catch (waitError) {
+
+      // Caso `tx.wait()` falhe, tenta obter o recibo manualmente
+      concluded = await provider.getTransactionReceipt(tx.hash);
+    }
+
+    if (concluded && concluded.status === 1) {
+      return concluded;
+    } else {
+      throw new Error("Transação falhou ou não foi confirmada.");
+    }
+
+  } catch (error) {
+    throw error; // Lança erro para ser tratado no frontend
+  }
+}
+
+export async function wbtcNftNumber(address:string){
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const buy = new ethers.Contract(
+    WBTC_COLLECTION_ADDRESS ? WBTC_COLLECTION_ADDRESS : "",
+    wbtcCollectionAbi,
+    signer
+  );
+  
+const tx = await buy.balanceOf( address, 1)
+
+return tx;
+}
+
+
+
+export async function approveWbtcNft(isQueue: boolean) {
+  try {
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const buy = new ethers.Contract(
+      WBTC_COLLECTION_ADDRESS || "",
+      wbtcCollectionAbi,
+      signer
+    );
+
+    let tx;
+    if (isQueue) {
+      tx = await buy.setApprovalForAll(WBTC_QUEUE_ADDRESS, true);
+    } else {
+      tx = await buy.setApprovalForAll(WBTC_COLLECTION_ADDRESS, true);
+    }
+
+
+    // Aguarda a confirmação da transação
+    const receipt = await tx.wait();
+
+
+    return receipt; // Retorna o recibo da transação confirmada
+  } catch (error) {
+    throw error; // Lança o erro para tratamento no chamador
+  }
+}
+
+
+export async function verifyApprovalWbtc(address:string, isQueue:boolean){
+  try {
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const buy = new ethers.Contract(
+      WBTC_COLLECTION_ADDRESS || "",
+      wbtcCollectionAbi,
+      signer
+    );
+
+    let tx;
+    if (isQueue) {
+      tx = await buy.isApprovedForAll(address, WBTC_QUEUE_ADDRESS);
+    } else {
+      tx = await buy.isApprovedForAll(address, WBTC_COLLECTION_ADDRESS);
+    }
+
+    
+
+
+console.log(tx)
+    return tx; // Retorna o recibo da transação confirmada
+  } catch (error) {
+    throw error; // Lança o erro para tratamento no chamador
+  }
+}
+
+ export async function activateWbtcNft() {
+  try {
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const buy = new ethers.Contract(
+      WBTC_COLLECTION_ADDRESS || "",
+      wbtcCollectionAbi,
+      signer
+    );
+
+    // Envia a transação
+    const tx = await buy.activeUnilevel();
+
+    // Aguarda a confirmação da transação
+    const receipt = await tx.wait();
+
+    return receipt; // Retorna o recibo da transação confirmada
+  } catch (error) {
+    throw error; // Lança o erro para tratamento no chamador
+}
+}
+
+
+export async function isActiveNftWbtc(owner:string){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const collection = new ethers.Contract(
+  WBTC_COLLECTION_ADDRESS ? WBTC_COLLECTION_ADDRESS : "",
+  wbtcCollectionAbi,
+  provider
+);
+
+const isActive : boolean  = (await collection.isActive(owner));
+
+return isActive;
+}
+
+
+
+export async function timeUntilInactiveNftsWbtc(owner:string){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+const collection = new ethers.Contract(
+  WBTC_COLLECTION_ADDRESS ? WBTC_COLLECTION_ADDRESS : "",
+  wbtcCollectionAbi,
+  provider
+);
+
+const time = await collection.timeUntilInactive(owner);
+console.log(time)
+return time;
+}
+
+export async function verifyApprovalWbtcQueue(){
+
+}
+
+
+export async function addQueueWbtc() {
+  const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const collection = new ethers.Contract(
+      WBTC_QUEUE_ADDRESS || "",
+      wbtcQueueAbi,
+      signer
+    );
+
+    console.log("chamou")
+    const tx = await collection.addToQueue();
+    const concluded = await tx.wait(); // Aguarda a confirmação da transação
+    return concluded; // Retorna a conclusão em caso de sucesso
+}
+
+
+export async function balanceWbtcQueue() {
+  const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const collection = new ethers.Contract(
+      WBTC_QUEUE_ADDRESS || "",
+      wbtcQueueAbi,
+      signer
+    );
+
+    const tx = await collection.balanceFree(); // Aguarda a confirmação da transação
+    return tx; // Retorna a conclusão em caso de sucesso
+}
+
+
+
+export async function getQueueWbtc(): Promise<queueData[]> {
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const queueContract = new ethers.Contract(
+  WBTC_QUEUE_ADDRESS ? WBTC_QUEUE_ADDRESS : "",
+  wbtcQueueAbi,
+  provider
+);
+
+while (true) {
+  try {
+    // Obtenha os dados da fila diretamente do contrato
+    const getQueueDetails: any[] = await queueContract.getQueueDetails();
+    
+    // Transforme as tuplas retornadas para o formato `queueData`
+    const queue: queueData[] = getQueueDetails.map((item) => ({
+      user: item[0], // address
+      index: BigInt(item[1]), // uint256 -> BigInt
+      batchLevel: BigInt(item[2]), // uint256 -> BigInt
+      nextPaied: item[3] === 1 // uint256 -> boolean
+    }));
+
+    return queue;
+
+  } catch (err) {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Retry após 1s
+  }
+}
+}
+
+
+export async function getWbtcCotation(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const collection = new ethers.Contract(
+    WBTC_ORACLE_ADDRESS || "",
+    wbtcOracleAbi,
+    signer
+  );
+
+  const tx = await collection.getPriceWbtcUsdt(1);
+  console.log("tx result: ", tx) // Aguarda a confirmação da transação
+  return tx; // Retorna a conclusão em caso de sucesso
+
 }
