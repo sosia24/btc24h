@@ -1,14 +1,17 @@
 'use client'
 import { ethers } from "ethers";
 import { useState, useEffect } from "react";
-import { withdrawTokens } from "@/services/Web3Services";
+import { withdrawTokens,
+        withdrawTokensWbtc,
+ } from "@/services/Web3Services";
 import ModalSuccess from "@/componentes/ModalSuccess";
 import ModalError from "@/componentes/ModalError";
 interface TokensProps {
     tokens: bigint;
+    isWbtc: boolean;
 }
 
-export default function ModalTokensToWithdraw({ tokens }: TokensProps) {
+export default function ModalTokensToWithdraw({ tokens, isWbtc }: TokensProps) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,6 +23,27 @@ export default function ModalTokensToWithdraw({ tokens }: TokensProps) {
 
   const handleClose = () => {
     setShow(false);
+  };
+
+
+  const handleWithdrawWbtc = async () => {
+    try {
+      setLoading(true);
+  
+      const result = await withdrawTokensWbtc();
+  
+      if (result.success) {
+        setAlert("Tokens successfully withdrawn!");
+      } else {
+      }
+  
+      setLoading(false);
+      handleClose();
+    } catch (error) {
+      setLoading(false);
+      console.error("Error withdrawing tokens:", error);
+      setAlert("Failed to withdraw tokens. Please try again.");
+    }
   };
 
   const handleWithdraw = async () => {
@@ -85,11 +109,22 @@ async function clearAlert(){
           />
           <h1 className="w-full text-xl sm:text-lg mt-5">While you were away, your NFTs cycled, and now you have tokens ready to claim! Don't miss out and collect your rewards today.</h1>
           <h1 className="mt-4 text-2xl">
-    {parseFloat(ethers.formatEther(tokens)).toFixed(2)} BTC24H
+            {isWbtc?(
+              <>
+              {(Number(tokens)/100000000).toString()}
+               <p>WBTC</p>
+               </>
+            ):(
+              <>
+              {parseFloat(ethers.formatEther(tokens)).toFixed(2)}
+              <p>BTC24H</p>
+              </>
+            )}
+         
             </h1>        
             <div className="flex justify-between px-10 sm:w-full sm:justify-center sm:text-center sm:items-center  sm:text-sm">
             <button
-              onClick={handleWithdraw}
+              onClick={isWbtc?handleWithdrawWbtc : handleWithdraw}
               className="rounded-3xl bottom-10 sm:w-1/2 sm:b-0 mt-[20px] text-center py-4 px-16 sm:px-3 bg-[#00FF3D] hover:bg-[#00e63a] transition-colors duration-300"
             >
               Claim

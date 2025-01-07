@@ -1452,3 +1452,84 @@ export async function getWbtcCotation(){
   return tx; // Retorna a conclusão em caso de sucesso
 
 }
+
+export async function doClaimQueueWbtc(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const collection = new ethers.Contract(
+    WBTC_QUEUE_ADDRESS || "",
+    wbtcQueueAbi,
+    signer
+  );
+
+  const tx = await collection.claim()
+  return tx;
+}
+
+
+export async function getTokensToWithdrawWbtc(owner: string) {
+  try {
+    const provider = await getProvider();
+
+    const queue = new ethers.Contract(
+      WBTC_QUEUE_ADDRESS || "",
+      wbtcQueueAbi,
+      provider
+    );
+
+    const tokens = await queue.tokensToWithdraw(owner);
+    return tokens;
+  } catch (error: any) {
+    return {
+      success: false,
+      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+    };
+  }
+}
+
+
+export async function withdrawTokensWbtc() {
+  try {
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const queue = new ethers.Contract(
+      WBTC_QUEUE_ADDRESS || "",
+      wbtcQueueAbi,
+      signer
+    );
+    const feeData = await provider.getFeeData();
+    if (!feeData.maxFeePerGas) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const maxFeePerGas = feeData.maxFeePerGas *3n;
+  
+    
+    const tx = await queue.withdrawTokens();
+
+    // Aguarda a confirmação
+    const receipt = await tx.wait();
+
+    if (receipt.status === 1) {
+      // Sucesso
+      return {
+        success: true,
+        message: "Tokens successfully withdrawn!",
+        transactionHash: tx.hash,
+      };
+    } else {
+      // Transação falhou
+      return {
+        success: false,
+        errorMessage: "Transaction failed on the blockchain.",
+      };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+    };
+  }
+}

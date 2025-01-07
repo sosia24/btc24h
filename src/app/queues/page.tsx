@@ -19,6 +19,7 @@ import {
         addQueue,
         setApprovalForAll,
         getTokensToWithdraw,
+        getTokensToWithdrawWbtc,
         coinPrice,
         withdrawTokens,
         getNftsUser,
@@ -28,6 +29,9 @@ import {
         balanceWbtcQueue,
         getWbtcCotation,
         getQueueWbtc,
+        doClaimQueueWbtc,
+        wbtcNftNumber,
+        withdrawTokensWbtc,
  } from "@/services/Web3Services";
 import { queueData } from '@/services/types';
 import { CustomArrowProps } from 'react-slick';
@@ -58,17 +62,58 @@ function Page1() {
     const [balance, setBalance] = useState<number[]>([0]);
     const [coinCotation, setCoinCotation] = useState<number>(0);
     const [tokensToWithdraw,setTokensToWithdraw] = useState<bigint>(0n)
+    const [tokensToWithdrawWbtc,setTokensToWithdrawWbtc] = useState<bigint>(0n)
     const [approveWbtc, setApproveWbtc] = useState<boolean>(false)
     const [balanceQueueWbtc, setBalanceQueueWbtc] = useState<number>(0)
     const [queueWbtcDetails, setQueueWbtcDetails] = useState<queueData[] | null>(null)
     const [wbtcCotation, setWbtcCotation] = useState<number>(0)
     const [queueWbtcDetailsFormated, setQueueWbtcDetailsFormated] = useState<queueData[] | null>(null);
     const [readyToPaidWbtc, setReadyToPaidWbtc] = useState<number>(0)
+    const [wbtc, setWbtc] = useState<number>(0)
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [alert, setAlert] = useState("");
 
+
+
+    async function wbtcNftUser(){
+        try{
+          if(address){
+            
+            const result = await wbtcNftNumber(address)
+            console.log(result)
+            if(result){
+              setWbtc(Number(result))
+            }else{
+                setWbtc(0)
+            }
+          }
+        }catch(error){
+  
+        }
+      }
+  
+      useEffect(() =>{
+        wbtcNftUser();
+      })
+
+
+    async function doClaimQueueWbtcFront(){
+        try{
+            setLoading(true)
+            const result = await doClaimQueueWbtc();
+            if(result){
+                getQueueWbtcDetails();
+                getBalanceWbtc();
+                setLoading(false)
+                setAlert("Success")
+            }
+        }catch(error){
+            setLoading(false)
+            setError("Error")
+        }
+    }
 
     async function getQueueWbtcDetails() {
         try {
@@ -120,6 +165,8 @@ function Page1() {
             if(result){
                 setLoading(false)
                 setAlert("Success")
+                wbtcNftUser();
+                getQueueWbtcDetails();
             }
         }catch(error){
             setLoading(false)
@@ -260,6 +307,20 @@ function Page1() {
         }
     }
 
+    async function getTokensToWithdrawWbtcFront() {
+        try{
+            const result = await getTokensToWithdrawWbtc(address?address:"");
+            if(result){
+                console.log(result)
+                setTokensToWithdrawWbtc(result);
+            }
+            
+        }catch(error){
+
+        }
+    }
+
+
     async function verifyApprove(){
         try{
             if(address){
@@ -346,6 +407,7 @@ function Page1() {
             getQueueGoldDetails();
             getQueueWbtcDetails();
             getTokensToWithdrawF();
+            getTokensToWithdrawWbtcFront()
             verifyApprovalWbtcFront();
             getWbtcCotationFront();
             getBalanceWbtc();
@@ -561,6 +623,21 @@ function Page1() {
         setLoading(false);
       };
 
+      const handleWithdrawWbtc = async () => {
+        setLoading(true);
+        setAlert(""); // Limpa mensagens anteriores
+      
+        const result = await withdrawTokensWbtc();
+      
+        if (result.success) {
+          setAlert("Sucess");
+        } else {
+          setError(result.errorMessage);
+        }
+      
+        setLoading(false);
+      };
+
 
       const countUserNftSilver = queueSilverDetailsFormated?.filter(
         (data) => data.user.toLowerCase() === address?.toLowerCase()
@@ -571,6 +648,9 @@ function Page1() {
       ).length || 0;
 
       const countUserNftBronze = queueBronzeDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
+      const countUserNftWbtc = queueWbtcDetailsFormated?.filter(
         (data) => data.user.toLowerCase() === address?.toLowerCase()
       ).length || 0;
       /* -------------- FIM DA VERIFICACAO ------------ */
@@ -922,7 +1002,7 @@ function Page1() {
                             <p>Balance to Paid:</p>
                             <p className="text-[#ffc100]">{(balance[3] * wbtcCotation) / 1000000  || 0}$</p>
                             {readyToPaidWbtc >= 10 && queueWbtcDetailsFormated?(
-                                <button onClick={() => doClaimQueue(Number(queueWbtcDetailsFormated[0].index), 2)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
+                                <button onClick={() => doClaimQueueWbtcFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
                             ):(
@@ -988,8 +1068,8 @@ function Page1() {
                                 <MdKeyboardDoubleArrowRight />
                              </button>
                              <div className='p-2 mt-[10px]'>
-                             <p >You have on queue: {countUserNftSilver}</p>
-                             <p >You have on wallet: {silver}</p>
+                             <p >You have on queue: {countUserNftWbtc}</p>
+                             <p >You have on wallet: {wbtc}</p>
                              </div>                        </div>
                     </div>
 
@@ -1024,17 +1104,21 @@ function Page1() {
                        {/* <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} BTC24H</p>*/}
                         {tokensToWithdraw > 0?(
                             <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+                        ):tokensToWithdrawWbtc > 0?(
+                            <button onClick={handleWithdrawWbtc} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
                         ):(
                             <button className='text-black cursor-not-allowed bg-gray-400 font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl'>Claim</button>
                         )}
                         
                     </div>
                 </div>
-
+            
             </div>
             {
-                tokensToWithdraw>0 ?             <ModalTokensToWithdraw tokens={tokensToWithdraw}></ModalTokensToWithdraw>
-                :""
+                tokensToWithdraw>0?             <ModalTokensToWithdraw tokens={tokensToWithdraw} isWbtc={false}></ModalTokensToWithdraw>:""
+            }
+            {
+                tokensToWithdrawWbtc>0?             <ModalTokensToWithdraw tokens={tokensToWithdrawWbtc} isWbtc={true}></ModalTokensToWithdraw>:""
             }
             <Footer />
         </>
