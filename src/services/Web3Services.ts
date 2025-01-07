@@ -56,6 +56,7 @@ export async function doLogin() {
     const account = await provider.send("eth_requestAccounts", []);
     if (!account || !account.length)
       throw new Error("Wallet not found/allowed.");
+    await provider.send("wallet_switchEthereumChain", [{chainId: CHAIN_ID}])
     return account[0];
   } catch (error) {
     throw error;
@@ -1373,20 +1374,29 @@ export async function verifyApprovalWbtcQueue(){
 
 
 export async function addQueueWbtc() {
-  const provider = await getProvider();
-    const signer = await provider.getSigner();
+  try {
+      const provider = await getProvider();
+      const signer = await provider.getSigner();
 
-    const collection = new ethers.Contract(
-      WBTC_QUEUE_ADDRESS || "",
-      wbtcQueueAbi,
-      signer
-    );
+      const collection = new ethers.Contract(
+          WBTC_QUEUE_ADDRESS || "",
+          wbtcQueueAbi,
+          signer
+      );
 
-    console.log("chamou")
-    const tx = await collection.addToQueue();
-    const concluded = await tx.wait(); // Aguarda a confirmação da transação
-    return concluded; // Retorna a conclusão em caso de sucesso
+      console.log("Attempting to add to queue...");
+      const tx = await collection.addToQueue();
+      console.log("Transaction sent:", tx.hash);
+
+      const concluded = await tx.wait(); // Aguarda a confirmação da transação
+      console.log("Transaction confirmed:", concluded);
+      return concluded; // Retorna a conclusão em caso de sucesso
+  } catch (error) {
+      console.error("Error in addQueueWbtc:", error); // Log completo do erro
+      throw error; // Repassa o erro para ser tratado pela função chamadora
+  }
 }
+
 
 
 export async function balanceWbtcQueue() {

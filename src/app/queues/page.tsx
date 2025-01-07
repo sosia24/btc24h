@@ -82,7 +82,6 @@ function Page1() {
           if(address){
             
             const result = await wbtcNftNumber(address)
-            console.log(result)
             if(result){
               setWbtc(Number(result))
             }else{
@@ -124,10 +123,8 @@ function Page1() {
     }
 
     async function getWbtcCotationFront(){
-        console.log("chamou wbtcCotation");
         try{    
             const result = await getWbtcCotation();
-            console.log("resultado wbtc cotation", result)
             if(result){
                 setWbtcCotation(Number(result))
             }
@@ -138,15 +135,14 @@ function Page1() {
     }
 
     async function getBalanceWbtc() {
-        console.log("chamou");
         try {
             const result = await balanceWbtcQueue();
-            console.log("result: ", result);
-    
+            const cotation = await getWbtcCotation();
+            const valueFinal = Number(result) * Number(cotation) / 1000000
             if (result) {
                 setBalance((prevBalance) => {
                     const newBalance = [...prevBalance]; // Cria uma cópia do array atual
-                    newBalance[3] = Number(result); // Atualiza o índice desejado
+                    newBalance[3] = valueFinal; // Atualiza o índice desejado
                     return newBalance; // Retorna o novo array
                 });
             }
@@ -157,21 +153,37 @@ function Page1() {
     
     
 
-    async function addQueueWbtcFront(){
-        setLoading(true)
-        try{    
-            
+    async function addQueueWbtcFront() {
+        setLoading(true);
+        try {
             const result = await addQueueWbtc();
-            if(result){
-                setLoading(false)
-                setAlert("Success")
+            if (result) {
+                setAlert("Success");
                 wbtcNftUser();
                 getQueueWbtcDetails();
             }
-        }catch(error){
-            setLoading(false)
+        } catch (error: unknown) { // Especificamos que 'error' tem tipo 'unknown'
+            console.error("Blockchain error:", error); // Log completo do erro
+            setAlert(`Error: ${getBlockchainErrorMessage(error)}`); // Exibir a mensagem de erro ao usuário
+        } finally {
+            setLoading(false);
         }
     }
+    
+    function getBlockchainErrorMessage(error: unknown): string {
+        if (typeof error === "object" && error !== null) {
+            // Verificamos se o erro possui a estrutura esperada
+            if ("data" in error && typeof (error as any).data?.message === "string") {
+                return (error as any).data.message; // Mensagem de erro específica do contrato
+            }
+            if ("message" in error && typeof (error as any).message === "string") {
+                return (error as any).message; // Mensagem genérica do erro
+            }
+        }
+        return "An unknown error occurred.";
+    }
+    
+    
 
 
     async function verifyApprovalWbtcFront(){
@@ -311,7 +323,6 @@ function Page1() {
         try{
             const result = await getTokensToWithdrawWbtc(address?address:"");
             if(result){
-                console.log(result)
                 setTokensToWithdrawWbtc(result);
             }
             
@@ -1000,7 +1011,7 @@ function Page1() {
                         
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
                             <p>Balance to Paid:</p>
-                            <p className="text-[#ffc100]">{(balance[3] * wbtcCotation) / 1000000  || 0}$</p>
+                            <p className="text-[#ffc100]">{(balance[3])  || 0}$</p>
                             {readyToPaidWbtc >= 10 && queueWbtcDetailsFormated?(
                                 <button onClick={() => doClaimQueueWbtcFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
