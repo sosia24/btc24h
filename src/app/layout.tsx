@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
-import { Montserrat } from '@next/font/google';
+import { Montserrat } from "next/font/google";
+
 import { WalletProvider } from "@/services/walletContext";
 import "./globals.css";
 import "flag-icons/css/flag-icons.min.css";
@@ -60,11 +61,6 @@ export default function RootLayout({
 
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
-<<<<<<< HEAD
-
-=======
-          
->>>>>>> wbtcQueue
               {children}
               <div className="w-[100%] flex justify-center flex-row">
                
