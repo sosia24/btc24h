@@ -60,7 +60,11 @@ export default function RootLayout({
 
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> wbtcQueue
               {children}
               <div className="w-[100%] flex justify-center flex-row">
                
