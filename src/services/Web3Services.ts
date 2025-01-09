@@ -19,6 +19,10 @@ import wbtcQueueAbi from "./abis/wbtc_queue.abi.json"
 import usdtWbtcAbi from "./abis/usdtwbtc.abi.json"
 import wbtcOracleAbi from "./abis/wbtcOracle.abi.json"
 
+import oracleV2Abi from "./abis/oracleV2.abi.json"
+import btc24hV2Abi from "./abis/btc24hV2.abi.json"
+import donationV2Abi from "./abis/donationV2.abi.json"
+
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 const CHAIN_ID_AMOY = process.env.NEXT_PUBLIC_CHAIN_ID_AMOY;
@@ -40,6 +44,10 @@ const WBTC_QUEUE_ADDRESS = process.env.NEXT_PUBLIC_WBTC_QUEUE;
 const WBTC_COLLECTION_ADDRESS = process.env.NEXT_PUBLIC_WBTC_COLLECTION;
 const USDT_ADDRESS_WBTC = process.env.NEXT_PUBLIC_WBTC_USDT;
 const WBTC_ORACLE_ADDRESS = process.env.NEXT_PUBLIC_WBTC_ORACLE;
+
+const BTC24H_V2_ADDRESS = process.env.NEXT_PUBLIC_BTC24H_V2;
+const DONATION_V2_ADDRESS = process.env.NEXT_PUBLIC_DONATION_V2;
+const ORACLE_V2_ADDRESS = process.env.NEXT_PUBLIC_ORACLE_V2;
 
 
 const maxPriorityFeePerGas = ethers.parseUnits("35","gwei");
@@ -390,6 +398,7 @@ export async function getDonationAllowance(owner:string){
     btc24hAbi,
     provider
   );
+
 
   const allowance = await btc24h.allowance(owner,DONATION_ADDRESS);
   
@@ -1543,3 +1552,254 @@ export async function withdrawTokensWbtc() {
     };
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function getAllowanceUsdtV2(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        USDT_ADDRESS ? USDT_ADDRESS : "",
+        usdtAbi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, DONATION_V2_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+
+
+export async function approveUsdtDonationV2(value: string) {
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const token = new ethers.Contract(
+    USDT_ADDRESS ? USDT_ADDRESS : "",
+    usdtAbi,
+    signer
+  );
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
+
+
+  const tx = await token.approve(DONATION_V2_ADDRESS, Number(value)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+  await tx.wait();
+  return tx;
+}
+
+
+
+export async function donateV2(amount:string){
+  
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  
+  
+  const donation = new ethers.Contract(
+    DONATION_V2_ADDRESS ? DONATION_V2_ADDRESS : "",
+    donationV2Abi,
+    signer
+  );
+
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
+  
+
+  let tx
+  try {
+    
+
+
+
+      const estimatedGas = await donation.donate.estimateGas(Number(amount)*10**6);
+      const gasLimit = estimatedGas * 150n / 100n;
+
+      tx = await donation.donate(Number(amount)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
+    const concluded = tx.wait();
+    return concluded;
+  } catch (error) {
+    console.error("Gas cannot be estimated:", error);
+    throw error; 
+  }
+
+}
+
+
+export async function getBtc24hPreviewedClaimV2(owner:string){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const provider = await getProvider();
+
+      const donation = new ethers.Contract(
+        DONATION_V2_ADDRESS || '',
+        donationV2Abi,
+        provider
+      );
+
+      const balance = await donation.previewTotalValue(owner);
+
+      return balance;
+
+    } catch (error) {
+      console.error(`Erro na tentativa ${attempt}:`, error);
+
+      // Verifica se é a última tentativa
+      if (attempt === 3) {
+        console.error('Número máximo de tentativas atingido.');
+        return null;
+      }
+
+      // Aguarda um tempo antes da próxima tentativa
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
+  // Retorno caso todas as tentativas falhem
+  return null;
+}
+
+export async function getBtc24hPriceV2(){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const oracle = new ethers.Contract(
+  ORACLE_V2_ADDRESS ? ORACLE_V2_ADDRESS : "",
+  oracleV2Abi,
+  provider
+);
+
+const price = await oracle.returnPrice(ethers.parseUnits("1","ether"));
+
+return price;
+}
+
+
+export async function getTimeUntilToClaimV2(owner:string){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+
+const donation = new ethers.Contract(
+  DONATION_V2_ADDRESS ? DONATION_V2_ADDRESS : "",
+  donationV2Abi,
+  provider
+);
+
+const time = Number(await donation.timeUntilNextWithdrawal(owner));
+
+return time;
+}
+
+
+export async function claimV2(isRoot:boolean){
+  
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
+
+  
+  const donation = new ethers.Contract(
+    DONATION_V2_ADDRESS ? DONATION_V2_ADDRESS : "",
+    donationV2Abi,
+    signer
+  );
+  
+  try {
+
+    const estimatedGas = await donation.claimDonation.estimateGas(isRoot);
+    
+
+    const gasLimit = estimatedGas * 130n / 100n;
+
+
+    // Envia a transação
+    console.log("IS ROOT: ", isRoot)
+    const tx = await donation.claimDonation(isRoot,{
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      gasLimit,
+    });
+
+    await tx.wait();
+
+    return tx;
+  } catch (error) {
+    console.error("Gas cannot be estimated:", error);
+    throw error; 
+  }
+}
+
+export async function getUserV2(owner: string): Promise<any> {
+  // Obter o provider
+  const provider = await getProvider();
+
+  // Instanciar o contrato
+  const donation = new ethers.Contract(
+    DONATION_V2_ADDRESS ? DONATION_V2_ADDRESS : "",
+    donationV2Abi,
+    provider
+  );
+
+  // Chamar o método do contrato
+  const user: any[] = await donation.getUser(owner);
+
+  // Retornar apenas o último parâmetro
+  return user[user.length - 1];
+}
+

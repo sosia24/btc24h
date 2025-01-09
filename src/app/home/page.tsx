@@ -11,7 +11,7 @@ import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { UserDonation } from "@/services/types";
 import Marquee from "@/componentes/marquee";
-import { userUnilevelTotalDonated, getTreeUsers ,getBtc24hPrice, getUser  } from "@/services/Web3Services"; // Import getUser
+import { userUnilevelTotalDonated, getTreeUsers ,getBtc24hPrice, getUser, getBtc24hPriceV2  } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
 import { ethers } from "ethers";
 
@@ -20,6 +20,7 @@ function Page1() {
   const [validAddresses, setValidAddresses] = useState<string[]>([]); // Store valid addresses
   const [copied, setCopied] = useState(false);
   const [coinCotation, setCoinCotation] = useState<number | null>(null);
+  const [coinCotationV2, setCoinCotationV2] = useState<number | null>(null);
   const { address, setAddress } = useWallet();
   const [treeUsers, setTreeUsers] = useState<string[]>([]);
   const [user, setUser] = useState<UserDonation| null>(null);
@@ -38,6 +39,7 @@ function Page1() {
         }
       }
       getCotation()
+      getCotationV2()
     }
 
     fetchTreeData();
@@ -75,6 +77,7 @@ function Page1() {
       try {
         await fetchTreeUsers(address);
         getCotation();
+        getCotationV2()
 
         const userData = await getUser(address);
         setUser(userData);
@@ -108,6 +111,22 @@ function Page1() {
       console.error("Failed to fetch coin price", error);
     }
   }
+  async function getCotationV2() {
+    try {
+
+        const result = await getBtc24hPriceV2();
+        if (result) {
+          setCoinCotationV2(Number(result) / Number(1000000));
+        }else{
+          const again = await getBtc24hPriceV2();
+            if(again){
+              setCoinCotationV2(Number(again) / Number(1000000));
+            }
+        }
+    } catch (error) {
+      console.error("Failed to fetch coin price", error);
+    }
+  }
   
 
 
@@ -122,6 +141,7 @@ function Page1() {
         }
       }
       getCotation();
+      getCotationV2()
     }
 
     fetchTreeData();
@@ -179,10 +199,17 @@ function Page1() {
                 <p className="ml-[5px] font-bold text-[22px]">BTC24H/USDT</p>
               </div>
               <p className="text-[20px]">
-  {coinCotation
+            {coinCotation
     ? `$${coinCotation.toFixed(3).toLocaleString()}`
     : "...loading"}
 </p>
+<p className="ml-[5px] font-bold text-[22px] mt-[20px]">BITCOIN24H/USDT</p>
+<p className="text-[20px]">
+            {coinCotationV2
+    ? `$${coinCotationV2.toFixed(3).toLocaleString()}`
+    : "...loading"}
+</p>
+
 {
   user && user.balance > 0n ? <>
   <p className="text-[20px] mt-8">
