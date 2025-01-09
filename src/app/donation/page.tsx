@@ -609,7 +609,7 @@ async function clearAlert(){
 
     {/* Modal */}
 
-      <div className="relative bg-gray-300 w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
+      <div className="relative bg-white w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
       {/* Close Button */}
       <button
         className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition duration-200"
