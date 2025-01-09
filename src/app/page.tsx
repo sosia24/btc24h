@@ -107,6 +107,12 @@ function HomeContent() {
         )}
         <Link
           className="p-2 w-[300px] text-center lg:mb-0 border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:border-[#08ff67d3]"
+          href="presentation"
+        >
+          Presentation
+        </Link>
+        <Link
+          className="p-2 w-[300px] text-center lg:mb-0 border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:border-[#08ff67d3]"
           href="https://btc24h.site/whitepaper/"
         >
           WhitePaper
