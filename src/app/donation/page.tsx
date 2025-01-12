@@ -47,7 +47,7 @@ function Donation() {
   const [alert, setAlert] = useState("");
   const [steps, setSteps] = useState<number>(0)
   const [donateWithUsdt, setDonateWithUsdt] = useState(false);
-
+  
   const walletAddress = useWallet().address;
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -192,6 +192,7 @@ function Donation() {
     }
   };
   
+  
 
   useEffect(() => {
     fetchData();
@@ -205,6 +206,26 @@ function Donation() {
     fetchData();
     getDays()
   }, [walletAddress,donateWithUsdt]);
+  useEffect(() => {
+    const fetchBtcPrice = async () => {
+      try {
+        const priceV2 = await getBtc24hPriceV2();
+        setBtc24hPriceV2(priceV2);
+        
+      } catch (error) {
+        console.error("Erro to get price:", error);
+      }
+    };
+
+    fetchBtcPrice();
+
+    const intervalId = setInterval(() => {
+      fetchBtcPrice();
+    }, 5000); // 60000ms = 1 minuto
+
+    return () => clearInterval(intervalId);
+  }, []);
+
 
 
 
@@ -491,8 +512,9 @@ async function clearAlert(){
                 <h1 className="text-4xl font-semibold">Claim <span className="text-blue-500">Rewards V2</span></h1>
                 <p>USDT Estimated:</p>
                 <p>U$ <span className="text-blue-500">{formatUsdt(balanceToClaimV2)}</span></p>
-                <p>BTC24H estimated: </p>
-                <span className="text-blue-500">{btc24hPrice > 0n ? (Number(balanceToClaimV2) / Number(btc24hPrice)).toFixed(2) : "Loading..."} BTC24h</span>
+                <p>Bitcoin24H estimated: </p>
+
+                <span className="text-blue-500">{btc24hPriceV2 > 0n ? (Number(balanceToClaimV2) / Number(btc24hPriceV2)).toFixed(2) : "Loading..."} Bitcoin24H</span>
                 <p>Day: {Number(dayContribute)+1}</p>
                 </div>
               
