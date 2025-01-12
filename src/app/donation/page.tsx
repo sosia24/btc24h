@@ -417,7 +417,7 @@ async function clearAlert(){
             </span>
           </div>
         </div>
-        <div className="w-[100%] flex flex-row justify-center">
+        <div className="w-[100%] mt-[20px] flex flex-row justify-center">
         {isV2?(
           <>
           <button onClick={handleV1} className="p-4 border-2 border-gray  w-[130px] rounded-xl">Claim V1</button>
@@ -484,7 +484,7 @@ async function clearAlert(){
 
           
           {isV2?(
-            <div className="flex flex-col p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-4 sm:ml-0 rounded-xl">
+            <div className="flex flex-col sm:w-[85%] sm:items-center sm:justify-center  p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-6  rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
               <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
@@ -523,15 +523,6 @@ async function clearAlert(){
               )}
 
               <p className="bg-[#9B9701] rounded-lg mx-2 p-3">{timeUntilV2}</p>
-              <button
-              onClick={reloadDonation}
-              className={`flex items-center mt-[5px] justify-center w-10 h-10 bg-gray-500 text-white rounded-full ${
-              isReloading ? 'animate-spin' : ''
-              }`}
-              disabled={isReloading} // Evita múltiplos cliques
-              >
-      <TbReload />
-    </button>
             </div>
           </div>
 
