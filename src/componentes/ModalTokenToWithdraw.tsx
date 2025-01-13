@@ -9,9 +9,10 @@ import ModalError from "@/componentes/ModalError";
 interface TokensProps {
     tokens: bigint;
     isWbtc: boolean;
+    isBtc24h: boolean
 }
 
-export default function ModalTokensToWithdraw({ tokens, isWbtc }: TokensProps) {
+export default function ModalTokensToWithdraw({ tokens, isWbtc, isBtc24h }: TokensProps) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -27,6 +28,27 @@ export default function ModalTokensToWithdraw({ tokens, isWbtc }: TokensProps) {
 
 
   const handleWithdrawWbtc = async () => {
+    try {
+      setLoading(true);
+  
+      const result = await withdrawTokensWbtc();
+  
+      if (result.success) {
+        setAlert("Tokens successfully withdrawn!");
+      } else {
+      }
+  
+      setLoading(false);
+      handleClose();
+    } catch (error) {
+      setLoading(false);
+      console.error("Error withdrawing tokens:", error);
+      setAlert("Failed to withdraw tokens. Please try again.");
+    }
+  };
+
+
+  const handleWithdrawBtc24h = async () => {
     try {
       setLoading(true);
   
@@ -114,7 +136,13 @@ async function clearAlert(){
               {(Number(tokens)/100000000).toString()}
                <p>WBTC</p>
                </>
-            ):(
+            ): isBtc24h?(
+              <>
+              {(Number(tokens)/1000000).toString()}
+              <p>$</p>
+              </>
+            ):
+            (
               <>
               {parseFloat(ethers.formatEther(tokens)).toFixed(2)}
               <p>BTC24H</p>
@@ -124,7 +152,7 @@ async function clearAlert(){
             </h1>        
             <div className="flex justify-between px-10 sm:w-full sm:justify-center sm:text-center sm:items-center  sm:text-sm">
             <button
-              onClick={isWbtc?handleWithdrawWbtc : handleWithdraw}
+              onClick={isWbtc && !isBtc24h?handleWithdrawWbtc : isBtc24h? handleWithdrawBtc24h : handleWithdraw}
               className="rounded-3xl bottom-10 sm:w-1/2 sm:b-0 mt-[20px] text-center py-4 px-16 sm:px-3 bg-[#00FF3D] hover:bg-[#00e63a] transition-colors duration-300"
             >
               Claim

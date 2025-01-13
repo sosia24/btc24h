@@ -20,8 +20,11 @@ import usdtWbtcAbi from "./abis/usdtwbtc.abi.json"
 import wbtcOracleAbi from "./abis/wbtcOracle.abi.json"
 
 import oracleV2Abi from "./abis/oracleV2.abi.json"
-import btc24hV2Abi from "./abis/btc24hV2.abi.json"
 import donationV2Abi from "./abis/donationV2.abi.json"
+
+import btc24hV2Abi from "./abis/btc24hV2.abi.json"
+import oracle3Abi from "./abis/oracle3.abi.json"
+import queueCoinAbi from "./abis/queueCoin.abi.json"
 
 
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
@@ -45,9 +48,11 @@ const WBTC_COLLECTION_ADDRESS = process.env.NEXT_PUBLIC_WBTC_COLLECTION;
 const USDT_ADDRESS_WBTC = process.env.NEXT_PUBLIC_WBTC_USDT;
 const WBTC_ORACLE_ADDRESS = process.env.NEXT_PUBLIC_WBTC_ORACLE;
 
-const BTC24H_V2_ADDRESS = process.env.NEXT_PUBLIC_BTC24H_V2;
 const DONATION_V2_ADDRESS = process.env.NEXT_PUBLIC_DONATION_V2;
 const ORACLE_V2_ADDRESS = process.env.NEXT_PUBLIC_ORACLE_V2;
+
+const BTC24H_V2_ADDRESS = process.env.NEXT_PUBLIC_BTC24H_V2;
+const QUEUE_COIN_ADDRESS = process.env.NEXT_PUBLIC_QUEUE_COIN
 
 
 const maxPriorityFeePerGas = ethers.parseUnits("35","gwei");
@@ -1553,18 +1558,6 @@ export async function withdrawTokensWbtc() {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 export async function getAllowanceUsdtV2(
   address: string,
   maxRetries = 5, // Número máximo de tentativas
@@ -1803,3 +1796,426 @@ export async function getUserV2(owner: string): Promise<any> {
   return user[user.length - 1];
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export async function getValuesDeposit(
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+        queueCoinAbi,
+        provider
+      );
+
+      // Obtém o allowance
+
+      const allowance1  = await mint.viewDepositQuantity(1);
+      const allowance2  = await mint.viewDepositQuantity(2);
+      
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance1 !== undefined && allowance2 !== undefined) {
+        return [allowance1, allowance2];
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+export async function getAllowanceBtc24h(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
+        btc24hAbi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, QUEUE_COIN_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+export async function getAllowanceBitcoin24h(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+        btc24hV2Abi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, QUEUE_COIN_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+export async function approveBtc24h(value: bigint) {
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
+    btc24hAbi,
+    signer
+  );
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
+
+  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(100000000000000000000),{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+  await tx.wait();
+
+  return tx;
+}
+
+
+export async function approveBitcoin24h(value: bigint) {
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+    btc24hV2Abi,
+    signer
+  );
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
+
+  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(30000000000000000000),{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+  await tx.wait();
+
+  return tx;
+}
+
+
+export async function addQueueBtc24h(tokenId: number) {
+  const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const collection = new ethers.Contract(
+      QUEUE_COIN_ADDRESS || "",
+      queueCoinAbi,
+      signer
+    );
+    const feeData = await provider.getFeeData();
+    if (!feeData.maxFeePerGas) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const maxFeePerGas = feeData.maxFeePerGas *3n;
+  
+    
+    const tx = await collection.addToQueue(tokenId, 1,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    const concluded = await tx.wait(); // Aguarda a confirmação da transação
+    return concluded; // Retorna a conclusão em caso de sucesso
+
+}
+
+export async function getQueueBtc24h(): Promise<queueData[]> {
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const queueContract = new ethers.Contract(
+  QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+  queueCoinAbi,
+  provider
+);
+
+while (true) {
+  try {
+    // Obtenha os dados da fila diretamente do contrato
+    const getQueueDetails: any[] = await queueContract.getQueueDetails(1);
+    
+    // Transforme as tuplas retornadas para o formato `queueData`
+    const queue: queueData[] = getQueueDetails.map((item) => ({
+      user: item[0], // address
+      index: BigInt(item[1]), // uint256 -> BigInt
+      batchLevel: BigInt(item[2]), // uint256 -> BigInt
+      nextPaied: item[3] === 1 // uint256 -> boolean
+    }));
+
+    return queue;
+
+  } catch (err) {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Retry após 1s
+  }
+}
+}
+
+export async function getQueueBitcoin24h(): Promise<queueData[]> {
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const queueContract = new ethers.Contract(
+  QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+  queueCoinAbi,
+  provider
+);
+
+while (true) {
+  try {
+    // Obtenha os dados da fila diretamente do contrato
+    const getQueueDetails: any[] = await queueContract.getQueueDetails(2);
+    
+    // Transforme as tuplas retornadas para o formato `queueData`
+    const queue: queueData[] = getQueueDetails.map((item) => ({
+      user: item[0], // address
+      index: BigInt(item[1]), // uint256 -> BigInt
+      batchLevel: BigInt(item[2]), // uint256 -> BigInt
+      nextPaied: item[3] === 1 // uint256 -> boolean
+    }));
+
+    return queue;
+
+  } catch (err) {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Retry após 1s
+  }
+}
+}
+
+export async function balanceToPaidBtc24h(maxRetries = 3): Promise<string> {
+  // Initialize the provider
+  const provider = await getProvider();
+  const collection = new ethers.Contract(
+    QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+    queueCoinAbi,
+    provider
+  );
+
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      // Attempt to fetch data from the blockchain
+      const tx = await collection.balanceFree(0);
+
+      // If successful, format and return the result
+      return (tx);
+    } catch (error) {
+    }
+
+    // Increment the attempt counter
+    attempt++;
+  }
+
+  // If all retries fail, throw an error or return a default value
+  throw new Error(`Failed to fetch balance from the blockchain after ${maxRetries} attempts.`);
+}
+
+
+
+export async function balanceToPaidBitcoin24h(maxRetries = 3): Promise<string> {
+  // Initialize the provider
+  const provider = await getProvider();
+  const collection = new ethers.Contract(
+    QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+    queueCoinAbi,
+    provider
+  );
+
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      // Attempt to fetch data from the blockchain
+      const tx = await collection.balanceFree(1);
+
+      // If successful, format and return the result
+      return (tx);
+    } catch (error) {
+    }
+
+    // Increment the attempt counter
+    attempt++;
+  }
+
+  // If all retries fail, throw an error or return a default value
+  throw new Error(`Failed to fetch balance from the blockchain after ${maxRetries} attempts.`);
+}
+
+
+export async function doClaimQueueBtc24h(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const collection = new ethers.Contract(
+   QUEUE_COIN_ADDRESS || "",
+    queueCoinAbi,
+    signer
+  );
+
+  const tx = await collection.claim(1)
+  return tx;
+}
+
+export async function doClaimQueueBitcoin24h(){
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const collection = new ethers.Contract(
+   QUEUE_COIN_ADDRESS || "",
+    queueCoinAbi,
+    signer
+  );
+
+  const tx = await collection.claim(2)
+  return tx;
+}
+
+export async function getTokensToWithdrawBtc24h(owner: string) {
+  try {
+      //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      const provider = await getProvider();
+
+    const queue = new ethers.Contract(
+      QUEUE_COIN_ADDRESS || "",
+      queueCoinAbi,
+      provider
+    );
+
+    const tokens = await queue.tokensToWithdraw(owner);
+    return tokens; // Retorna a conclusão em caso de sucesso
+  } catch (error: any) {
+    // Retorna a mensagem de erro
+    return {
+      success: false,
+      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+    };
+  }
+}
+
+
+
+export async function withdrawTokensBtc24h() {
+  try {
+    const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const queue = new ethers.Contract(
+      QUEUE_COIN_ADDRESS || "",
+      queueCoinAbi,
+      signer
+    );
+    const feeData = await provider.getFeeData();
+    if (!feeData.maxFeePerGas) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const maxFeePerGas = feeData.maxFeePerGas *3n;
+  
+    
+    const tx = await queue.withdrawTokens();
+
+    // Aguarda a confirmação
+    const receipt = await tx.wait();
+
+    if (receipt.status === 1) {
+      // Sucesso
+      return {
+        success: true,
+        message: "Tokens successfully withdrawn!",
+        transactionHash: tx.hash,
+      };
+    } else {
+      // Transação falhou
+      return {
+        success: false,
+        errorMessage: "Transaction failed on the blockchain.",
+      };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+    };
+  }
+}
