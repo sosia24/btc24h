@@ -505,7 +505,7 @@ async function clearAlert(){
 
           
   {isV2?(
-            <div className="flex flex-col sm:w-[85%] sm:items-center sm:justify-center  p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-6  rounded-xl">
+            <div className="flex flex-col sm:w-[95%] sm:items-center sm:justify-center  p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-6  rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
               <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
@@ -555,7 +555,7 @@ async function clearAlert(){
 
 
           ):(
-            <div className="flex flex-col p-9 md:p-4 bg-[#00ff53] bg-opacity-15 ml-4 sm:ml-0 rounded-xl">
+            <div className="flex flex-col sm:w-[95%]  p-9 md:p-4 bg-[#00ff53] bg-opacity-15 ml-4 sm:ml-0 rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
               <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
