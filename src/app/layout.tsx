@@ -61,6 +61,29 @@ export default function RootLayout({
 
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
+              
+            <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
+            Attention, BTC24H community members! <br></br>
+
+We have some incredible news to share with you.<br></br>
+
+The Gold, Silver, Bronze, and WBTC NFTs continue to operate flawlessly. Whenever the "Distribute" button is green, anyone can click it, pay the transaction fee, and automatically distribute rewards to the 10 wallets in the queue. Take advantage of this feature to maximize your benefits!<br></br>
+
+And now, the big news: we've launched the Liquidity NFT! With it, you can use your BTC24H or Bitcoin24H coins to participate in this unique opportunity.<br></br>
+
+How does the Liquidity NFT work? <br></br>
+
+The NFT is priced at $75.<br></br>
+
+You will receive a guaranteed reward of $100 in USDT.<br></br>
+
+There is a transaction fee of $5, so at the end of the cycle, you will receive $95.<br></br><br></br>
+Sincerely,<br></br>
+
+<span className="font-bold">The BTC24H DAO Team</span><br></br>
+
+            </div>
+
               {children}
               <div className="w-[100%] flex justify-center flex-row">
                
