@@ -504,7 +504,7 @@ async function clearAlert(){
 
 
           
-          {isV2?(
+  {isV2?(
             <div className="flex flex-col sm:w-[85%] sm:items-center sm:justify-center  p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-6  rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
               <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
@@ -525,22 +525,11 @@ async function clearAlert(){
                 <>
                     <button   onClick={() => handleClaim(false)}
                     className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#00FF3D] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">Claim 5%</button>        
-                    {Number(dayContribute)+1 % 2 === 1?(
-                       <button   
-                       className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim All</button>
-                      
-                    ):(
-                      <button   onClick={() => handleClaim(true)}
-                       className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#22d04b] hover:bg-[#00d836b1] hover:scale-105 transition-all duration-300">Claim All</button>        
-                    )}  
-                   
               </>
               ):(
                 <>
                 <button   
                 className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim 5%</button>
-                 <button   
-                className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim All</button>
                 </>
               )}
 
