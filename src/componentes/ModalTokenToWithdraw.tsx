@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { useState, useEffect } from "react";
 import { withdrawTokens,
         withdrawTokensWbtc,
+        withdrawTokensBtc24h,
  } from "@/services/Web3Services";
 import ModalSuccess from "@/componentes/ModalSuccess";
 import ModalError from "@/componentes/ModalError";
@@ -52,7 +53,7 @@ export default function ModalTokensToWithdraw({ tokens, isWbtc, isBtc24h }: Toke
     try {
       setLoading(true);
   
-      const result = await withdrawTokensWbtc();
+      const result = await withdrawTokensBtc24h();
   
       if (result.success) {
         setAlert("Tokens successfully withdrawn!");
@@ -152,7 +153,7 @@ async function clearAlert(){
             </h1>        
             <div className="flex justify-between px-10 sm:w-full sm:justify-center sm:text-center sm:items-center  sm:text-sm">
             <button
-              onClick={isWbtc && !isBtc24h?handleWithdrawWbtc : isBtc24h? handleWithdrawBtc24h : handleWithdraw}
+              onClick={isWbtc?handleWithdrawWbtc : isBtc24h? handleWithdrawBtc24h : handleWithdraw}
               className="rounded-3xl bottom-10 sm:w-1/2 sm:b-0 mt-[20px] text-center py-4 px-16 sm:px-3 bg-[#00FF3D] hover:bg-[#00e63a] transition-colors duration-300"
             >
               Claim
