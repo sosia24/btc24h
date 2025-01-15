@@ -163,35 +163,11 @@ function Page1() {
     }
   };
   
-  async function submitVote(){
-    alert("Voted")
-  }
+
 
   return (
     <>
     <Marquee></Marquee>
-    <div className="w-[300px] mt-[30px] p-4 flex items-center justify-center text-center bg-white text-black rounded-3xl">
-      
-      <form onSubmit={submitVote}>
-      <p>Vote:</p>
-          <label className="flex items-center space-x-2">
-            <input className="ml-[10px]" type="radio" name="option" value="1" />
-            <span>Option 1</span>
-          </label>
-          <br />
-          <label className="flex items-center space-x-2">
-            <input className="ml-[10px]" type="radio" name="option" value="2" />
-            <span>Option 2</span>
-          </label>
-          <br />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Submit
-          </button>
-        </form>
-</div>
 
 
       <div className="p-4 mt-[20px] w-full lg:h-screen flex justify-center items-center overflow-hidden">

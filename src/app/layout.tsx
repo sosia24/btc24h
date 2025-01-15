@@ -64,38 +64,47 @@ export default function RootLayout({
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
               
             <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
-            DAO BTC24H Announcement<br></br>
+            DAO BTC24H Announcement<br></br><br></br>
 
-As a DAO (Decentralized Autonomous Organization), our priority is always to make decisions together with the community. Therefore, we will initiate a vote to determine the best solution for the future of our ecosystem.<br></br>
-Below are the two proposals for your consideration:<br></br>
-______________<br></br>
-<span className="font-bold">Option 1 – Maintain the Current Model</span><br></br>
-Continue with the current system, which will require constant adjustments over time. However, it is important to note that this approach may present significant challenges:<br></br>
-•	The token will remain unstable in the public market due to the total Claim, which compromises the asset's balance.<br></br>
-•	The lack of a profit cap may put the entire ecosystem at risk, jeopardizing its long-term sustainability.<br></br>
-______________<br></br>
-<span className="font-bold">Option 2 – Build a Balanced and Sustainable Ecosystem for the Long Term</span><br></br>
-This option proposes strategic adjustments to ensure the ecosystem operates efficiently and securely for all participants. <br></br><br></br>
 
-Contribution Adjustments<br></br>
-•	Contributions will be rewarded in 30 installments of 5% each, with renewal at the end of the cycle if the participant wishes to continue contributing.<br></br>
-•	Example: By contributing $1,000, the participant will receive 5% per day for 30 days, totaling $1,500 at the end, including the initial capital. This represents a 50% monthly gain.<br></br>
-•	<br></br>
-Network Bonus Adjustments<br></br>
-•	Implementation of a profit cap to protect the ecosystem and the asset. This limit will be regulated by a (GAS) mechanism, which must be utilized whenever the network profit cap is reached (200%).<br></br>
-o	Example: With 50 USDT deposited as GAS, it will be possible to earn up to 100 USDT in network profits. If the volume increases, the GAS can be adjusted accordingly.<br></br>
-•	All GAS activity will generate network commissions, further strengthening the ecosystem.<br></br>
-•	<br></br>
-(GAS) Distribution in the Ecosystem<br></br>
-•	30% for network commissions (10% direct commission and 20% distributed across 40 levels, with 0.5% per level).<br></br>
-•	30% for purchasing and burning the Bitcoin24H token.<br></br>
-•	30% for purchasing the Bitcoin24H token and recharging the Distribution Pool.<br></br>
-•	10% to strengthen the economy and support liquidity NFTs.<br></br>
-______________<br></br>
-The "Claim All" option will be made available again at the end of the voting process, ensuring that the procedure remains impartial and uninfluenced. We count on your understanding and thank you for your cooperation!<br></br>
-We deeply appreciate the commitment of all community members. Our goal is to create a solid, sustainable ecosystem that is ready for the future.<br></br>
+            We deeply thank our entire community for participating in the vote!
+This was our first moment of joint decision-making, and we are confident it represented a true turning point for our project.
+Option number 2 was the winner, with a significant lead: 577 votes against only 35 for option 1.
+<br></br><br></br>
 
-We count on your participation in this decisive vote!<br></br>
+We are just getting started, and adjustments were necessary. Now, we enter a crucial moment for our project:
+The management of our currency!
+Currently, it is very scarce in the market and will remain so.
+Everyone will have the opportunity to claim their principal amounts and will receive them according to the proportion of their contributions.
+The minimum claim value will be $0.10, a measure designed to protect our economy. This scarcity will ensure the currency remains valuable, allowing it to quickly reach higher levels.
+<br></br><br></br>
+
+With the choice made by the community, we have strengthened the solidity and longevity of our project.
+This alignment will allow us to position our team as a leader in the market.
+The implementation of the new model will begin immediately after the last claim is made by members, which should happen in about three days.
+After this period, we will begin contributions in accordance with the community's decision: 
+30 tranches of 5%.
+This format was designed to gradually introduce the currency into the market, reducing the volume of sales in a single day.
+<br></br><br></br>
+
+In addition, our gas recharge and earnings strategy will create immediate scarcity of the currency, decreasing circulation and strengthening the economy.
+We will continue implementing the adjustments determined by the vote, and as soon as the last member makes their claim, we will provide a detailed report containing:
+<br></br><br></br>
+
+• How many tokens are yet to be distributed;<br></br>
+
+• How many tokens are in the liquidity pool;<br></br>
+
+• How many tokens are held by the community.<br></br>
+
+<br></br>
+This report will be fundamental for us to understand the numbers and plan actions for the start of contributions next week.
+<br></br>
+We are working intensively on programming and necessary adjustments to strengthen our economy.
+We are very pleased with the progress because we have a community that has decided to innovate, create something unprecedented, and work with dedication.
+<br></br>
+For you, we will continue to do whatever it takes to ensure our project's success!
+<br></br>
 
 Best regards,<br></br>
 
