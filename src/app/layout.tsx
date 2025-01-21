@@ -64,46 +64,19 @@ export default function RootLayout({
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
               
             <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
-            DAO BTC24H Announcement<br></br><br></br>
+            IMPORTANT ANNOUNCEMENT<br></br><br></br>
 
+As you are all aware, we have protection systems in place that are activated in certain situations to safeguard our assets. Given that there are currently some discrepancies in the Claim values and with the aim of ensuring balance for all community members, we outline below the steps and tools you can use to proceed:<br></br>
 
-            We deeply thank our entire community for participating in the vote!
-This was our first moment of joint decision-making, and we are confident it represented a true turning point for our project.
-Option number 2 was the winner, with a significant lead: 577 votes against only 35 for option 1.
-<br></br><br></br>
+Effective immediately and for the next 48 hours, the value of Bitcoin24H will be considered $0.25 USD to participate in the Liquidity NFT (BITCOIN24H). For each NFT priced at $75 USDT, participants will receive a reward of $100 USDT, subject to a withdrawal fee of 5%, resulting in a net value of $95 USDT.<br></br>
+Currently, there are no NFTs available in this queue, as all have already been paid out.<br></br>
 
-We are just getting started, and adjustments were necessary. Now, we enter a crucial moment for our project:
-The management of our currency!
-Currently, it is very scarce in the market and will remain so.
-Everyone will have the opportunity to claim their principal amounts and will receive them according to the proportion of their contributions.
-The minimum claim value will be $0.10, a measure designed to protect our economy. This scarcity will ensure the currency remains valuable, allowing it to quickly reach higher levels.
-<br></br><br></br>
+Therefore, this operation will begin for an exclusive period of 48 hours for all community members, including new members.<br></br>
+Those who have already completed the Claim process and swapped their coins for USDT can repurchase the coins on the market and participate in acquiring the Liquidity NFT (BITCOIN24H), benefiting from the same conditions outlined above.<br></br>
 
-With the choice made by the community, we have strengthened the solidity and longevity of our project.
-This alignment will allow us to position our team as a leader in the market.
-The implementation of the new model will begin immediately after the last claim is made by members, which should happen in about three days.
-After this period, we will begin contributions in accordance with the community's decision: 
-30 tranches of 5%.
-This format was designed to gradually introduce the currency into the market, reducing the volume of sales in a single day.
-<br></br><br></br>
+We reaffirm our commitment to creating fair and transparent opportunities for the entire community.<br></br>
+As always, we thank you for your trust, which is essential for the growth and success of all of us.<br></br>
 
-In addition, our gas recharge and earnings strategy will create immediate scarcity of the currency, decreasing circulation and strengthening the economy.
-We will continue implementing the adjustments determined by the vote, and as soon as the last member makes their claim, we will provide a detailed report containing:
-<br></br><br></br>
-
-• How many tokens are yet to be distributed;<br></br>
-
-• How many tokens are in the liquidity pool;<br></br>
-
-• How many tokens are held by the community.<br></br>
-
-<br></br>
-This report will be fundamental for us to understand the numbers and plan actions for the start of contributions next week.
-<br></br>
-We are working intensively on programming and necessary adjustments to strengthen our economy.
-We are very pleased with the progress because we have a community that has decided to innovate, create something unprecedented, and work with dedication.
-<br></br>
-For you, we will continue to do whatever it takes to ensure our project's success!
 <br></br>
 
 Best regards,<br></br>
