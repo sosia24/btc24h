@@ -1523,6 +1523,7 @@ function Page1() {
                                 </button>
                             )}
                             
+                            {/* 
                             {valuesDeposit && allowanceBtc24h[1] > (valuesDeposit[1] || 0n)?(
                             <button onClick={() => doAddQueueBitcoin24h()} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
                                 Add Queue
@@ -1532,6 +1533,7 @@ function Page1() {
                                 Approve
                             </button>
                             )}
+                            */}
                         </div>
 
                         {/* Carousel */}

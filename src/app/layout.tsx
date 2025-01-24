@@ -64,25 +64,24 @@ export default function RootLayout({
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
               
             <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
-            IMPORTANT ANNOUNCEMENT<br></br><br></br>
+            <span className="font-bold">ANNOUNCEMENT</span><br></br><br></br>
 
-As you are all aware, we have protection systems in place that are activated in certain situations to safeguard our assets. Given that there are currently some discrepancies in the Claim values and with the aim of ensuring balance for all community members, we outline below the steps and tools you can use to proceed:<br></br>
+To our entire community, we want to express our deepest gratitude for your trust and continued support!<br></br>
+It’s this partnership that drives us forward as we work together to achieve great milestones.<br></br><br></br>
 
-Effective immediately and for the next 48 hours, the value of Bitcoin24H will be considered $0.25 USD to participate in the Liquidity NFT (BITCOIN24H). For each NFT priced at $75 USDT, participants will receive a reward of $100 USDT, subject to a withdrawal fee of 5%, resulting in a net value of $95 USDT.<br></br>
-Currently, there are no NFTs available in this queue, as all have already been paid out.<br></br>
+We’re thrilled to inform you that all system adjustments have been successfully completed.<br></br>
+Now, we’ll proceed to the final phase of testing.<br></br><br></br>
 
-Therefore, this operation will begin for an exclusive period of 48 hours for all community members, including new members.<br></br>
-Those who have already completed the Claim process and swapped their coins for USDT can repurchase the coins on the market and participate in acquiring the Liquidity NFT (BITCOIN24H), benefiting from the same conditions outlined above.<br></br>
+On Monday, January 27th, we’ll announce the official date and time for the restart of contributions within the same week.<br></br>
+This updated version is packed with exciting new features!<br></br>
+Through the Backoffice, you’ll have access to detailed insights into your network volume by levels, GÁS control for earning caps, and many other tools designed to enhance and streamline your experience.<br></br><br></br>
 
-We reaffirm our commitment to creating fair and transparent opportunities for the entire community.<br></br>
-As always, we thank you for your trust, which is essential for the growth and success of all of us.<br></br>
-
-<br></br>
-
-Best regards,<br></br>
+Our goal remains clear: to provide a secure, efficient, and easy-to-use platform for everyone.<br></br><br></br>
+Best Regards,<br></br>
 
 
-<span className="font-bold">The BTC24H DAO Team</span><br></br><br></br>
+
+<span className="font-bold">BTC24H DAO Team 🌟</span><br></br><br></br>
 
             </div>
 
