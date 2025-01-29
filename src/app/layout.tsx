@@ -68,7 +68,7 @@ export default function RootLayout({
 
 📢 The moment has arrived!<br></br><br></br>
 
-On Wednesday, January 31th, at 00:00 UTC, we will start our Ecosystem.<br></br>
+On Friday, January 31st, at 00:00 UTC, we will start our Ecosystem.<br></br>
 It’s time to get ready for this exciting restart. <br></br>
 Our system is fully optimized and prepared to deliver a safer, more efficient, and transparent experience.<br></br><br></br>
 
