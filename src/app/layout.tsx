@@ -64,23 +64,8 @@ export default function RootLayout({
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
               
             <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
-            <span className="font-bold">ANNOUNCEMENT</span><br></br><br></br>
 
-📢 The moment has arrived!<br></br><br></br>
 
-On Friday, January 31st, at 00:00 UTC, we will start our Ecosystem.<br></br>
-It’s time to get ready for this exciting restart. <br></br>
-Our system is fully optimized and prepared to deliver a safer, more efficient, and transparent experience.<br></br><br></br>
-
-🎯 What should you do?<br></br>
-
-Get prepared to take full advantage of the new tools and features designed to maximize your opportunities.<br></br>
-Don’t miss the beginning of this new chapter!  <br></br>                            
- Your participation makes all the difference.<br></br><br></br>
-
-Best regards,<br></br>
-
-<span className="font-bold">BTC24H DAO Team 🌟</span><br></br><br></br>
 
             </div>
 
