@@ -63,11 +63,7 @@ export default function RootLayout({
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
               
-            <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[16px]">
-
-
-
-            </div>
+          
 
               {children}
               <div className="w-[100%] flex justify-center flex-row">
