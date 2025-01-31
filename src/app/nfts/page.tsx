@@ -29,6 +29,10 @@ import {
     activateWbtcNft,
     isActiveNftWbtc,
     timeUntilInactiveNftsWbtc,
+    getTreeUsers,
+    getAllowanceUsdtGas,
+    increaseGas,
+    approveUSDTUser,
 }from "@/services/Web3Services";
 
 function Page1(){
@@ -45,9 +49,12 @@ function Page1(){
     const [timeUntil, setTimeUntil] = useState<bigint[]>([0n,0n,0n,0n]);
     const [quantity, setQuantity] = useState<number[]>([1,1,1,1]);
     const [approvalWbtcUnilevel, setApprovalWbtcUnilevel] = useState<boolean>()
-
+    const [allowanceUsdtGas, setAllowanceUsdtGas] = useState<bigint>(0n);
     const [isApprovedNftV, setIsApprovedNftV] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [gas, setGas] = useState<number>(0);
+    const [gasAmount, setGasAmount] = useState<number>(0);
+
     const { requireRegistration } = useRegistered();
 
     function formatTime(time: bigint): string {
@@ -60,13 +67,61 @@ function Page1(){
     }
         
 
+    async function buyGas(amount : number) {
+      await requireRegistration(() => {});
+
+      setLoading(true);
+      try {
+        const result = await increaseGas(amount); // Executa a compra
+    
+        if (result && result.status === 1) { // status 1 significa sucesso
+
+            setAlert("Gas purchased successfully");
+    
+          // Aguarde a atualização do allowance após a compra
+          await getAllowanceUsdtFront(); 
+    
+          await fetch(); // Atualiza os dados gerais
+        } else {
+          throw new Error("Transaction failed unexpectedly");
+        }
+      } catch (error) {
+
+          setError("Something went wrong, try again");
+       
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+
+
+    async function getAllowanceUsdtFrontGas(){
+      try{
+          if(address){
+                  const result = await getAllowanceUsdtGas(address);
+
+                  
+                  setAllowanceUsdtGas(result); 
+              }
+      }catch(error){
+
+      }
+  }
 
 
 
 
+    async function getGas(){
+      if(address){
+        try{
+          const result = await getTreeUsers(address);
+          setGas(result.gas)
+        }catch(error){
 
-
-
+        }
+      }
+    }
 
 
 
@@ -245,7 +300,18 @@ async function buyNftWbtcFront() {
 
 
 
-
+async function doApproveUsdtUser(value: Number){
+  setLoading(true);
+  try{
+      const result = await approveUSDTUser(value);
+      if(result){
+          getAllowanceUsdtFrontGas();
+          setLoading(false)
+      }
+  }catch(error){
+      setLoading(false)
+  }
+}
 
 
 
@@ -393,6 +459,8 @@ async function buyNftWbtcFront() {
     /* ---------- INICIA JUNTO COM A PAGINA --------- */
     const fetch = async () =>{
         getAllowanceUsdtFront();
+        getAllowanceUsdtFrontGas()
+        getGas()
         getNftsUserFront();
         getIsActiveStatus();
         isActiveWbtcFront();
@@ -984,21 +1052,49 @@ async function buyNftWbtcFront() {
       <p className="text-white flex flex-row items-center justify-center text-[18px]"><MdOutlineAttachMoney className="text-green-500 mr-[3px]"></MdOutlineAttachMoney> 0.5%</p>
     </div>
   </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </main>
+
+<p className="text-center mt-[100px] bg-[#ffea00c9] p-2 font-bold text-[20px] rounded-2xl shadow-2xl">You need to buy gas to get earnings through unilevel</p>
+  <div className="lg:w-[100%] mt-[30px] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row ">
+    
+  <div className="bg-white shadow-lg flex flex-col items-center justify-center w-[90%] lg:w-[330px] mt-8 h-auto text-gray-800 p-6 rounded-xl ml-5">
+  <h2 className="text-2xl font-bold text--blue-600 mb-2">Buy Gas</h2>
+  <p className="text-gray-600 text-center mb-4">
+    Your Gas Available:{" "}
+    <span className="text--blue-600 font-semibold">
+      {ethers.formatUnits(String(gas), 6)} USDT
+    </span>
+  </p>
+  <input
+    type="number"
+    className="w-full mt-4 p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+    placeholder="Enter amount of gas to buy"
+    value={gasAmount}
+    onChange={(e) => setGasAmount(Number(e.target.value))}
+  />
+  {allowanceUsdtGas >= BigInt(gasAmount * 1000000) ? (
+    <button
+      onClick={async () => {
+        await buyGas(gasAmount);
+      }}
+      className="w-full mt-6 py-3 bg-[#00ff54] text-white rounded-lg font-semibold hover:bg-[#00d94a] transition-all duration-300"
+    >
+     Buy Gas
+    </button>
+  ) : (
+    <button
+      onClick={async () => {
+        await doApproveUsdtUser(gasAmount * 1000000);
+      }}
+      className="w-full mt-6 py-3 bg-blue-600 text-white rounded-lg font-semibold text--blue-700 transition-all duration-300"
+    >
+                Approve
+    </button>
+  )}
+
+    </div>
+    </div>
+
 
             </section>
         <Footer></Footer>

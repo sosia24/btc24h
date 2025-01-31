@@ -1,6 +1,7 @@
 "use client";
+import React from "react";
 
-import { donate, getDonationAllowance,getUser,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2} from "@/services/Web3Services";
+import { donate,getContributions, getDonationAllowance,getUser,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2} from "@/services/Web3Services";
 import { useRef, useState } from "react";
 import withAuthGuard from "@/services/authGuard";
 import Footer from "@/componentes/footer";
@@ -14,7 +15,23 @@ import ModalError from "@/componentes/ModalError";
 import { TbReload } from "react-icons/tb";
 import ModalSuccess from "@/componentes/ModalSuccess";
 
+
+interface Contribution {
+  index: number;
+  amount: number;
+  goal: number;
+  startTime: number;
+  endTime: number;
+  days: number;
+  timestamps: number[];
+  claims: number[];
+  priceClaim: number[];
+
+}
+
+
 function Donation() {
+  const [isEnglish, setIsEnglish] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
 
@@ -23,9 +40,7 @@ function Donation() {
   const [allowance, setAllowance] = useState<bigint>(0n);
   const [balance, setBalance] = useState<bigint>(0n);
   const [timeUntil, setTimeUntil] = useState("00h:00min:00s");
-  const [timeUntilV2, setTimeUntilV2] = useState("00h:00min:00s");
   const [timeUntilNumber, setTimeUntilNumber] = useState<Number>(0)
-  const [timeUntilNumberV2, setTimeUntilNumberV2] = useState<Number>(0)
   const [balanceToClaim, setBalanceToClaim] = useState<bigint>(0n);
   const [balanceToClaimV2, setBalanceToClaimV2] = useState<bigint>(0n);
   const [btc24hRealPrice, setBtc24hRealPrice] = useState<bigint>(0n);
@@ -34,6 +49,8 @@ function Donation() {
   const [nextPool, setNextPool] = useState<bigint>(0n);
   const [totalBurned, setTotalBurned] = useState<bigint>(0n);
   const [isV2, setIsV2] = useState<boolean>(false)
+  const [contributions, setContributions] = useState<Contribution[]>([]);
+  const [contributionIndex, setContributionIndex] = useState<number>(0);
 
   const { requireRegistration } = useRegistered();
   const [show, setShow] = useState(false);
@@ -59,6 +76,116 @@ function Donation() {
     return `${hours}h:${minutes}min:${seconds}s`;
   };
 
+
+
+  
+  async function handleContributionIndex(index:number){
+    setContributionIndex(index);
+  }
+
+  
+
+
+  useEffect(() => {
+    const fetchTimeLeft = async () => {
+      if (!walletAddress) return;
+      if(contributions.length == 0) return;
+      
+      try {
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
+  
+        // Atualiza os estados com os valores obtidos
+        setTimeUntil(formatTime(timeLeft));
+        setTimeUntilNumber(Number(timeLeft));
+        
+  
+        // Inicia o cronômetro decremental
+        startDecrementalTimer(timeLeft);
+      } catch (error) {
+      }
+    };
+  
+    fetchTimeLeft();
+  }, [walletAddress, contributionIndex, contributions]);
+  const fetchContributions = async (owner: string) => {
+    try {
+      const response = await getContributions(owner);
+  
+      if (response.success === false) {
+        throw new Error(response.errorMessage);
+      }
+  
+      if (Array.isArray(response)) {
+        const formattedContributions = response.map((item: any[]) => ({
+          index: Number(item[0]),
+          amount: Number(item[1]),
+          goal: Number(item[2]),
+          startTime: Number(item[3]),
+          endTime: Number(item[4]),
+          days: Number(item[5]),
+          timestamps: (item[6]),
+          claims: (item[7]),
+          priceClaim: (item[8]),
+
+        }));
+  
+        setContributions(formattedContributions);
+
+        
+      } else {
+      }
+    } catch (err: any) {
+      setError(err.message || "Erro desconhecido");
+    }
+  };
+  
+
+  useEffect(() => {
+    if(walletAddress){
+      fetchContributions(walletAddress);
+    }
+    
+  }, []);
+
+
+  const handleClaim = async () => {
+    await requireRegistration(()=>{}); 
+    try {
+      setLoading(true);
+      if (!walletAddress) {
+        setError("Wallet address not found. Connect your wallet.");
+        return;
+      }
+      await claim(contributions[contributionIndex].index);      
+      if(isEnglish){
+        setAlert("Claim made successfully!");
+      }else{
+        setAlert("¡Reclamación realizada con éxito!");
+      }
+      
+      setLoading(false);
+      const len = contributions.length;
+      if(walletAddress) {
+        await fetchContributions(walletAddress);
+      }
+
+      if(contributions.length < len){
+        setContributionIndex(0)
+      }
+      await fetchData(); 
+    } catch (error:any) {
+      setLoading(false);
+      if(error.reason === "AS"){
+        if(isEnglish){
+          error.reason = "There is no balance available to claim."
+        }else{
+          error.reason = "No hay saldo disponible para reclamar."
+        }
+        
+      }
+      setError(error.reason || "Error: An unknown error");
+    }
+  };
 
 
   async function getDays() {
@@ -103,19 +230,7 @@ function Donation() {
       }
     }, 1000);
   };
-  const startDecrementalTimerV2 = (timeLeft: number) => {
-    if (timerRef.current) clearInterval(timerRef.current);
 
-    timerRef.current = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft -= 1;
-        setTimeUntilNumberV2(Number(setTimeUntilNumberV2)-1)
-        setTimeUntilV2(formatTime(timeLeft));
-      } else {
-        clearInterval(timerRef.current!);
-      }
-    }, 1000);
-  };
 
   const handleModalToggle = async () => {
     setSteps(0);
@@ -131,6 +246,7 @@ function Donation() {
       setTimeout(() => setShow(true), 10); 
     }
   };
+
   
   const handleClose = () => {
     setShow(false);
@@ -156,14 +272,10 @@ function Donation() {
 
         setBalance(balanceValue);
   
-        const timeLeft = await getTimeUntilToClaim(walletAddress);
-        const timeLeftV2 = await getTimeUntilToClaimV2(walletAddress)
-        setTimeUntilV2(formatTime(timeLeftV2));
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
         setTimeUntil(formatTime(timeLeft));
         setTimeUntilNumber(Number(timeLeft));
-        setTimeUntilNumberV2(Number(timeLeftV2));
         startDecrementalTimer(timeLeft);
-        startDecrementalTimerV2(timeLeftV2);
         getDays();
   
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
@@ -229,7 +341,7 @@ function Donation() {
 
 
 
-  const handleDonation = async (isUsdt:boolean) => {
+  const handleDonation = async () => {
     await requireRegistration(()=>{}); 
   
       if (!donationAmount || parseFloat(donationAmount) <= 0) {
@@ -246,8 +358,10 @@ function Donation() {
       
       try {
         setIsProcessing(true);
-        await donateV2(donationAmount);
+        await donate(donationAmount);
         setAlert("Donation made successfully!");
+        if(walletAddress)
+        fetchContributions(walletAddress)
         setSteps(3);
         setIsProcessing(false);
         setLoading(false);
@@ -299,26 +413,30 @@ function Donation() {
   
   const handleApprove = async () => {
     if (!donationAmount || parseFloat(donationAmount) <= 0) {
-      setError("Please enter a valid donation amount.");
+      if(isEnglish){
+        setError("Please enter a valid donation amount.");
+      }else{
+        setError("Ingrese un monto de donación válido.");
+      }
+      
       return;
     }
   
     try {
       setIsProcessing(true);
 
-      if (donateWithUsdt) {
-        if(isV2){
-          await approveUsdtDonationV2(donationAmount);
-        }else{
+
           await approveUsdtDonation(donationAmount);
-        }
-      } else {
-        await approveBTC24HDonation(donationAmount);
-      }
+      
   
       setSteps(2); // Após aprovação, avança para Step 2
     } catch (error) {
-      setError("Error when performing approve. Please try again.");
+      if(isEnglish){
+        setError("Error when performing approve. Please try again.");
+      }else{
+        setError("Error al realizar la aprobación. Inténtalo nuevamente.");
+      }
+      
     } finally {
       setIsProcessing(false);
       await fetchData();
@@ -331,14 +449,10 @@ function Donation() {
     try {
       if (walletAddress) {
         // Atualiza o tempo restante para reclamar
-        const timeLeft = await getTimeUntilToClaim(walletAddress);
-        const timeLeftV2 = await getBtc24hPreviewedClaimV2(walletAddress)
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
         setTimeUntil(formatTime(timeLeft));
-        setTimeUntilV2(formatTime(timeLeftV2));
         setTimeUntilNumber(Number(timeLeft));
-        setTimeUntilNumberV2(Number(timeLeftV2));
         startDecrementalTimer(timeLeft);
-        startDecrementalTimerV2(timeLeftV2);
 
         // Atualiza o saldo a ser reivindicado
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
@@ -356,51 +470,7 @@ function Donation() {
     } finally {
     }
   }
-  
-  const handleClaim = async (isRoot:boolean) => {
-    await requireRegistration(()=>{}); 
-    try {
-      setLoading(true);
-      if (!walletAddress) {
-        
-        setError("Wallet address not found. Connect your wallet.");
-        return;
-      }
-      
-      if(isV2){
-        if (balanceToClaimV2 === 0n) {
-          setLoading(false);
-          setError("There is no balance available to claim.");
-          
-          return;
-          }
-          if(isRoot){
-            await claimV2(true); 
-          }else{
-            await claimV2(false); 
-          }
-     
-      }else{
-      if (balanceToClaim === 0n) {
-        setLoading(false);
-        setError("There is no balance available to claim.");
-        
-        return;
-        }
-        
-        await claim();         
-      }
-      setAlert("Claim made successfully!");
-      setLoading(false);
-      await fetchData(); 
-    } catch (error:any) {
-      setLoading(false);
-      if(error.reason == "AS"){
-        error.reason = "There is no balance available to claim."
-      }
-      setError(error.reason || "Error: An unknown error");
-    }
-  };
+
 
   async function clearError(){
     setError("");
@@ -437,19 +507,6 @@ async function clearAlert(){
               New<br className="sm:hidden" /> Donation
             </span>
           </div>
-        </div>
-        <div className="w-[100%] mt-[20px] flex flex-row justify-center">
-        {isV2?(
-          <>
-          <button onClick={handleV1} className="p-4 border-2 border-gray  w-[130px] rounded-xl">Claim V1</button>
-          <button className="ml-[15px] p-4 w-[130px] bg-[#001eff] rounded-xl">Claim V2</button>
-        </>
-        ):(
-          <>
-          <button className="p-4 w-[130px] text-black bg-[#00FF3D] rounded-xl">Claim V1</button>
-          <button onClick={handleV1} className="ml-[15px] p-4 w-[130px] border-2 border-gray rounded-xl">Claim V2</button>
-          </>
-        )}
         </div>
        
         
@@ -504,109 +561,94 @@ async function clearAlert(){
 
 
           
-  {isV2?(
-            <div className="flex flex-col sm:w-[90%] sm:items-center sm:justify-center  p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-6  rounded-xl">
-            <div className="flex sm2:justify-center sm2:items-center">
-              <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
-              <div className="ml-5">
-                <h1 className="text-4xl font-semibold">Claim <span className="text-blue-500">Rewards V2</span></h1>
-                <p>USDT Estimated:</p>
-                <p>U$ <span className="text-blue-500">{formatUsdt(balanceToClaimV2)}</span></p>
-                <p>Bitcoin24H estimated: </p>
-
-                <span className="text-blue-500">{btc24hPriceV2 > 0n ? (Number(balanceToClaimV2) / Number(btc24hPriceV2)).toFixed(2) : "Loading..."} Bitcoin24H</span>
-                <p>Day: {Number(dayContribute)+1}</p>
-                </div>
-              
-
-              </div>
-            <div className="flex mt-4 w-full text-xl justify-center">
-              {Number(timeUntilNumberV2) <= Number(0) && Number(balanceToClaimV2) > Number(0)?(
-                <>
-                    <button   onClick={() => handleClaim(false)}
-                    className="text-black rounded-lg font-semibold p-2 mx-1 w-[120px] bg-[#00FF3D] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">Claim 5%</button>        
-                    {Number(dayContribute)+1 % 2 === 1?(
-                       <button   
-                       className="text-black rounded-lg font-semibold p-2 mx-1 w-w-[70px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">105%</button>
-                      
-                    ):(
-                      <button   onClick={() => handleClaim(true)}
-                       className="text-black rounded-lg font-semibold p-2 mx-1 w-[70px] bg-[#22d04b] hover:bg-[#00d836b1] hover:scale-105 transition-all duration-300">105%</button>        
-                    )}  
-                   
-              </>
-              ):(
-                <>
-                <button   
-                className="text-black rounded-lg font-semibold p-2 mx-1 w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim 5%</button>
-                 <button   
-                className="text-black rounded-lg font-semibold p-2 mx-1 w-[70px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">105%</button>
-                </>
-                 )}
-
-                 <p className="bg-[#9B9701] rounded-lg mx-2 p-3">{timeUntilV2}</p>
-               </div>
-             </div>
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          ):(
-            <div className="flex flex-col sm:w-[95%]  p-9 md:p-4 bg-[#00ff53] bg-opacity-15 ml-4 sm:ml-0 rounded-xl">
-            <div className="flex sm2:justify-center sm2:items-center">
-              <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
-              <div className="ml-5">
-                <h1 className="text-4xl font-semibold">Claim <span className="text-[#FAE201]">Rewards V1</span></h1>
-                <p>USDT Estimated:</p>
-                <p>U$ <span className="text-[#FAE201]">{formatUsdt(balanceToClaim)}</span></p>
-                <p>BTC24H estimated: </p>
-                <span className="text-[#FAE201]">{btc24hPrice > 0n ? (Number(balanceToClaim) / Number(btc24hPrice)).toFixed(2) : "Loading..."} BTC24h</span>
-
-                <p>Donated Tokens:</p>
-                <p><span className="text-[#FAE201]">{user ? Number(ethers.formatEther(user.maxUnilevel*2n)).toFixed(2): "loading"} BTC24H</span></p>
-
-                </div>
-
-
-              </div>
-            <div className="flex mt-4 w-full text-xl justify-center">
-              {Number(timeUntilNumber) <= Number(0) && Number(balanceToClaim) > Number(0)?(
-                                      <button   onClick={()=>handleClaim(false)}
-                                      className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#00FF3D] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">Claim</button>        
-              ):(
-                <button   onClick={()=>handleClaim(false)}
-                              className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim</button>
-
-              )}
-
-              <p className="bg-[#9B9701] rounded-lg mx-2 p-3">{timeUntil}</p>
-              <button
-              onClick={reloadDonation}
-              className={`flex items-center mt-[5px] justify-center w-10 h-10 bg-gray-500 text-white rounded-full ${
-              isReloading ? 'animate-spin' : ''
-              }`}
-              disabled={isReloading} // Evita múltiplos cliques
-              >
-      <TbReload />
+  {contributions.length > 0 ? (
+  <div className="flex flex-col bg-gray-200 bg-opacity-10 p-10 sm:p-4  w-full max-w-[500px] justify-center items-center rounded-xl">
+    <div className="flex flex-col  sm:flex-row justify-center items-center p-4">
+      <img
+        className="w-[150px] h-auto sm:w-[120px] md:w-[140px] lg:w-[160px] mb-4 sm:mb-0"
+        src="images/claimImage.png"
+        alt="banner"
+      />
+      <div className="ml-0 sm:ml-5 text-center sm:text-left">
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-semibold">
+          {isEnglish? "Claim" : "Reclamar"}{" "}
+          <span className="text-[#ffea00c9]">
+            {isEnglish? "Rewards" : "Recompensas"} {contributions[contributionIndex]?.index ? contributions[contributionIndex]?.index : 0}
+          </span>
+        </h1>
+        <p className="text-lg sm:text-xl lg:text-2xl">{isEnglish? "Donated:" : "Donado:"}</p>
+        <p className="text-md sm:text-lg lg:text-xl">
+          <span className="text-[#ffea00c9]">
+            U$ {contributions[contributionIndex]?.amount ? contributions[contributionIndex].amount / 1000000 : 0}
+          </span>
+        </p>
+        <p className="text-lg sm:text-xl lg:text-2xl">USDT {isEnglish? "Estimated:" : "Estimado:"}</p>
+        <p className="text-md sm:text-lg lg:text-xl">
+          <span className="text-[#ffea00c9]">
+            U$ {contributions[contributionIndex]?.goal ? contributions[contributionIndex].goal / 1000000 : 0}
+          </span>
+        </p>
+        <p className="text-md sm:text-lg lg:text-xl">
+          {isEnglish? "Claims" : "Reclamos"}{" "}
+          <span className="text-[#ffea00c9]">
+            {contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30
+          </span>
+        </p>
+      </div>
+    </div>
+    <div className="flex mt-4 w-full text-sm sm:text-lg justify-center">
+    {timeUntilNumber === 0 && contributions.length > 0?(
+       <button
+       onClick={() => handleClaim()}
+       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-300"
+     >
+       {isEnglish? "Claim" : "Reclamo"}
+     </button>
+    ):(
+      <button
+      className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300"
+    >
+      {isEnglish? "Claim" : "Reclamo"}
     </button>
-            </div>
-          </div>
-          )}
+    )}
+     
+      <p className="bg-orange-500 text-md sm:text-lg lg:text-xl rounded-lg mx-2 p-2 sm:p-3">
+        {timeUntil}
+      </p>
+    </div>
+    <div className="w-full bg-gray-600 bg-opacity-20 mt-5 p-2 flex flex-row overflow-x-auto scrollbar-thin scrollbar-thumb-[#fe4a00] scrollbar-track-gray-700">
+      {contributions.map((contribution, index) => (
+        <div
+          onClick={() => handleContributionIndex(index)}
+          key={index}
+          className="cursor-pointer hover:scale-105 w-[40px] h-[30px] p-2 bg-[#ffea00c9] text-center flex justify-center items-center ml-[5px]"
+        >
+          {contributions[index].index}
+        </div>
+      ))}
+    </div>
+  </div>
+) : (
+  <div className="flex flex-col items-center justify-center text-center h-[400px] border-2 border-[#00FF3D] rounded-xl p-6">
+    <img
+      src="/images/claimImage.png"
+      alt="No Contributions"
+      className="w-[150px] sm:w-[200px] h-auto mb-4"
+    />
+    <h2 className="text-xl sm:text-2xl font-semibold text-white">
+      {isEnglish? "No Active Contributions Found" : "No se encontraron contribuciones activas"}
+    </h2>
+    <p className="text-sm sm:text-base text-white mt-2">
+      {isEnglish? "Start contributing to claim your rewards and track your progress here." : "Comience a contribuir para reclamar sus recompensas y seguir su progreso aquí."}
+    </p>
+    <button
+      onClick={handleModalToggle}
+      className="mt-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white bg-[#1b9437] hover:bg-[#1b9437c0] rounded-lg shadow-md transition-all duration-300"
+    >
+      {isEnglish? "Start Contributing" : "Comience a contribuir"}
+    </button>
+  </div>
+)}
           
         </div>
       </div>
@@ -614,217 +656,158 @@ async function clearAlert(){
       <Footer />
 
       {isModalOpen && (
-  <div className="fixed inset-0 z-30 flex items-center justify-center">
-    {/* Overlay */}
-    <div
-      className="fixed inset-0 bg-black bg-opacity-60 transition-opacity duration-300"
-      onClick={handleClose}
-    ></div>
+        <div className="fixed inset-0 z-30 flex items-center justify-center">
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-60 transition-opacity duration-300"
+            onClick={handleClose}
+          ></div>
 
-    {/* Modal */}
-
-      <div className="relative bg-white w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
-      {/* Close Button */}
-      <button
-        className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition duration-200"
-        onClick={handleClose}
-      >
-        <p className="text-lg font-bold">×</p>
-      </button>
-
-      <div className="w-[100%] flex text-black justify-center mb-[20px]">
-        <p>Donate v2</p>
-      </div>
-
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Donate in Steps</h2>
-        <p className="text-gray-600 text-sm">
-          Follow the steps to complete your donation
-        </p>
-      </div>
-
-      {/* Steps Indicator */}
-      <div className="flex items-center justify-center mb-6">
-        <div
-          className={`h-1 w-8 ${
-            steps >= 1 ? "bg-green-500" : "bg-gray-300"
-          } rounded-full`}
-        ></div>
-        <p
-          className={`mx-2 text-sm ${
-            steps >= 1 ? "text-green-500" : "text-gray-400"
-          }`}
-        >
-          Step 1
-        </p>
-        <div
-          className={`h-1 w-8 ${
-            steps >= 2 ? "bg-green-500" : "bg-gray-300"
-          } rounded-full`}
-        ></div>
-        <p
-          className={`mx-2 text-sm ${
-            steps >= 2 ? "text-green-500" : "text-gray-400"
-          }`}
-        >
-          Step 2
-        </p>
-        <div
-          className={`h-1 w-8 ${
-            steps === 3 ? "bg-green-500" : "bg-gray-300"
-          } rounded-full`}
-        ></div>
-        <p
-          className={`ml-2 text-sm ${
-            steps === 3 ? "text-green-500" : "text-gray-400"
-          }`}
-        >
-          Success
-        </p>
-      </div>
-
-      {/* Step Content */}
-      <div className="text-center">
-        {steps === 0 && (
-          <div>
-            <p className="text-lg text-gray-800 mb-4">
-              Select your donation currency
-            </p>
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={() => {
-                  setDonateWithUsdt(true);
-                  setSteps(1);
-                }}
-                className={`px-4 py-2 rounded-lg mr-4 ${
-                  donateWithUsdt
-                    ? "bg-gray-200 text-black hover:border-2 border-green-400"
-                    : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
-                }`}
-              >
-                USDT
-              </button>
-     {
-      /*
-     }
-              <button
-                onClick={() => {
-                  setDonateWithUsdt(false);
-                  setSteps(1);
-                }}
-                className={`px-4 py-2 rounded-lg ${
-                  !donateWithUsdt
-                    ? "bg-gray-200 text-black hover:border-2 border-green-400"
-                    : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
-                }`}
-              >
-                BTC24H
-              </button>
-              {
-              */}
-    
-            </div>
-          </div>
-        )}
-
-        {
-
-          steps == 1 || steps == 2 ?            <> 
-          
-          <p className="text-lg text-gray-800 mb-4">
-          Balance: {donateWithUsdt? Number(ethers.formatUnits(balance,6)).toFixed(2):Number(ethers.formatEther(balance)).toFixed(2)} {donateWithUsdt?"USDT":"BTC24H"}
-        </p>
-        <p className="text-lg text-gray-800 mb-4">
-          Allowance: {donateWithUsdt? ethers.formatUnits(allowanceUsdtV2,6):ethers.formatEther(allowance)} {donateWithUsdt?"USDT":"BTC24H"}
-        </p>
-          
-          
-          <p className="text-lg text-gray-800 mb-4">
-            {steps == 1 ? " Approve tokens" : "Donate tokens"}
-         
-        </p>
-        <p className="text-[green]">The minimum to contribute is 10$</p>
-        {
-  !donateWithUsdt ? (
-    <p 
-      className={`text-lg mb-4 ${Number(ethers.formatUnits((BigInt(donationAmount) * btc24hRealPrice), 6)).toFixed(2) < String(10) ? 'text-red-500' : 'text-gray-800'}`}
-    >
-      {Number(ethers.formatUnits((BigInt(donationAmount) * btc24hRealPrice), 6)).toFixed(2)} U$
-    </p>
-  ) : ""
-}
-        <input
-          type="number"
-          value={donationAmount}
-          onChange={handleDonationAmountChange} // Usa a nova função
-          placeholder="Enter amount to approve"
-          className="my-4 p-2 w-full border rounded-lg text-gray-800"
-        /></> : <></>
-        }
-
-{steps === 1 && (
-  <div>
-
-    {isProcessing && (
-      <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
-    )}
-    <button
-      onClick={handleApprove}
-      className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-      disabled={isProcessing || !donationAmount}
-    >
-      {isProcessing ? "Processing..." : `Approve ${donationAmount || ""} ${donateWithUsdt?"USDT":"BTC24H"} `}
-    </button>
-  </div>
-)}
-
-
-{steps === 2 && (
-  <div>
-    <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
-    <button
-      onClick={() => handleDonation(donateWithUsdt)}
-      className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-      disabled={isProcessing || !donationAmount}
-    >
-      {isProcessing ? "Processing..." : `Donate ${donationAmount} ${donateWithUsdt?"USDT":"BTC24H"}`}
-    </button>
-  </div>
-)}
-
-        {steps === 3 && (
-          <div>
-            <p className="text-lg text-green-500 mb-4">
-              Donation successful! Thank you!
-            </p>
-            <svg
-              className="w-12 h-12 text-green-500 mx-auto"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
+          {/* Modal */}
+          <div className="relative bg-white border-2 border-[#BannerTopo] w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
+            {/* Close Button */}
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-green-500 transition duration-200"
+              onClick={handleClose}
             >
-              <path d="M10.293 16.293a1 1 0 011.414 0l7-7a1 1 0 00-1.414-1.414L11 14.586l-3.293-3.293a1 1 0 00-1.414 1.414l4 4z" />
-            </svg>
+              <p className="text-lg font-bold">×</p>
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-semibold text-[#1b9437]">
+                {isEnglish? "Donate in Steps" : "Donar en pasos"}
+                
+              </h2>
+              <p className="text-gray-600 text-sm">
+                {isEnglish? "Follow the steps to complete your donation" : "Sigue los pasos para completar tu donación"}
+              </p>
+            </div>
+
+            {/* Steps Indicator */}
+            <div className="flex items-center justify-center mb-6 gap-3">
+              {[1, 2, 3].map((step) => (
+                <React.Fragment key={step}>
+                  <div
+                    className={`h-1 w-8 rounded-full ${
+                      steps >= step ? "bg-[#1b9437]" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <p
+                    className={`text-sm ${
+                      steps >= step ? "text-[#1b9437]" : "text-gray-400"
+                    }`}
+                  >
+                   { isEnglish? "Step" : "Paso"} {step === 3 ? "Success" : step}
+                  </p>
+                </React.Fragment>
+              ))}
+            </div>
+
+            {/* Step Content */}
+            <div className="text-center">
+              {steps === 0 && (
+                <div>
+                  <p className="text-lg text-gray-800 mb-4">
+                    {isEnglish? "Select your donation currency":"Seleccione la moneda de su donación"}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setDonateWithUsdt(true);
+                      setSteps(1);
+                    }}
+                    className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:border-2 border-[#1b9437]"
+                  >
+                    USDT
+                  </button>
+                </div>
+              )}
+              {steps > 0?(
+                <>
+                <p className="text-lg text-gray-800 mb-4">
+                    Balance: {Number(ethers.formatUnits(balance, 6)).toFixed(2)}{" "}
+                    USDT
+                  </p>
+                  <p className="text-lg text-gray-800 mb-4">
+                    {isEnglish? "Allowance:" : "Aprobación"} {ethers.formatUnits(allowance, 6)} USDT
+                  </p>
+                  <p className="text-lg text-gray-800 mb-4">{isEnglish? "Approve tokens":"Aprobar tokens"}</p>
+                  <p className="text-green-600 mb-4">
+                    {isEnglish? "The minimum to contribute is $10" : "El mínimo para contribuir es $10"}
+                  </p>
+                  
+                       <input
+                      type="number"
+                      value={donationAmount}
+                      onChange={handleDonationAmountChange}
+                      placeholder="Enter amount to approve"
+                      className="my-4 p-2 w-full border border-[#1b9437] rounded-lg text-gray-800 bg-gray-200"
+                    />
+                    </>
+              ):(
+                ""
+              )}
+                  
+              {steps === 1 && (
+                <div>
+                  
+                  {isProcessing && (
+                    <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+                  )}
+                  <button
+                    onClick={handleApprove}
+                    className="bg-[#1b9437] hover:bg-[#1b9437] transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+                    disabled={isProcessing || !donationAmount}
+                  >
+                    {isProcessing
+                      ? "Processing..."
+                      : `Approve ${donationAmount || ""} USDT`}
+                  </button>
+                </div>
+              )}
+
+              {steps === 2 && (
+                <div>
+                  <p className="text-lg text-gray-800 mb-4">
+                    {isEnglish? "Confirm your donation":"Confirma tu donación"}
+                  </p>
+                  <button
+                    onClick={handleDonation}
+                    className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+                    disabled={isProcessing || !donationAmount}
+                  >
+                    {isProcessing
+                      ? "Processing..."
+                      : `Donate ${donationAmount} USDT`}
+                  </button>
+                </div>
+              )}
+
+              {steps === 3 && (
+                <div>
+                  <p className="text-lg text-green-500 mb-4">
+                    {isEnglish?"Donation successful! Thank you!":"¡Donación realizada con éxito! ¡Gracias!"}
+                  </p>
+                  <svg
+                    className="w-12 h-12 text-green-500 mx-auto"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M10.293 16.293a1 1 0 011.414 0l7-7a1 1 0 00-1.414-1.414L11 14.586l-3.293-3.293a1 1 0 00-1.414 1.414l4 4z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <p className="text-center text-sm text-gray-500 mt-6">
+              {steps < 3 && "Complete all steps to finalize your donation"}
+            </p>
           </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <p className="text-center text-sm text-gray-500 mt-6">
-        {steps < 3 && "Complete all steps to finalize your donation"}
-      </p>
-    </div>
-
-  </div>
-  )}
-
-
-
-
-
+        </div>
+      )}
     </>
   );
 }
-
 export default withAuthGuard(Donation);
