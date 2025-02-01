@@ -482,7 +482,6 @@ export async function getBtc24hPreviewedClaim(owner:string){
   );
 
   const time = (await donation.timeUntilNextWithdrawal(owner, index));
-  console.log("time", time)
   
   return time;
 }
