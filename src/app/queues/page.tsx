@@ -1243,7 +1243,7 @@ function Page1() {
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
                             <p>Balance to Paid:</p>
                             <p className="text-[#ffc100]">{(balance[3])  || 0}$</p>
-                            {readyToPaidWbtc >= 10 && queueWbtcDetailsFormated?(
+                            {readyToPaidWbtc >=  2 && queueWbtcDetailsFormated?(
                                 <button onClick={() => doClaimQueueWbtcFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
@@ -1388,7 +1388,7 @@ function Page1() {
                                 : 0} 
                              Btc24h
                             </p>
-                            {readyToPaidBtc24h >= 10 && queueBtc24hDetailsFormated?(
+                            {readyToPaidBtc24h >= 2 && queueBtc24hDetailsFormated?(
                                 <button onClick={() => doClaimQueueBtc24hFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
@@ -1513,7 +1513,7 @@ function Page1() {
                              Bitcoin24h
                             </p>
 
-                            {readyToPaidBitcoin24h >= 10 && queueBitcoin24hDetailsFormated?(
+                            {readyToPaidBitcoin24h >= 2 && queueBitcoin24hDetailsFormated?(
                                 <button onClick={() => doClaimQueueBitcoin24hFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
