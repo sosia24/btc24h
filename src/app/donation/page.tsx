@@ -232,7 +232,7 @@ function Donation() {
     }, 1000);
   };
 
-
+/* 
   const handleModalToggle = async () => {
     setSteps(0);
     if (isModalOpen) {
@@ -247,7 +247,7 @@ function Donation() {
       setTimeout(() => setShow(true), 10); 
     }
   };
-
+*/
   
   const handleClose = () => {
     setShow(false);
@@ -370,7 +370,7 @@ function Donation() {
         await fetchData();
         getDays()
         getDays();
-        handleModalToggle();
+        /*handleModalToggle();*/
       } catch (error : any) {
         
         setIsProcessing(false);
@@ -501,8 +501,8 @@ async function clearAlert(){
             </p>
         </div>
           <div
-            className="bg-[#00FF3D] z-10 hover:bg-[#00D837] hover:scale-105 transition-all duration-300 relative top-4 md:top-0 cursor-pointer rounded-[30px] sm:w-3/5 ml-4  w-[200px] py-4 mt-6 mb-[20px] font-semibold text-2xl text-center sm:m-0 flex items-center justify-center"
-            onClick={handleModalToggle}
+            className="bg-gray-500 cursor-not-allowed z-10  hover:scale-105 transition-all duration-300 relative top-4 md:top-0  rounded-[30px] sm:w-3/5 ml-4  w-[200px] py-4 mt-6 mb-[20px] font-semibold text-2xl text-center sm:m-0 flex items-center justify-center"
+           /*  onClick={handleModalToggle} */
           >
             <span className="w-full h-full flex items-center justify-center">
               New<br className="sm:hidden" /> Donation
@@ -566,8 +566,8 @@ async function clearAlert(){
     <div className="flex mt-4 w-full text-sm sm:text-lg justify-center">
     {timeUntilNumber === 0 && contributions.length > 0?(
        <button
-       onClick={() => handleClaim()}
-       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-300"
+       /*onClick={() => handleClaim()}*/
+       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300"
      >
        {isEnglish? "Claim" : "Reclamo"}
      </button>
@@ -609,7 +609,7 @@ async function clearAlert(){
       {isEnglish? "Start contributing to claim your rewards and track your progress here." : "Comience a contribuir para reclamar sus recompensas y seguir su progreso aquí."}
     </p>
     <button
-      onClick={handleModalToggle}
+      /*onClick={handleModalToggle}*/
       className="mt-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white bg-[#1b9437] hover:bg-[#1b9437c0] rounded-lg shadow-md transition-all duration-300"
     >
       {isEnglish? "Start Contributing" : "Comience a contribuir"}
