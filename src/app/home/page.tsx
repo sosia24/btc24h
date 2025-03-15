@@ -235,12 +235,13 @@ function Page1() {
             {coinCotation
     ? `$${coinCotation.toFixed(8).toLocaleString()}`
     : "...loading"}
-    <div className="">
-    <p className="ml-[5px] font-bold text-[22px]">Bitcoin24h/USDT</p>
+    <br></br>
+    <span className="ml-[5px] font-bold text-[22px]">Bitcoin24h/USDT</span>
+    <br></br>
     {coinCotationV2
     ? `$${coinCotationV2.toFixed(8).toLocaleString()}`
     : "...loading"}
-    </div>
+
     
 </p>
 
@@ -309,7 +310,7 @@ function Page1() {
           totalEarnedPerLevel.reduce((acc, value) => acc + value, 0n),
           6
         )}{" "}
-        USDT
+        Bitcoin24h
       </p>
     </div>
     {totalEarnedPerLevel && totalEarnedPerLevel.length > 0 ? (
@@ -320,7 +321,7 @@ function Page1() {
         >
           <p className="font-medium">Level {index + 1}</p>
           <p>
-            {ethers.formatUnits(String(earned), 6)} USDT
+            {ethers.formatUnits(String(earned), 18)} Bitcoin24h
           </p>
         </div>
       ))

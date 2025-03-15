@@ -27,7 +27,12 @@ import btc24hV2Abi from "./abis/btc24hV2.abi.json"
 import oracle3Abi from "./abis/oracle3.abi.json"
 import queueCoinAbi from "./abis/queueCoin.abi.json"
 
+import userv3abi from "./abis/userv3.abi.json"
+import donationv3abi from "./abis/donationv3.abi.json"
 
+import oldClaimAbi from "./abis/oldclaim.abi.json"
+
+const OLDCLAIM_ADDRESS = process.env.NEXT_PUBLIC_OLDCLAIM;
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 const CHAIN_ID_AMOY = process.env.NEXT_PUBLIC_CHAIN_ID_AMOY;
 const DONATION_ADDRESS = process.env.NEXT_PUBLIC_DONATION;
@@ -55,6 +60,9 @@ const ORACLE_V2_ADDRESS = process.env.NEXT_PUBLIC_ORACLE_V2;
 const BTC24H_V2_ADDRESS = process.env.NEXT_PUBLIC_BTC24H_V2;
 const QUEUE_COIN_ADDRESS = process.env.NEXT_PUBLIC_QUEUE_COIN
 const USER_V2_ADDRESS = process.env.NEXT_PUBLIC_USER_V2
+
+const DONATION_V3_ADDRESS = process.env.NEXT_PUBLIC_DONATIONV3
+const USERV3_ADDRESS = process.env.NEXT_PUBLIC_USERV3
 
 const maxPriorityFeePerGas = ethers.parseUnits("35","gwei");
 
@@ -163,22 +171,32 @@ export async function approveUsdtDonation(value: string) {
   const signer = await provider.getSigner();
 
   const token = new ethers.Contract(
-    USDT_ADDRESS ? USDT_ADDRESS : "",
-    usdtAbi,
+    BTC24H_V2_ADDRESS || "", // Forma mais limpa de verificar nullish values
+    btc24hV2Abi,
     signer
   );
+
   const feeData = await provider.getFeeData();
   if (!feeData.maxFeePerGas) {
     throw new Error("Unable to get gas price");
   }
 
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
+  const maxFeePerGas = feeData.maxFeePerGas * 3n;
 
+  // ✅ Corrigindo a conversão para BigInt
+  const tx = await token.approve(
+    DONATION_V3_ADDRESS,
+    BigInt(value), // 🔹 Agora é um BigInt válido para a transação
+    {
+      maxFeePerGas: maxFeePerGas,
+      maxPriorityFeePerGas: maxPriorityFeePerGas,
+    }
+  );
 
-  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
   await tx.wait();
   return tx;
 }
+
 
 
 
@@ -307,44 +325,90 @@ export async function buyNft(id: number,quantity:number) {
   }
 }
 
-export async function donate(amount:string){
-  
+export async function donate(amount: string) {
   const provider = await getProvider();
   const signer = await provider.getSigner();
 
-  
-  
   const donation = new ethers.Contract(
-    DONATION_ADDRESS ? DONATION_ADDRESS : "",
-    donationAbi,
+    DONATION_V3_ADDRESS || "", // Usa um fallback mais simples
+    donationv3abi,
     signer
   );
+
+  // Obtém as taxas de gás
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas || !feeData.maxPriorityFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas * 3n;
+  const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas; // Adicionando o campo ausente
+
+  // Converte o valor para BigInt corretamente
+  const amountInWei = ethers.parseUnits(amount, 18);
+
+  try {
+    // Estimando o gás corretamente
+    const estimatedGas = await donation.donate.estimateGas(amountInWei);
+    const gasLimit = (estimatedGas * 150n) / 100n; // 1.5x para segurança
+
+    // Executa a transação
+    const tx = await donation.donate(amountInWei, {
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      gasLimit,
+    });
+
+    // Aguarda a confirmação da transação
+    const concluded = await tx.wait();
+    return concluded;
+  } catch (error) {
+    console.error("Gas cannot be estimated:", error);
+    throw error;
+  }
+}
+
+export async function claimOld(){
+  
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
 
   const feeData = await provider.getFeeData();
   if (!feeData.maxFeePerGas) {
     throw new Error("Unable to get gas price");
   }
 
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
-  
+  // const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-  let tx
+  
+  const donation = new ethers.Contract(
+    OLDCLAIM_ADDRESS ? OLDCLAIM_ADDRESS : "",
+    oldClaimAbi,
+    signer
+  );
+  
   try {
 
-    const estimatedGas = await donation.donate.estimateGas(Number(amount)*10**6);
-    const gasLimit = estimatedGas * 150n / 100n;
+    const feeData = await provider.getFeeData();
+    if (!feeData.maxFeePerGas) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-    tx = await donation.donate(Number(amount)*10**6, {maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
 
 
-    const concluded = tx.wait();
-    return concluded;
+    const tx = await donation.claimDonation(true,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+
+    await tx.wait();
+
+    return tx;
   } catch (error) {
     console.error("Gas cannot be estimated:", error);
     throw error; 
   }
-
 }
+
 export async function claim(index:number){
   
   const provider = await getProvider()
@@ -359,8 +423,8 @@ export async function claim(index:number){
 
   
   const donation = new ethers.Contract(
-    DONATION_ADDRESS ? DONATION_ADDRESS : "",
-    donationAbi,
+    DONATION_V3_ADDRESS ? DONATION_V3_ADDRESS : "",
+    donationv3abi,
     signer
   );
   
@@ -496,8 +560,8 @@ export async function getContributions(owner: string) {
       const provider = await getProvider();
 
     const queue = new ethers.Contract(
-      DONATION_ADDRESS || "",
-      donationAbi,
+      DONATION_V3_ADDRESS || "",
+      donationv3abi,
       provider
     );
 
@@ -567,7 +631,7 @@ export async function getUser(owner:string){
     provider
   );
 
-  const user : UserDonation = (await donation.getUser(owner));
+  const user : UserDonation = await donation.getUser(owner, 1);
   
   return user;
 }
@@ -923,17 +987,33 @@ export async function getUsdtBalance(owner:string){
   return balance;
 }
 
+export async function getBitcoin24hBalance(owner:string){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const usdt = new ethers.Contract(
+  BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+  btc24hV2Abi,
+  provider
+);
+
+const balance = await usdt.balanceOf(owner);
+
+return balance;
+}
+
 export async function getDonationAllowanceUsdt(owner:string){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
     const provider = await getProvider();
   const usdt = new ethers.Contract(
-    USDT_ADDRESS ? USDT_ADDRESS : "",
-    usdtAbi,
+    BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+    btc24hV2Abi,
     provider
   );
 
-  const allowance = await usdt.allowance(owner,DONATION_ADDRESS);
+  const allowance = await usdt.allowance(owner,DONATION_V3_ADDRESS);
   
   return allowance;
 }
@@ -1590,6 +1670,45 @@ export async function getAllowanceUsdtV2(
 
       // Obtém o allowance
       const allowance : bigint = await mint.allowance(address, DONATION_V2_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+export async function getAllowanceUsdtV3(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+        btc24hV2Abi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, DONATION_V3_ADDRESS);
 
       // Retorna o valor caso a chamada tenha sucesso
       if (allowance !== undefined) {
@@ -2271,8 +2390,8 @@ export async function fetchReferrals(userAddress:String) {
     const signer = await provider.getSigner();
 
     const queue = new ethers.Contract(
-      USER_V2_ADDRESS || "",
-      userV2Abi,
+      USERV3_ADDRESS || "",
+      userv3abi,
       signer
     );
 
@@ -2285,7 +2404,7 @@ export async function getTotalEarnedPerLevel(owner:string){
   const provider = await getProvider();
 
   const user = new ethers.Contract(
-    USER_V2_ADDRESS ? USER_V2_ADDRESS : "",
+    USERV3_ADDRESS ? USERV3_ADDRESS : "",
     userV2Abi,
     provider
   );
@@ -2302,11 +2421,11 @@ export async function getTransactionsReceived(owner:string){
     );
 
     const contract = new ethers.Contract(
-        "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-        usdtAbi,
+        "0xbcde600B00232E49DCf9E5c89c588269999ac97a",
+        btc24hV2Abi,
         provider
     );
-    const from = "0x23320104C550CFBeaC6788af96ea2b29Fe1a509e"
+    const from = "0xbcde600B00232E49DCf9E5c89c588269999ac97a"
     const to = owner
     const filter = contract.filters.Transfer(from,to);
 
@@ -2314,7 +2433,7 @@ export async function getTransactionsReceived(owner:string){
 
     const result = events.map(event => ({
       transactionHash: event.transactionHash,
-      value: ethers.formatUnits(event.data, 6) 
+      value: ethers.formatUnits(event.data, 18) 
   }));
 
     return result;
@@ -2329,8 +2448,8 @@ export async function getTreeUsers(address:string){
   const provider = await getProvider();
 
 const userContract = new ethers.Contract(
-  USER_V2_ADDRESS ? USER_V2_ADDRESS : "",
-  userV2Abi,
+  USERV3_ADDRESS ? USERV3_ADDRESS : "",
+  userv3abi,
   provider
 );
 
@@ -2353,13 +2472,13 @@ export async function getAllowanceUsdtGas(
 
       // Conecta ao contrato
       const usdtContract = new ethers.Contract(
-        USDT_ADDRESS ? USDT_ADDRESS : "",
-        usdtAbi,
+        BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+        btc24hV2Abi,
         provider
       );
 
       // Obtém o allowance
-      const allowance : bigint = await usdtContract.allowance(address, USER_V2_ADDRESS);
+      const allowance : bigint = await usdtContract.allowance(address, USERV3_ADDRESS);
 
       // Retorna o valor caso a chamada tenha sucesso
       if (allowance !== undefined) {
@@ -2377,52 +2496,76 @@ export async function getAllowanceUsdtGas(
   // Lança um erro caso todas as tentativas falhem
   throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
 }
-
-export async function increaseGas(amount:number){
-  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+export async function increaseGas(amount: number) {
   const provider = await getProvider();
   const signer = await provider.getSigner();
 
-const userContract = new ethers.Contract(
-  USER_V2_ADDRESS ? USER_V2_ADDRESS : "",
-  userV2Abi,
-  signer
-);
-try {
-  // Envia a transação
-  const tx = await userContract.increaseGas(ethers.parseUnits(String(amount),6))
+  if (!USERV3_ADDRESS) {
+    throw new Error("USERV3_ADDRESS não está definido");
+  }
 
-  let concluded;
+  const userContract = new ethers.Contract(USERV3_ADDRESS, userv3abi, signer);
 
-  // Tenta esperar a transação
   try {
-    concluded = await tx.wait();
-  } catch (waitError) {
+    console.log(`Convertendo amount (${amount}) para 18 casas decimais...`);
+    
+    // Converte amount para 18 casas decimais
+    const formattedAmount = ethers.parseUnits(amount.toString(), 18);
 
-    // Caso `tx.wait()` falhe, tenta obter o recibo manualmente
-    concluded = await provider.getTransactionReceipt(tx.hash);
+    console.log(`Enviando transação para aumentar o gás: ${formattedAmount.toString()} wei`);
+
+    // Envia a transação com o valor formatado
+    console.log(formattedAmount)
+    const tx = await userContract.increaseGas(formattedAmount);
+
+    console.log(`Transação enviada: ${tx.hash}`);
+
+    // Espera a transação ser confirmada
+    const receipt = await tx.wait().catch(async () => {
+      return await provider.getTransactionReceipt(tx.hash);
+    });
+
+    if (receipt && receipt.status === 1) {
+      console.log("Transação confirmada:", receipt.transactionHash);
+      return receipt;
+    } else {
+      throw new Error("Falha na transação ou não confirmada.");
+    }
+
+  } catch (error) {
+    console.error("Erro ao aumentar gás:", error);
+    throw error;
   }
-
-  if (concluded && concluded.status === 1) {
-    return concluded;
-  } else {
-    throw new Error("Transação failed or not confirmed.");
-  }
-
-} catch (error) {
-  throw error; // Lança erro para ser tratado no frontend
 }
 
-
-}
-
-export async function approveUSDTUser(value: Number) {
+export async function approveUSDTUser(value: BigInt) {
   const provider = await getProvider()
   const signer = await provider.getSigner();
 
   const mint = new ethers.Contract(
-    USDT_ADDRESS ? USDT_ADDRESS : "",
-    usdtAbi,
+    BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
+    btc24hV2Abi,
+    signer
+  );
+  console.log("chamou")
+
+
+
+
+
+  const tx = await mint.approve(USERV3_ADDRESS, value);
+  await tx.wait();
+
+  return tx;
+}
+
+export async function transferGas(){
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    USERV3_ADDRESS ? USERV3_ADDRESS : "",
+    userv3abi,
     signer
   );
 
@@ -2435,7 +2578,7 @@ export async function approveUSDTUser(value: Number) {
 
 
 
-  const tx = await mint.approve(USER_V2_ADDRESS, value,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+  const tx = await mint.migrateGas();
   await tx.wait();
 
   return tx;

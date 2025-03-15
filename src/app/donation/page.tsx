@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-
-import { donate,getContributions, getDonationAllowance,getUser,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2} from "@/services/Web3Services";
+import { formatUnits } from "ethers";
+import { donate,getContributions, getDonationAllowance,getUser, claimOld,getAllowanceUsdtV3,getBtc24hBalance,getBitcoin24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2} from "@/services/Web3Services";
 import { useRef, useState } from "react";
 import withAuthGuard from "@/services/authGuard";
 import Footer from "@/componentes/footer";
@@ -20,13 +20,8 @@ interface Contribution {
   index: number;
   amount: number;
   goal: number;
-  startTime: number;
-  endTime: number;
-  days: number;
-  timestamps: number[];
-  claims: number[];
-  priceClaim: number[];
-
+  claim: number;
+  maxClaim: number;
 }
 
 
@@ -37,8 +32,8 @@ function Donation() {
 
   const [dayContribute, setDayContribute] = useState(0);
   const [allowanceUsdtV2, setAllowanceUsdtV2] = useState<bigint>(0n);
-  const [allowance, setAllowance] = useState<bigint>(0n);
-  const [balance, setBalance] = useState<bigint>(0n);
+  const [allowance, setAllowance] = useState<number>(0);
+  const [balance, setBalance] = useState<number>(0);
   const [timeUntil, setTimeUntil] = useState("00h:00min:00s");
   const [timeUntilNumber, setTimeUntilNumber] = useState<Number>(0)
   const [balanceToClaim, setBalanceToClaim] = useState<bigint>(0n);
@@ -108,37 +103,31 @@ function Donation() {
   
     fetchTimeLeft();
   }, [walletAddress, contributionIndex, contributions]);
+
   const fetchContributions = async (owner: string) => {
-    try {
-      const response = await getContributions(owner);
-  
-      if (response.success === false) {
-        throw new Error(response.errorMessage);
-      }
-  
-      if (Array.isArray(response)) {
-        const formattedContributions = response.map((item: any[]) => ({
-          index: Number(item[0]),
-          amount: Number(item[1]),
-          goal: Number(item[2]),
-          startTime: Number(item[3]),
-          endTime: Number(item[4]),
-          days: Number(item[5]),
-          timestamps: (item[6]),
-          claims: (item[7]),
-          priceClaim: (item[8]),
+  try {
+    const response = await getContributions(owner);
 
-        }));
-  
-        setContributions(formattedContributions);
-
-        
-      } else {
-      }
-    } catch (err: any) {
-      setError(err.message || "Erro desconhecido");
+    if (response.success === false) {
+      throw new Error(response.errorMessage);
     }
-  };
+
+    if (Array.isArray(response)) {
+      const formattedContributions = response.map((item: any[]) => ({
+        index: Number(item[0]), // Índice pode ser convertido normalmente
+        amount: Number(item[1]), // Corrigindo erro para valores grandes
+        goal: Number(item[2]), // Se for um valor financeiro, usar BigInt
+        claim: Number(item[3]), // Se for um timestamp, Number funciona
+        maxClaim: Number(item[4]), // Número de dias pode ser convertido diretamente
+      }));
+
+      setContributions(formattedContributions);
+    }
+  } catch (err: any) {
+    setError(err.message || "Erro desconhecido");
+  }
+};
+
   
 
   useEffect(() => {
@@ -158,6 +147,46 @@ function Donation() {
         return;
       }
       await claim(contributions[contributionIndex].index);      
+      if(isEnglish){
+        setAlert("Claim made successfully!");
+      }else{
+        setAlert("¡Reclamación realizada con éxito!");
+      }
+      
+      setLoading(false);
+      const len = contributions.length;
+      if(walletAddress) {
+        await fetchContributions(walletAddress);
+      }
+
+      if(contributions.length < len){
+        setContributionIndex(0)
+      }
+      await fetchData(); 
+    } catch (error:any) {
+      setLoading(false);
+      if(error.reason === "AS"){
+        if(isEnglish){
+          error.reason = "There is no balance available to claim."
+        }else{
+          error.reason = "No hay saldo disponible para reclamar."
+        }
+        
+      }
+      setError(error.reason || "Error: An unknown error");
+    }
+  };
+
+
+  const handleClaimOld = async () => {
+    await requireRegistration(()=>{}); 
+    try {
+      setLoading(true);
+      if (!walletAddress) {
+        setError("Wallet address not found. Connect your wallet.");
+        return;
+      }
+      await claimOld();      
       if(isEnglish){
         setAlert("Claim made successfully!");
       }else{
@@ -232,7 +261,7 @@ function Donation() {
     }, 1000);
   };
 
-/* 
+
   const handleModalToggle = async () => {
     setSteps(0);
     if (isModalOpen) {
@@ -247,7 +276,6 @@ function Donation() {
       setTimeout(() => setShow(true), 10); 
     }
   };
-*/
   
   const handleClose = () => {
     setShow(false);
@@ -259,19 +287,23 @@ function Donation() {
       try {
         let allowanceValue;
         let allowanceValueV2;
+        let allowanceValueV3;
         let balanceValue;
         if(donateWithUsdt){
           allowanceValue = await getDonationAllowanceUsdt(walletAddress);
           allowanceValueV2 = await getAllowanceUsdtV2(walletAddress)
+          allowanceValueV3 = await getAllowanceUsdtV3(walletAddress)
           setAllowanceUsdtV2(allowanceValueV2)
-          balanceValue = await getUsdtBalance(walletAddress);
+          balanceValue = await getBitcoin24hBalance(walletAddress);
         }else{
           allowanceValue = await getDonationAllowance(walletAddress);
           balanceValue = await getBtc24hBalance(walletAddress);
         }
-        setAllowance(allowanceValue);
+        setAllowance(Number(allowanceValue) / Number(10**18));
 
-        setBalance(balanceValue);
+        setBalance(Number(balanceValue) / Number(10**18));
+        
+
   
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
         setTimeUntil(formatTime(timeLeft));
@@ -351,10 +383,11 @@ function Donation() {
       }
 
       
-      if(ethers.parseUnits(donationAmount,donateWithUsdt?6:18)> balance){
-        setError("Donation amount is greather than your balance.");
-        return
+      if (ethers.parseUnits(donationAmount.toString(), 18) > ethers.parseUnits(balance.toString(), 18)) {
+        setError("Donation amount is greater than your balance.");
+        return;
       }
+      
 
       
       try {
@@ -370,7 +403,7 @@ function Donation() {
         await fetchData();
         getDays()
         getDays();
-        /*handleModalToggle();*/
+        handleModalToggle();
       } catch (error : any) {
         
         setIsProcessing(false);
@@ -397,12 +430,10 @@ function Donation() {
     setDonationAmount(value);
   
     if (value && parseFloat(value) > 0) {
-      const allowanceValue = isV2
-        ? await getAllowanceUsdtV2(walletAddress!)
-        : await getDonationAllowanceUsdt(walletAddress!);
+      const allowanceValue =  await getDonationAllowanceUsdt(walletAddress!);
   
       // Verifica se o allowance é suficiente
-      if (allowanceValue >= BigInt(ethers.parseUnits(value, donateWithUsdt ? 6 : 18))) {
+      if (allowanceValue >= ethers.parseUnits(value)) {
         setSteps(2); // Avança direto para Step 2
       } else {
         setSteps(1); // Fica no Step 1 para pedir aprovação
@@ -410,39 +441,29 @@ function Donation() {
     } else {
       setSteps(1); // Valor inválido volta para Step 1
     }
+    
   };
   
   const handleApprove = async () => {
-    if (!donationAmount || parseFloat(donationAmount) <= 0) {
-      if(isEnglish){
-        setError("Please enter a valid donation amount.");
-      }else{
-        setError("Ingrese un monto de donación válido.");
-      }
-      
+    if (!donationAmount || ethers.parseUnits(donationAmount, 18) <= 0n) {
+      setError(isEnglish ? "Please enter a valid donation amount." : "Ingrese un monto de donación válido.");
       return;
     }
   
     try {
       setIsProcessing(true);
+      await approveUsdtDonation(ethers.parseUnits(donationAmount, 18).toString());
 
-
-          await approveUsdtDonation(donationAmount);
-      
   
       setSteps(2); // Após aprovação, avança para Step 2
     } catch (error) {
-      if(isEnglish){
-        setError("Error when performing approve. Please try again.");
-      }else{
-        setError("Error al realizar la aprobación. Inténtalo nuevamente.");
-      }
-      
+      setError(isEnglish ? "Error when performing approve. Please try again." : "Error al realizar la aprobación. Inténtalo nuevamente.");
     } finally {
       setIsProcessing(false);
-      await fetchData();
+      fetchData(); // Removi o `await`, a menos que `fetchData()` precise ser aguardado
     }
   };
+  
   
   const [isReloading, setIsReloading] = useState(false);
   async function reloadDonation() {
@@ -501,8 +522,8 @@ async function clearAlert(){
             </p>
         </div>
           <div
-            className="bg-gray-500 cursor-not-allowed z-10  hover:scale-105 transition-all duration-300 relative top-4 md:top-0  rounded-[30px] sm:w-3/5 ml-4  w-[200px] py-4 mt-6 mb-[20px] font-semibold text-2xl text-center sm:m-0 flex items-center justify-center"
-           /*  onClick={handleModalToggle} */
+            className="bg-[#00ff54] cursor-pointer z-10  hover:scale-105 transition-all duration-300 relative top-4 md:top-0  rounded-[30px] sm:w-3/5 ml-4  w-[200px] py-4 mt-6 mb-[20px] font-semibold text-2xl text-center sm:m-0 flex items-center justify-center"
+            onClick={handleModalToggle} 
           >
             <span className="w-full h-full flex items-center justify-center">
               New<br className="sm:hidden" /> Donation
@@ -510,7 +531,11 @@ async function clearAlert(){
           </div>
         </div>
        
-        
+        <div className="p-6 rounded-xl bg-blue-400 flex text-center justify-center flex-col">
+          <p>If you have old claim</p>
+          <p><button onClick={claimOld} className="p-2 rounded-xl bg-green-600">Do Old Claim</button></p>
+        </div>
+
         <div className="flex flex-col lg:flex-row :justify-between lg:items-center mt-4 sm:pb-10">
   {/* Primeiro Card */}
   
@@ -546,19 +571,13 @@ async function clearAlert(){
         <p className="text-lg sm:text-xl lg:text-2xl">{isEnglish? "Donated:" : "Donado:"}</p>
         <p className="text-md sm:text-lg lg:text-xl">
           <span className="text-[#ffea00c9]">
-            U$ {contributions[contributionIndex]?.amount ? contributions[contributionIndex].amount / 1000000 : 0}
-          </span>
-        </p>
-        <p className="text-lg sm:text-xl lg:text-2xl">USDT {isEnglish? "Estimated:" : "Estimado:"}</p>
-        <p className="text-md sm:text-lg lg:text-xl">
-          <span className="text-[#ffea00c9]">
-            U$ {contributions[contributionIndex]?.goal ? contributions[contributionIndex].goal / 1000000 : 0}
+             {contributions[contributionIndex]?.amount ? contributions[contributionIndex].amount / 1000000000000000000 : 0} Bitcoin24h
           </span>
         </p>
         <p className="text-md sm:text-lg lg:text-xl">
           {isEnglish? "Claims" : "Reclamos"}{" "}
           <span className="text-[#ffea00c9]">
-            {contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30
+            {contributions[contributionIndex]?.claim ? contributions[contributionIndex]?.claim : 0} / {contributions[contributionIndex]?.maxClaim ? contributions[contributionIndex]?.maxClaim : 0}
           </span>
         </p>
       </div>
@@ -566,8 +585,8 @@ async function clearAlert(){
     <div className="flex mt-4 w-full text-sm sm:text-lg justify-center">
     {timeUntilNumber === 0 && contributions.length > 0?(
        <button
-       /*onClick={() => handleClaim()}*/
-       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300"
+       onClick={() => handleClaim()}
+       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-green-500 hover:scale-105 transition-all duration-300"
      >
        {isEnglish? "Claim" : "Reclamo"}
      </button>
@@ -609,7 +628,7 @@ async function clearAlert(){
       {isEnglish? "Start contributing to claim your rewards and track your progress here." : "Comience a contribuir para reclamar sus recompensas y seguir su progreso aquí."}
     </p>
     <button
-      /*onClick={handleModalToggle}*/
+      onClick={handleModalToggle}
       className="mt-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white bg-[#1b9437] hover:bg-[#1b9437c0] rounded-lg shadow-md transition-all duration-300"
     >
       {isEnglish? "Start Contributing" : "Comience a contribuir"}
@@ -685,22 +704,22 @@ async function clearAlert(){
                     }}
                     className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:border-2 border-[#1b9437]"
                   >
-                    USDT
+                    Bitcoin24h
                   </button>
                 </div>
               )}
               {steps > 0?(
                 <>
                 <p className="text-lg text-gray-800 mb-4">
-                    Balance: {Number(ethers.formatUnits(balance, 6)).toFixed(2)}{" "}
-                    USDT
+                    Balance: {Number(balance).toFixed(2)}{" "}
+                    Bitcoin24h
                   </p>
                   <p className="text-lg text-gray-800 mb-4">
-                    {isEnglish? "Allowance:" : "Aprobación"} {ethers.formatUnits(allowance, 6)} USDT
+                    {isEnglish? "Allowance:" : "Aprobación"} {allowance} Bitcoin24h
                   </p>
                   <p className="text-lg text-gray-800 mb-4">{isEnglish? "Approve tokens":"Aprobar tokens"}</p>
                   <p className="text-green-600 mb-4">
-                    {isEnglish? "The minimum to contribute is $10" : "El mínimo para contribuir es $10"}
+                    {isEnglish? "The minimum to contribute is 10 Bitcoin24h" : "El mínimo para contribuir es 10 Bitcoin24h"}
                   </p>
                   
                        <input
@@ -715,7 +734,7 @@ async function clearAlert(){
                 ""
               )}
                   
-              {steps === 1 && (
+              {steps === 1 &&(
                 <div>
                   
                   {isProcessing && (
@@ -728,7 +747,7 @@ async function clearAlert(){
                   >
                     {isProcessing
                       ? "Processing..."
-                      : `Approve ${donationAmount || ""} USDT`}
+                      : `Approve ${donationAmount || ""} Bitcoin24h`}
                   </button>
                 </div>
               )}
@@ -745,7 +764,7 @@ async function clearAlert(){
                   >
                     {isProcessing
                       ? "Processing..."
-                      : `Donate ${donationAmount} USDT`}
+                      : `Donate ${donationAmount} Bitcoin24h`}
                   </button>
                 </div>
               )}

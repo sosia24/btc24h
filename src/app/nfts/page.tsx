@@ -33,6 +33,7 @@ import {
     getAllowanceUsdtGas,
     increaseGas,
     approveUSDTUser,
+    transferGas,
 }from "@/services/Web3Services";
 
 function Page1(){
@@ -100,7 +101,6 @@ function Page1(){
       try{
           if(address){
                   const result = await getAllowanceUsdtGas(address);
-
                   
                   setAllowanceUsdtGas(result); 
               }
@@ -289,29 +289,37 @@ async function buyNftWbtcFront() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-async function doApproveUsdtUser(value: Number){
-  setLoading(true);
-  try{
-      const result = await approveUSDTUser(value);
-      if(result){
-          getAllowanceUsdtFrontGas();
-          setLoading(false)
-      }
-  }catch(error){
-      setLoading(false)
+async function transfer(){
+  const amount = gas;
+  if(address){
+    const result = await transferGas()
+    if(result){
+      setAlert("Success")
+    }else{
+      setError("Failed, try again")
+    }
   }
 }
+
+
+
+async function doApproveUsdtUser(value: number) {
+  setLoading(true);
+  try {
+    // Converte o value para 18 casas decimais antes de chamar a função
+    const formattedValue = ethers.parseUnits(value.toString(), 18);
+
+    const result = await approveUSDTUser(formattedValue);
+    if (result) {
+      getAllowanceUsdtFrontGas();
+    }
+  } catch (error) {
+    console.error("Erro ao aprovar USDT:", error);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
 
 
@@ -1062,7 +1070,7 @@ async function doApproveUsdtUser(value: Number){
   <p className="text-gray-600 text-center mb-4">
     Your Gas Available:{" "}
     <span className="text--blue-600 font-semibold">
-      {ethers.formatUnits(String(gas), 6)} USDT
+      {ethers.formatUnits(String(gas), 18)} Bitcoin24h
     </span>
   </p>
   <input
@@ -1072,7 +1080,7 @@ async function doApproveUsdtUser(value: Number){
     value={gasAmount}
     onChange={(e) => setGasAmount(Number(e.target.value))}
   />
-  {allowanceUsdtGas >= BigInt(gasAmount * 1000000) ? (
+{allowanceUsdtGas >= ethers.parseUnits(gasAmount.toString(), 18) ? (
     <button
       onClick={async () => {
         await buyGas(gasAmount);
@@ -1084,14 +1092,16 @@ async function doApproveUsdtUser(value: Number){
   ) : (
     <button
       onClick={async () => {
-        await doApproveUsdtUser(gasAmount * 1000000);
+        await doApproveUsdtUser(gasAmount);
       }}
       className="w-full mt-6 py-3 bg-blue-600 text-white rounded-lg font-semibold text--blue-700 transition-all duration-300"
     >
                 Approve
     </button>
   )}
-
+    <button onClick={async () => {await transfer()}} className="w-full mt-6 py-3 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-900 transition-all duration-300">
+      Transfer Old Gas
+    </button>
     </div>
     </div>
 
