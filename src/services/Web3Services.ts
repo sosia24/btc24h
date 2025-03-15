@@ -2425,7 +2425,7 @@ export async function getTransactionsReceived(owner:string){
         btc24hV2Abi,
         provider
     );
-    const from = "0xbcde600B00232E49DCf9E5c89c588269999ac97a"
+    const from = "0x45056E1D0386775F48026977b68Fb52281f8Ff1c"
     const to = owner
     const filter = contract.filters.Transfer(from,to);
 

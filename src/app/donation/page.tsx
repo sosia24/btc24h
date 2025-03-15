@@ -533,7 +533,7 @@ async function clearAlert(){
        
         <div className="p-6 rounded-xl bg-blue-400 flex text-center justify-center flex-col">
           <p>If you have old claim</p>
-          <p><button onClick={claimOld} className="p-2 rounded-xl bg-green-600">Do Old Claim</button></p>
+          <p><button onClick={claimOld} className="p-2 rounded-xl bg-green-600">Claim V2</button></p>
         </div>
 
         <div className="flex flex-col lg:flex-row :justify-between lg:items-center mt-4 sm:pb-10">
