@@ -288,7 +288,7 @@ function Page1() {
               </div>
             </div>
             <div className="text-[#ccc] text-lg font-medium">
-              <p>{`${parseFloat(tx.value).toFixed(2)} USDT`}</p>
+              <p>{`${parseFloat(tx.value).toFixed(2)} Bitcoin24h`}</p>
             </div>
           </div>
         </Link>
@@ -308,7 +308,7 @@ function Page1() {
       <p>
         {ethers.formatUnits(
           totalEarnedPerLevel.reduce((acc, value) => acc + value, 0n),
-          6
+          18
         )}{" "}
         Bitcoin24h
       </p>
