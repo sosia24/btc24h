@@ -63,7 +63,18 @@ export default function RootLayout({
                 
             <div className="w-full h-full flex items-center flex-col pb-[160px]">
               
+            <div className="w-[80%] rounded-3xl bg-white text-black mt-[100px] p-6 text-[20px]">
+            <span className="font-bold">📢 Important Update on BTC24H 🚀</span><br></br><br></br>
 
+            Dear users,<br></br><br></br>
+
+            We want to inform you that we are working hard on the BTC24H platform. We are currently finalizing the last details and fine-tuning the Frontend to ensure the best experience for all of you.<br></br><br></br>
+
+            We appreciate your patience and trust during this process. More updates coming soon—stay tuned!<br></br><br></br>
+
+            Best regards.<br></br><br></br>
+            <span className="font-bold">BTC24H TEAM</span><br></br><br></br>
+            </div>
 
 
               {children}
